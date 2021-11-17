@@ -1,11 +1,11 @@
 name: isolate_contactor
 description: An easy way to create a new isolate and comunicate with it and support sending values between main and child isolate multiple times.
-version: 0.0.1+1
+version: 0.0.1+2
 homepage: https://github.com/fatasin/isolate_contactor
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=2.5.0"
+  flutter: ">=1.12.0"
 
 dependencies:
   flutter:
