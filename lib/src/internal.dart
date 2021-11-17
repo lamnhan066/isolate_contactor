@@ -9,11 +9,13 @@ class _IsolateContactor {
   Capability? _pauseCapability;
   final StreamController _mainStreamController = StreamController.broadcast();
   StreamSubscription<dynamic>? _mainStream;
-  Stream get onMessage => _mainStreamController.stream;
-  bool get isComputing => _isComputing;
-  dynamic Function(dynamic)? function;
+  final StreamController _computeStreamController =
+      StreamController.broadcast();
+  dynamic Function(dynamic)? _function;
 
-  _IsolateContactor._create({this.function, bool debugMode = true}) {
+  _IsolateContactor._create(
+      {dynamic Function(dynamic)? function, bool debugMode = true}) {
+    _function = function;
     _debugMode = debugMode;
   }
 
@@ -38,18 +40,28 @@ class _IsolateContactor {
 
         _mainStreamController.add(message);
         _isComputing = false;
+        _computeStreamController.add(ComputeState.computed);
       }
     });
 
     _isolate =
-        await Isolate.spawn(_childFunction, [_receivePort.sendPort, function]);
+        await Isolate.spawn(_childFunction, [_receivePort.sendPort, _function]);
 
     _printDebug('Initialized');
   }
 
+  /// Get current message as stream
+  Stream get onMessage => _mainStreamController.stream;
+
+  /// Get current state
+  Stream get onComputeState => _computeStreamController.stream;
+
+  /// Is current isolate computing
+  bool get isComputing => _isComputing;
+
   /// Add function to current [IsolateContactor]
   Future<void> addFunction(dynamic Function(dynamic) function) async {
-    this.function = function;
+    _function = function;
     await restart();
   }
 
@@ -79,12 +91,13 @@ class _IsolateContactor {
     if (_isolate != null) {
       _isolate!.kill(priority: Isolate.immediate);
       _isolate = await Isolate.spawn(
-          _childFunction, [_receivePort.sendPort, function]);
+          _childFunction, [_receivePort.sendPort, _function]);
       _printDebug('Restarted');
     } else {
       _printDebug('Restart Error');
     }
     _isComputing = false;
+    _computeStreamController.add(ComputeState.computed);
   }
 
   /// Dispose current [Isolate]
@@ -94,6 +107,7 @@ class _IsolateContactor {
     _isolate?.kill(priority: Isolate.immediate);
     _isolate = null;
     _isComputing = false;
+    _computeStreamController.add(ComputeState.computed);
     _printDebug('Disposed');
   }
 
@@ -108,7 +122,7 @@ class _IsolateContactor {
     });
   }
 
-  /// Send message to child isolate [function]
+  /// Send message to child isolate [_function]
   void sendMessage(dynamic message) {
     if (_isolate == null) {
       _printDebug('! This isolate has been terminated');
@@ -122,6 +136,7 @@ class _IsolateContactor {
 
     _printDebug('Message send to isolate: $message');
     _isComputing = true;
+    _computeStreamController.add(ComputeState.computing);
     _isolateChannel.sendChild(message);
   }
 

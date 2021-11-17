@@ -9,12 +9,51 @@ class IsolateContactor {
 
   /// Create instance for the plugin
   ///
-  /// [function] must be static or top-level function
-  /// [debugMode] use for printing the status of the plugin
+  /// [function] must be static or top-level function.
+  /// [debugMode] use for printing the status of the plugin. Default is true in Debug and Profile modes.
   ///
   /// Example:
   /// ``` dart
+  /// void main() {
+  ///     bool value1Exit = false;
+  ///     bool value2Exit = false;
   ///
+  ///     IsolateContactor isolateContactor1 =
+  ///         await IsolateContactor.create(fibonacci);
+  ///     IsolateContactor isolateContactor2 =
+  ///         await IsolateContactor.create(fibonacci);
+  ///
+  ///     // Listen to f10
+  ///     isolateContactor1.onMessage.listen((event) {
+  ///       expect(event, 55);
+  ///
+  ///       value1Exit = true;
+  ///     });
+  ///
+  ///     // Listen to f20
+  ///     isolateContactor2.onMessage.listen((event) {
+  ///       expect(event, 6765);
+  ///
+  ///       value2Exit = true;
+  ///     });
+  ///
+  ///     isolateContactor1.sendMessage(10);
+  ///     isolateContactor2.sendMessage(20);
+  ///
+  ///     while (!value1Exit && !value2Exit) {
+  ///       await Future.delayed(const Duration(milliseconds: 10));
+  ///     }
+  ///
+  ///     isolateContactor1.dispose();
+  ///     isolateContactor2.dispose();
+  /// }
+  ///
+  /// dynamic fibonacci(dynamic n) {
+  ///   if (n == 0) return 0;
+  ///   if (n == 1 || n == 2) return 1;
+  ///
+  ///   return fibonacci(n - 2) + fibonacci(n - 1);
+  /// }
   /// ```
   static Future<IsolateContactor> create(
       [Function(dynamic)? function, bool debugMode = true]) async {
@@ -33,11 +72,14 @@ class IsolateContactor {
   void addFunction(dynamic Function(dynamic) function) =>
       _delegate.addFunction(function);
 
-  /// Send message to the [function] for computing
+  /// Send message to the [_function] for computing
   void sendMessage(dynamic message) => _delegate.sendMessage(message);
 
-  /// Listen to the result of the [function]
+  /// Listen to the result of the [_function]
   Stream get onMessage => _delegate.onMessage;
+
+  /// Listen to the current state
+  Stream get onComputeState => _delegate.onComputeState;
 
   /// Get current computing state of the isolate
   bool get isConputing => _delegate.isComputing;

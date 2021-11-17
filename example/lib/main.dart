@@ -7,11 +7,11 @@ void main() {
   runApp(const MyApp());
 }
 
-dynamic fibo(dynamic n) {
+dynamic fibonacci(dynamic n) {
   if (n == 0) return 0;
   if (n == 1 || n == 2) return 1;
 
-  return fibo(n - 1) + fibo(n - 2);
+  return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
 class MyApp extends StatefulWidget {
@@ -46,8 +46,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> initial() async {
-    isolateContactor1 = await IsolateContactor.create(fibo);
-    isolateContactor2 = await IsolateContactor.create(fibo);
+    isolateContactor1 = await IsolateContactor.create(fibonacci);
+    isolateContactor2 = await IsolateContactor.create(fibonacci);
     setState(() => isLoading = false);
   }
 
@@ -91,26 +91,24 @@ class _MyAppState extends State<MyApp> {
                               child: CircularProgressIndicator(),
                             );
                           }
-                          // setState(() => value1Computing = false);
 
                           return Text(
                               'Isolate1: Fibonacci at F$value1 = ${snapshot.data}');
                         },
                       ),
-                      ListTile(
-                        title: ElevatedButton(
-                          onPressed: () {
-                            Random rad = Random();
-                            value1 = rad.nextInt(60);
-                            print(
-                                'Isolate 1: Calculate fibonancci at F$value1');
-                            isolateContactor1.sendMessage(value1);
-                          },
-                          child: Text(value1Computing
-                              ? 'Computing F$value1..'
-                              : 'Calculate new Fibonacci'),
-                        ),
-                      ),
+                      StreamBuilder(
+                          stream: isolateContactor1.onComputeState,
+                          builder: (context, snapshot) {
+                            return ListTile(
+                              title: ElevatedButton(
+                                onPressed: () => calculateValue1(),
+                                child: Text(snapshot.data != null &&
+                                        snapshot.data == ComputeState.computing
+                                    ? 'Computing F$value1..'
+                                    : 'Calculate new Fibonacci'),
+                              ),
+                            );
+                          }),
                       ListTile(
                         title: ElevatedButton(
                           onPressed: () {
@@ -134,20 +132,19 @@ class _MyAppState extends State<MyApp> {
                               'Isolate2: Fibonacci at F$value2 = ${snapshot.data}');
                         },
                       ),
-                      ListTile(
-                        title: ElevatedButton(
-                          onPressed: () {
-                            Random rad = Random();
-                            value2 = rad.nextInt(60);
-                            print(
-                                'Isolate 2: Calculate fibonancci at F$value2');
-                            isolateContactor2.sendMessage(value2);
-                          },
-                          child: Text(value2Computing
-                              ? 'Computing F$value2..'
-                              : 'Calculate new Fibonacci'),
-                        ),
-                      ),
+                      StreamBuilder(
+                          stream: isolateContactor2.onComputeState,
+                          builder: (context, snapshot) {
+                            return ListTile(
+                              title: ElevatedButton(
+                                onPressed: () => calculateValue1(),
+                                child: Text(snapshot.data != null &&
+                                        snapshot.data == ComputeState.computing
+                                    ? 'Computing F$value2..'
+                                    : 'Calculate new Fibonacci'),
+                              ),
+                            );
+                          }),
                       ListTile(
                         title: ElevatedButton(
                           onPressed: () {
