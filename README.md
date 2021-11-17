@@ -1,8 +1,193 @@
 # Isolate Contactor
 
-Easy way to create a new isolate and comunicate between 2 isolates.
+An easy way to create a new isolate and comunicate with it and support sending values between main and child isolate multiple times.
 
-## Different
+This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data data until you terminate it. It'll  save a lot of starting time.
 
-Flutter has a function named `compute` help you esier to create a new isolate for a specific function (static or top-level), but you have no way to keep the child isolate keep running with 
+## How to use it
+There are multiple ways to use this package, the only thing to notice that the `function` have to be a `static` or `top-level` function to make it works.
 
+### Create IsolateContactor instance
+``` dart
+IsolateContactor isolateContactor = await IsolateContactor.create(fibonacci);
+```
+
+### Listen to the result of the isolate
+Like the above example, the result will be passed into `stream` listener, so you need to make sure that the `stream` has been called before sending message to the isolate for computing.
+``` dart
+isolateContactor.onMessage.listen((message) {
+  print('Result from isolate: $message');
+});
+```
+
+### Send data to isolate for computing
+``` dart
+isolateContactor.sendMessage(value);
+```
+
+# This is the very basic example of the package
+``` dart
+main() async {
+    // Just for waiting until the results have arrived
+    bool valueExit = false;
+
+    // Create IsolateContactor instance
+    IsolateContactor isolateContactor =
+        await IsolateContactor.create(fibonacci);
+
+    // Listen to the results
+    isolateContactor.onMessage.listen((event) {
+      print('isolate 1: $event');
+      expect(event, 55);
+
+      valueExit = true;
+    });
+
+    // Send 10 to fibonacci isolate function
+    isolateContactor.sendMessage(10);
+
+    // Only for waiting the result. Don't need to use in your real app
+    while (!valueExit) {
+      await Future.delayed(const Duration(milliseconds: 10));
+    }
+
+    // Dispose
+    isolateContactor.dispose();
+}
+
+dynamic fibonacci(dynamic n) {
+  if (n == 0) return 0;
+  if (n == 1 || n == 2) return 1;
+
+  return fibonacci(n - 2) + fibonacci(n - 1);
+}
+```
+
+# Easy build-in function
+I have implemented a build-in static function to make you easier to create an isolate as fast as possible.
+You just need to create a function of this form:
+``` dart
+dynamic function(dynamic param) {
+  // do something
+  return something; // <-- This result will be send back to your `onMessage` in main isolate.
+}
+```
+The `param` can be anything even a `List` of variable like this (but its type must be `dynamic`):
+``` dart
+dynamic subtract(dynamic n) => n[1] - n[0];
+```
+Add create the instance with `IsolateContactor.create(function)` or `IsolateContactor.create(subtract)`.
+
+This is an example test:
+``` dart
+void main() {
+  test('Create isolate with build-in function', () async {
+    bool value1Exit = false;
+    bool value2Exit = false;
+
+    IsolateContactor isolateContactor1 = await IsolateContactor.create(fibonacci);
+    IsolateContactor isolateContactor2 = await IsolateContactor.create(subtract);
+
+    // Listen to f10
+    isolateContactor1.onMessage.listen((event) {
+      print('isolate 1: $event');
+      expect(event, 55);
+
+      value1Exit = true;
+    });
+
+    // Listen to f20
+    isolateContactor2.onMessage.listen((event) {
+      print('isolate 3: $event');
+
+      expect(event, 10);
+
+      value2Exit = true;
+    });
+
+    // Send 10 to [fibonacci]
+    isolateContactor1.sendMessage(10);
+
+    // Send 10 and 20 to [subtract]
+    isolateContactor2.sendMessage([10, 20]);
+
+    while (!value1Exit && !value2Exit) {
+      await Future.delayed(const Duration(milliseconds: 10));
+    }
+
+    isolateContactor1.dispose();
+    isolateContactor2.dispose();
+  });
+}
+
+// single parameter
+dynamic fibonacci(dynamic n) {
+  if (n == 0) return 0;
+  if (n == 1 || n == 2) return 1;
+
+  return fibonacci(n - 2) + fibonacci(n - 1);
+}
+
+// multi parameters as an dynamic
+dynamic subtract(dynamic n) => n[1] - n[0];
+```
+
+# Create your own function
+This is also not too complicated to use, you're completely control your isolate function with this method.
+You just need to create a function of this form:
+``` dart
+void isolateFunction(List<dynamic> params) {
+  final channel = IsolateChannel.connectSend(params.last);
+  channel.stream.listen((rawMessage) {
+    final message = IsolateContactor.getMessage(rawMessage);
+    if (message != null) {
+      // Do your stuff here
+      final result = add(message[0], message[1]);
+
+      // This method will send the results to the main isolate. Listen through `onMessage`.
+      channel.sendResult(result);
+    }
+  });
+}
+```
+And use `IsolateContactor.createOwnIsolate(isolateFunction)` and the package will do anything else for you. Please remember that you need to create exactly the same form to make it works.
+This is the example:
+``` dart
+main() async {
+  IsolateContactor isolateContactor = await IsolateContactor.createOwnIsolate(isolateFunction);
+
+  // Listen to the results
+  isolateContactor.onMessage.listen((event) {
+    print('isolate 2: $event');
+
+    expect(event, 30);
+  });
+
+  // Send 10 and 20 to [isolateFunction]
+  isolateContactor.sendMessage([10, 20]);
+}
+
+// Create your own function here
+void isolateFunction(List<dynamic> params) {
+  final channel = IsolateChannel.connectSend(params.last);
+  channel.stream.listen((rawMessage) {
+    final message = IsolateContactor.getMessage(rawMessage);
+    if (message != null) {
+      // Do your stuff here
+      final result = add(message[0], message[1]);
+
+      // This method will send the results to the main isolate. Listen through `onMessage`.
+      channel.sendResult(result);
+    }
+  });
+}
+
+// multi parameters as an dynamic
+dynamic add(dynamic a, dynamic b) => a + b;
+```
+
+# Notice
+This package is still in the early stages of development.
+
+# Contributions
+If you encounter any problems or feel the library is missing a feature, please feel free to open an issue. Pull request are also welcome.
