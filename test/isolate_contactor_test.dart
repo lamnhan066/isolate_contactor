@@ -78,7 +78,7 @@ void main() {
         await IsolateContactor.createOwnIsolate(isolateFunction);
     // Listen to f20
     isolateContactor.onMessage.listen((event) {
-      print('isolate 2: $event');
+      print('isolate: $event');
 
       expect(event, 30);
 
