@@ -9,17 +9,25 @@ class _IsolateContactor {
   Capability? _pauseCapability;
   final StreamController _mainStreamController = StreamController.broadcast();
   StreamSubscription<dynamic>? _mainStream;
-
   Stream get onMessage => _mainStreamController.stream;
   bool get isComputing => _isComputing;
+  dynamic Function(dynamic)? function;
 
-  final Function(dynamic) f;
-
-  _IsolateContactor(this.f, {bool debugMode = true}) {
+  _IsolateContactor._create({this.function, bool debugMode = true}) {
     _debugMode = debugMode;
-    Completer().complete(_initial());
   }
 
+  /// Create an instance
+  static Future<_IsolateContactor> create(
+      {dynamic Function(dynamic)? function, bool debugMode = true}) async {
+    _IsolateContactor _isolateContactor =
+        _IsolateContactor._create(function: function, debugMode: debugMode);
+    await _isolateContactor._initial();
+
+    return _isolateContactor;
+  }
+
+  /// Initialize
   Future<void> _initial() async {
     _receivePort = ReceivePort();
     _isolateChannel = IsolateChannel.connectReceive(_receivePort);
@@ -33,9 +41,19 @@ class _IsolateContactor {
       }
     });
 
-    _isolate = await Isolate.spawn(_childFunction, [_receivePort.sendPort, f]);
+    _isolate =
+        await Isolate.spawn(_childFunction, [_receivePort.sendPort, function]);
+
+    _printDebug('Initialized');
   }
 
+  /// Add function to current [IsolateContactor]
+  Future<void> addFunction(dynamic Function(dynamic) function) async {
+    this.function = function;
+    await restart();
+  }
+
+  /// Pause current [Isolate]
   void pause() {
     if (_pauseCapability == null && _isolate != null) {
       _isolate!.pause(_pauseCapability);
@@ -45,6 +63,7 @@ class _IsolateContactor {
     }
   }
 
+  /// Resume current [Isolate]
   void resume() {
     if (_pauseCapability != null && _isolate != null) {
       _isolate!.resume(_pauseCapability!);
@@ -55,11 +74,12 @@ class _IsolateContactor {
     }
   }
 
+  /// Restart current [Isolate]
   Future<void> restart() async {
     if (_isolate != null) {
       _isolate!.kill(priority: Isolate.immediate);
-      _isolate =
-          await Isolate.spawn(_childFunction, [_receivePort.sendPort, f]);
+      _isolate = await Isolate.spawn(
+          _childFunction, [_receivePort.sendPort, function]);
       _printDebug('Restarted');
     } else {
       _printDebug('Restart Error');
@@ -67,10 +87,7 @@ class _IsolateContactor {
     _isComputing = false;
   }
 
-  void close() {
-    dispose();
-  }
-
+  /// Dispose current [Isolate]
   void dispose() {
     _mainStream?.cancel();
     _receivePort.close();
@@ -80,19 +97,18 @@ class _IsolateContactor {
     _printDebug('Disposed');
   }
 
+  /// Create a static function to compunicate with main [Isolate]
   static void _childFunction(List<dynamic> sendPort) {
     final channel = IsolateChannel.connectSend(sendPort[0]);
-
-    StreamSubscription<dynamic> _childStream;
-
     channel.stream.listen((event) {
       final message = _get(_IsolatePort.child, event);
       if (message != null) {
-        channel.sendMain(sendPort[1](message));
+        if (sendPort[1] != null) channel.sendMain(sendPort[1](message));
       }
     });
   }
 
+  /// Send message to child isolate [function]
   void sendMessage(dynamic message) {
     if (_isolate == null) {
       _printDebug('! This isolate has been terminated');
@@ -109,6 +125,7 @@ class _IsolateContactor {
     _isolateChannel.sendChild(message);
   }
 
+  /// Get data with port
   static dynamic _get(_IsolatePort toPort, dynamic rawMessage) {
     try {
       return rawMessage[toPort];
@@ -116,6 +133,7 @@ class _IsolateContactor {
     return null;
   }
 
+  /// Print if [debugMode] is true
   void _printDebug(Object? object) {
     // ignore: avoid_print
     if (_debugMode) print('[Isolate Contactor]: $object');

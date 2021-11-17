@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  isolate_contactor
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
