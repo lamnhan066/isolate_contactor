@@ -9,7 +9,7 @@ class _IsolateContactor {
   Capability? _pauseCapability;
   final StreamController _mainStreamController = StreamController.broadcast();
   StreamSubscription<dynamic>? _mainStream;
-  final StreamController _computeStreamController =
+  final StreamController<ComputeState> _computeStreamController =
       StreamController.broadcast();
   dynamic Function(dynamic)? _function;
 
@@ -54,7 +54,7 @@ class _IsolateContactor {
   Stream get onMessage => _mainStreamController.stream;
 
   /// Get current state
-  Stream get onComputeState => _computeStreamController.stream;
+  Stream<ComputeState> get onComputeState => _computeStreamController.stream;
 
   /// Is current isolate computing
   bool get isComputing => _isComputing;

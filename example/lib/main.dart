@@ -7,6 +7,7 @@ void main() {
   runApp(const MyApp());
 }
 
+/// This must be a static or top-level function
 dynamic fibonacci(dynamic n) {
   if (n == 0) return 0;
   if (n == 1 || n == 2) return 1;
@@ -22,14 +23,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool isLoading = true;
   late IsolateContactor isolateContactor1;
   late IsolateContactor isolateContactor2;
   int value1 = 2;
   int value2 = 3;
-  bool value1Computing = false;
-  bool value2Computing = false;
 
+  bool isLoading = true;
   Random rad = Random();
 
   @override
@@ -55,16 +54,12 @@ class _MyAppState extends State<MyApp> {
     value1 = rad.nextInt(max);
     print('Isolate 1: Calculate fibonancci at F$value1');
     isolateContactor1.sendMessage(value1);
-
-    setState(() => value1Computing = true);
   }
 
   void calculateValue2([int max = 50]) {
     value2 = rad.nextInt(max);
     print('Isolate 2: Calculate fibonancci at F$value2');
     isolateContactor2.sendMessage(value2);
-
-    setState(() => value2Computing = true);
   }
 
   @override
@@ -126,7 +121,6 @@ class _MyAppState extends State<MyApp> {
                               child: CircularProgressIndicator(),
                             );
                           }
-                          // setState(() => value2Computing = false);
 
                           return Text(
                               'Isolate2: Fibonacci at F$value2 = ${snapshot.data}');
@@ -137,7 +131,7 @@ class _MyAppState extends State<MyApp> {
                           builder: (context, snapshot) {
                             return ListTile(
                               title: ElevatedButton(
-                                onPressed: () => calculateValue1(),
+                                onPressed: () => calculateValue2(),
                                 child: Text(snapshot.data != null &&
                                         snapshot.data == ComputeState.computing
                                     ? 'Computing F$value2..'

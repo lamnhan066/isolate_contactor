@@ -79,7 +79,7 @@ class IsolateContactor {
   Stream get onMessage => _delegate.onMessage;
 
   /// Listen to the current state
-  Stream get onComputeState => _delegate.onComputeState;
+  Stream<ComputeState> get onComputeState => _delegate.onComputeState;
 
   /// Get current computing state of the isolate
   bool get isConputing => _delegate.isComputing;
