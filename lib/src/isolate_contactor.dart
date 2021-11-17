@@ -23,7 +23,7 @@ class IsolateContactor {
   /// }
   /// ```
   static Future<IsolateContactor> create([
-    Function(dynamic)? function,
+    void Function(dynamic)? function,
     bool debugMode = !kReleaseMode,
   ]) async {
     IsolateContactor _isolateContactor = IsolateContactor._();

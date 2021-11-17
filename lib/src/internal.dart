@@ -40,7 +40,7 @@ class _IsolateContactor {
 
   /// Create modified isolate function
   static Future<_IsolateContactor> createOwnIsolate(
-      {required dynamic Function(List<dynamic>) isolateFunction,
+      {required void Function(List<dynamic>) isolateFunction,
       required List<dynamic>? isolateParams,
       bool debugMode = kReleaseMode}) async {
     _IsolateContactor _isolateContactor = _IsolateContactor._(
