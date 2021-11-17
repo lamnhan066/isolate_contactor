@@ -11,19 +11,43 @@ class _IsolateContactor {
   StreamSubscription<dynamic>? _mainStream;
   final StreamController<ComputeState> _computeStreamController =
       StreamController.broadcast();
-  dynamic Function(dynamic)? _function;
 
-  _IsolateContactor._create(
-      {dynamic Function(dynamic)? function, bool debugMode = true}) {
-    _function = function;
+  late dynamic Function(List<dynamic>) _isolateFunction;
+  late List<dynamic> _isolateParam;
+
+  /// Create an instance
+  _IsolateContactor._(
+      {required dynamic Function(List<dynamic>) isolateFunction,
+      required List<dynamic> isolateParam,
+      bool debugMode = kReleaseMode}) {
     _debugMode = debugMode;
+    _isolateFunction = isolateFunction;
+    _isolateParam = isolateParam;
   }
 
   /// Create an instance
   static Future<_IsolateContactor> create(
-      {dynamic Function(dynamic)? function, bool debugMode = true}) async {
-    _IsolateContactor _isolateContactor =
-        _IsolateContactor._create(function: function, debugMode: debugMode);
+      {dynamic Function(List<dynamic>)? function,
+      bool debugMode = true}) async {
+    _IsolateContactor _isolateContactor = _IsolateContactor._(
+        isolateFunction: _internalIsolateFunction,
+        isolateParam: function == null ? [] : [function]);
+
+    await _isolateContactor._initial();
+
+    return _isolateContactor;
+  }
+
+  /// Create modified isolate function
+  static Future<_IsolateContactor> createOwnIsolate(
+      {required dynamic Function(List<dynamic>) isolateFunction,
+      required List<dynamic>? isolateParams,
+      bool debugMode = kReleaseMode}) async {
+    _IsolateContactor _isolateContactor = _IsolateContactor._(
+        isolateFunction: isolateFunction,
+        isolateParam: isolateParams ?? [],
+        debugMode: debugMode);
+
     await _isolateContactor._initial();
 
     return _isolateContactor;
@@ -33,8 +57,9 @@ class _IsolateContactor {
   Future<void> _initial() async {
     _receivePort = ReceivePort();
     _isolateChannel = IsolateChannel.connectReceive(_receivePort);
+    _isolateParam = [..._isolateParam, _receivePort.sendPort];
     _mainStream = _isolateChannel.stream.listen((event) {
-      final message = _get(_IsolatePort.main, event);
+      final message = getMessage(_IsolatePort.main, event);
       if (message != null) {
         _printDebug('Message received from isolate: $message');
 
@@ -44,8 +69,7 @@ class _IsolateContactor {
       }
     });
 
-    _isolate =
-        await Isolate.spawn(_childFunction, [_receivePort.sendPort, _function]);
+    _isolate = await Isolate.spawn(_isolateFunction, _isolateParam);
 
     _printDebug('Initialized');
   }
@@ -58,12 +82,6 @@ class _IsolateContactor {
 
   /// Is current isolate computing
   bool get isComputing => _isComputing;
-
-  /// Add function to current [IsolateContactor]
-  Future<void> addFunction(dynamic Function(dynamic) function) async {
-    _function = function;
-    await restart();
-  }
 
   /// Pause current [Isolate]
   void pause() {
@@ -90,8 +108,7 @@ class _IsolateContactor {
   Future<void> restart() async {
     if (_isolate != null) {
       _isolate!.kill(priority: Isolate.immediate);
-      _isolate = await Isolate.spawn(
-          _childFunction, [_receivePort.sendPort, _function]);
+      _isolate = await Isolate.spawn(_isolateFunction, _isolateParam);
       _printDebug('Restarted');
     } else {
       _printDebug('Restart Error');
@@ -112,17 +129,17 @@ class _IsolateContactor {
   }
 
   /// Create a static function to compunicate with main [Isolate]
-  static void _childFunction(List<dynamic> sendPort) {
-    final channel = IsolateChannel.connectSend(sendPort[0]);
+  static void _internalIsolateFunction(List<dynamic> params) {
+    final channel = IsolateChannel.connectSend(params.last);
     channel.stream.listen((event) {
-      final message = _get(_IsolatePort.child, event);
+      final message = getMessage(_IsolatePort.child, event);
       if (message != null) {
-        if (sendPort[1] != null) channel.sendMain(sendPort[1](message));
+        if (params[0] != null) channel.sendResult(params[0](message));
       }
     });
   }
 
-  /// Send message to child isolate [_function]
+  /// Send message to child isolate [function]
   void sendMessage(dynamic message) {
     if (_isolate == null) {
       _printDebug('! This isolate has been terminated');
@@ -137,11 +154,11 @@ class _IsolateContactor {
     _printDebug('Message send to isolate: $message');
     _isComputing = true;
     _computeStreamController.add(ComputeState.computing);
-    _isolateChannel.sendChild(message);
+    _isolateChannel.sendIsolate(message);
   }
 
   /// Get data with port
-  static dynamic _get(_IsolatePort toPort, dynamic rawMessage) {
+  static dynamic getMessage(_IsolatePort toPort, dynamic rawMessage) {
     try {
       return rawMessage[toPort];
     } catch (_) {}

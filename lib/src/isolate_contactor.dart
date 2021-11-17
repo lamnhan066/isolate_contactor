@@ -1,62 +1,31 @@
 part of isolate_contactor;
 
 class IsolateContactor {
-  /// Deledate
+  /// Delegate
   late _IsolateContactor _delegate;
 
   /// Create a temporary instance.
   IsolateContactor._();
 
-  /// Create instance for the plugin
+  /// The easy way to create isolate function
   ///
-  /// [function] must be static or top-level function.
-  /// [debugMode] use for printing the status of the plugin. Default is true in Debug and Profile modes.
+  /// - [function] must be static or top-level function.
+  /// - [debugMode] use for printing the status of the plugin,
+  /// default is true in Debug and Profile modes.
   ///
-  /// Example:
+  /// Example of [function]:
   /// ``` dart
-  /// void main() {
-  ///     bool value1Exit = false;
-  ///     bool value2Exit = false;
-  ///
-  ///     IsolateContactor isolateContactor1 =
-  ///         await IsolateContactor.create(fibonacci);
-  ///     IsolateContactor isolateContactor2 =
-  ///         await IsolateContactor.create(fibonacci);
-  ///
-  ///     // Listen to f10
-  ///     isolateContactor1.onMessage.listen((event) {
-  ///       expect(event, 55);
-  ///
-  ///       value1Exit = true;
-  ///     });
-  ///
-  ///     // Listen to f20
-  ///     isolateContactor2.onMessage.listen((event) {
-  ///       expect(event, 6765);
-  ///
-  ///       value2Exit = true;
-  ///     });
-  ///
-  ///     isolateContactor1.sendMessage(10);
-  ///     isolateContactor2.sendMessage(20);
-  ///
-  ///     while (!value1Exit && !value2Exit) {
-  ///       await Future.delayed(const Duration(milliseconds: 10));
-  ///     }
-  ///
-  ///     isolateContactor1.dispose();
-  ///     isolateContactor2.dispose();
-  /// }
-  ///
   /// dynamic fibonacci(dynamic n) {
   ///   if (n == 0) return 0;
   ///   if (n == 1 || n == 2) return 1;
   ///
-  ///   return fibonacci(n - 2) + fibonacci(n - 1);
+  ///   return fibonacci(n - 1) + fibonacci(n - 2);
   /// }
   /// ```
-  static Future<IsolateContactor> create(
-      [Function(dynamic)? function, bool debugMode = true]) async {
+  static Future<IsolateContactor> create([
+    Function(dynamic)? function,
+    bool debugMode = !kReleaseMode,
+  ]) async {
     IsolateContactor _isolateContactor = IsolateContactor._();
 
     _isolateContactor._delegate = await _IsolateContactor.create(
@@ -64,21 +33,49 @@ class IsolateContactor {
     return _isolateContactor;
   }
 
-  /// Add a static or top-level function to current isolate contactor.
+  /// Create an instance with your own isolate function
   ///
-  /// You can reuse current isolate contactor for a new function,
-  /// it will create new isolate for the new function without changing
-  /// current [IsolateContactor]
-  void addFunction(dynamic Function(dynamic) function) =>
-      _delegate.addFunction(function);
+  /// [isolateFunction] You can take a look at the example to see what you need to do
+  /// to make it works.
+  /// [isolateParams] is the list of parameters that you want to add to your [isolateFunction]
+  ///
+  /// This is form of the [isolateFunction]:
+  /// ``` dart
+  /// void isolateFunction(List<dynamic> params) {
+  ///   final channel = IsolateChannel.connectSend(params.last);
+  ///   channel.stream.listen((rawMessage) {
+  ///     final message = IsolateContactor.getMessage(rawMessage);
+  ///     if (message != null) {
+  ///       // Do more stuff here, [message] is dynamic so you can pass any
+  ///       // supported type
+  ///
+  ///       channel.sendResult(fibonacci(message));
+  ///     }
+  ///   });
+  /// }
+  /// ```
+  static Future<IsolateContactor> createOwnIsolate(
+    dynamic Function(List<dynamic>) isolateFunction, [
+    List<dynamic>? isolateParams,
+    bool debugMode = !kReleaseMode,
+  ]) async {
+    IsolateContactor _isolateContactor = IsolateContactor._();
 
-  /// Send message to the [_function] for computing
+    _isolateContactor._delegate = await _IsolateContactor.createOwnIsolate(
+      isolateFunction: isolateFunction,
+      isolateParams: isolateParams,
+    );
+    return _isolateContactor;
+  }
+
+  /// Send message to the [function] for computing
   void sendMessage(dynamic message) => _delegate.sendMessage(message);
 
-  /// Listen to the result of the [_function]
+  /// Listen to the result of the [function]
   Stream get onMessage => _delegate.onMessage;
 
-  /// Listen to the current state
+  /// Listen to the current state of isolate.
+  /// Includes [ComputeState.computed] and [ComputeState.computing]
   Stream<ComputeState> get onComputeState => _delegate.onComputeState;
 
   /// Get current computing state of the isolate
@@ -101,4 +98,8 @@ class IsolateContactor {
 
   /// Dispose current isolate
   void dispose() => _delegate.dispose();
+
+  /// Use in isolate function
+  static dynamic getMessage(dynamic rawMessage) =>
+      _IsolateContactor.getMessage(_IsolatePort.child, rawMessage);
 }

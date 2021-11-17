@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:isolate_contactor/isolate_contactor.dart';
+import 'package:stream_channel/isolate_channel.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,6 +14,18 @@ dynamic fibonacci(dynamic n) {
   if (n == 1 || n == 2) return 1;
 
   return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+void isolateFunction(List<dynamic> params) {
+  final channel = IsolateChannel.connectSend(params.last);
+  channel.stream.listen((rawMessage) {
+    final message = IsolateContactor.getMessage(rawMessage);
+    if (message != null) {
+      // Do more stuff here
+
+      channel.sendResult(fibonacci(message));
+    }
+  });
 }
 
 class MyApp extends StatefulWidget {
@@ -46,7 +59,8 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> initial() async {
     isolateContactor1 = await IsolateContactor.create(fibonacci);
-    isolateContactor2 = await IsolateContactor.create(fibonacci);
+    isolateContactor2 =
+        await IsolateContactor.createOwnIsolate(isolateFunction);
     setState(() => isLoading = false);
   }
 
@@ -86,7 +100,6 @@ class _MyAppState extends State<MyApp> {
                               child: CircularProgressIndicator(),
                             );
                           }
-
                           return Text(
                               'Isolate1: Fibonacci at F$value1 = ${snapshot.data}');
                         },
@@ -121,7 +134,6 @@ class _MyAppState extends State<MyApp> {
                               child: CircularProgressIndicator(),
                             );
                           }
-
                           return Text(
                               'Isolate2: Fibonacci at F$value2 = ${snapshot.data}');
                         },

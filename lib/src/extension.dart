@@ -1,11 +1,11 @@
 part of isolate_contactor;
 
 extension Send on IsolateChannel {
-  void sendChild(dynamic message) {
+  void sendIsolate(dynamic message) {
     sink.add(<_IsolatePort, dynamic>{_IsolatePort.child: message});
   }
 
-  void sendMain(dynamic message) {
+  void sendResult(dynamic message) {
     sink.add(<_IsolatePort, dynamic>{_IsolatePort.main: message});
   }
 
