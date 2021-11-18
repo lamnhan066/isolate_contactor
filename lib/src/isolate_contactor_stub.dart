@@ -1,49 +1,71 @@
-part of isolate_contactor;
+import 'dart:async';
+import 'dart:isolate';
 
-class _IsolateContactor {
+import 'package:flutter/foundation.dart';
+
+import 'utils.dart';
+import 'isolate_contactor_controller.dart';
+import 'isolate_contactor.dart';
+
+class IsolateContactorInternal implements IsolateContactor {
+  /// For debugging
   bool _debugMode = !kReleaseMode;
-  bool _isComputing = false;
+
+  /// Create receive port
   late ReceivePort _receivePort;
-  late IsolateChannel _isolateChannel;
+
+  /// Create isolate channel
+  late IsolateContactorController _isolateContactorController;
+
+  /// Create isolate
   Isolate? _isolate;
+
+  /// For pausing isolate
   Capability? _pauseCapability;
-  final StreamController _mainStreamController = StreamController.broadcast();
-  StreamSubscription<dynamic>? _mainStream;
+
+  /// For release current main listener
+  late StreamSubscription<dynamic> _isolateContactorSubscription;
+
+  /// Check for current computing state in bool
+  bool _isComputing = false;
+
+  /// Check for current computing state in enum with listener
   final StreamController<ComputeState> _computeStreamController =
       StreamController.broadcast();
 
-  late dynamic Function(List<dynamic>) _isolateFunction;
-  late List<dynamic> _isolateParam;
+  /// Control the function of isolate
+  late void Function(dynamic) _isolateFunction;
 
-  /// Create an instance
-  _IsolateContactor._(
-      {required dynamic Function(List<dynamic>) isolateFunction,
-      required List<dynamic> isolateParam,
+  /// Control the parameters of isolate
+  late dynamic _isolateParam;
+
+  /// Internal instance
+  IsolateContactorInternal._(
+      {required dynamic Function(dynamic) isolateFunction,
+      required dynamic isolateParam,
       bool debugMode = kReleaseMode}) {
     _debugMode = debugMode;
     _isolateFunction = isolateFunction;
     _isolateParam = isolateParam;
   }
 
-  /// Create an instance
-  static Future<_IsolateContactor> create(
-      {dynamic Function(List<dynamic>)? function,
-      bool debugMode = true}) async {
-    _IsolateContactor _isolateContactor = _IsolateContactor._(
-        isolateFunction: _internalIsolateFunction,
-        isolateParam: function == null ? [] : [function]);
+  /// Create an instance with build-in function
+  static Future<IsolateContactorInternal> create(
+      {dynamic Function(dynamic)? function, bool debugMode = true}) async {
+    IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
+        isolateFunction: internalIsolateFunction, isolateParam: function);
 
     await _isolateContactor._initial();
 
     return _isolateContactor;
   }
 
-  /// Create modified isolate function
-  static Future<_IsolateContactor> createOwnIsolate(
-      {required void Function(List<dynamic>) isolateFunction,
-      required List<dynamic>? isolateParams,
+  /// Create an instance with your own function
+  static Future<IsolateContactorInternal> createOwnIsolate(
+      {required void Function(dynamic) isolateFunction,
+      required dynamic isolateParams,
       bool debugMode = kReleaseMode}) async {
-    _IsolateContactor _isolateContactor = _IsolateContactor._(
+    IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
         isolateFunction: isolateFunction,
         isolateParam: isolateParams ?? [],
         debugMode: debugMode);
@@ -56,17 +78,13 @@ class _IsolateContactor {
   /// Initialize
   Future<void> _initial() async {
     _receivePort = ReceivePort();
-    _isolateChannel = IsolateChannel.connectReceive(_receivePort);
-    _isolateParam = [..._isolateParam, _receivePort.sendPort];
-    _mainStream = _isolateChannel.stream.listen((event) {
-      final message = getMessage(_IsolatePort.main, event);
-      if (message != null) {
-        _printDebug('Message received from isolate: $message');
-
-        _mainStreamController.add(message);
-        _isComputing = false;
-        _computeStreamController.add(ComputeState.computed);
-      }
+    _isolateContactorController = IsolateContactorController(_receivePort);
+    _isolateParam = [_isolateParam, _receivePort.sendPort];
+    _isolateContactorSubscription =
+        _isolateContactorController.onMessage.listen((message) {
+      _printDebug('Message received from isolate: $message');
+      _isComputing = false;
+      _computeStreamController.sink.add(ComputeState.computed);
     });
 
     _isolate = await Isolate.spawn(_isolateFunction, _isolateParam);
@@ -75,15 +93,19 @@ class _IsolateContactor {
   }
 
   /// Get current message as stream
-  Stream get onMessage => _mainStreamController.stream;
+  @override
+  Stream get onMessage => _isolateContactorController.onMessage;
 
   /// Get current state
+  @override
   Stream<ComputeState> get onComputeState => _computeStreamController.stream;
 
   /// Is current isolate computing
+  @override
   bool get isComputing => _isComputing;
 
   /// Pause current [Isolate]
+  @override
   void pause() {
     if (_pauseCapability == null && _isolate != null) {
       _isolate!.pause(_pauseCapability);
@@ -94,6 +116,7 @@ class _IsolateContactor {
   }
 
   /// Resume current [Isolate]
+  @override
   void resume() {
     if (_pauseCapability != null && _isolate != null) {
       _isolate!.resume(_pauseCapability!);
@@ -105,6 +128,7 @@ class _IsolateContactor {
   }
 
   /// Restart current [Isolate]
+  @override
   Future<void> restart() async {
     if (_isolate != null) {
       _isolate!.kill(priority: Isolate.immediate);
@@ -114,32 +138,31 @@ class _IsolateContactor {
       _printDebug('Restart Error');
     }
     _isComputing = false;
-    _computeStreamController.add(ComputeState.computed);
+    _computeStreamController.sink.add(ComputeState.computed);
   }
 
+  @override
+  void close() => dispose();
+
+  @override
+  void terminate() => dispose();
+
   /// Dispose current [Isolate]
+  @override
   void dispose() {
-    _mainStream?.cancel();
+    _isolateContactorController.close();
+    _isolateContactorSubscription.cancel();
     _receivePort.close();
     _isolate?.kill(priority: Isolate.immediate);
     _isolate = null;
     _isComputing = false;
-    _computeStreamController.add(ComputeState.computed);
+    _computeStreamController.sink.add(ComputeState.computed);
+    _computeStreamController.close();
     _printDebug('Disposed');
   }
 
-  /// Create a static function to compunicate with main [Isolate]
-  static void _internalIsolateFunction(List<dynamic> params) {
-    final channel = IsolateChannel.connectSend(params.last);
-    channel.stream.listen((event) {
-      final message = getMessage(_IsolatePort.child, event);
-      if (message != null) {
-        if (params[0] != null) channel.sendResult(params[0](message));
-      }
-    });
-  }
-
   /// Send message to child isolate [function]
+  @override
   void sendMessage(dynamic message) {
     if (_isolate == null) {
       _printDebug('! This isolate has been terminated');
@@ -153,16 +176,8 @@ class _IsolateContactor {
 
     _printDebug('Message send to isolate: $message');
     _isComputing = true;
-    _computeStreamController.add(ComputeState.computing);
-    _isolateChannel.sendIsolate(message);
-  }
-
-  /// Get data with port
-  static dynamic getMessage(_IsolatePort toPort, dynamic rawMessage) {
-    try {
-      return rawMessage[toPort];
-    } catch (_) {}
-    return null;
+    _computeStreamController.sink.add(ComputeState.computing);
+    _isolateContactorController.sendIsolate(message);
   }
 
   /// Print if [debugMode] is true

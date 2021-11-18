@@ -1,36 +1,22 @@
-part of isolate_contactor;
+import 'dart:async';
 
-class IsolateContactor {
-  /// Delegate
-  late _IsolateContactor _delegate;
+import 'package:flutter/foundation.dart';
+import 'utils.dart';
+import 'isolate_contactor_stub.dart'
+    if (dart.library.html) 'isolate_contactor_web.dart';
 
-  /// Create a temporary instance.
-  IsolateContactor._();
-
+abstract class IsolateContactor {
   /// The easy way to create isolate function
   ///
-  /// - [function] must be static or top-level function.
-  /// - [debugMode] use for printing the status of the plugin,
+  /// [function] must be static or top-level function.
+  /// [debugMode] use for printing the status of the plugin,
   /// default is true in Debug and Profile modes.
-  ///
-  /// Example of [function]:
-  /// ``` dart
-  /// dynamic fibonacci(dynamic n) {
-  ///   if (n == 0) return 0;
-  ///   if (n == 1 || n == 2) return 1;
-  ///
-  ///   return fibonacci(n - 1) + fibonacci(n - 2);
-  /// }
-  /// ```
   static Future<IsolateContactor> create([
-    void Function(dynamic)? function,
+    dynamic Function(dynamic)? function,
     bool debugMode = !kReleaseMode,
   ]) async {
-    IsolateContactor _isolateContactor = IsolateContactor._();
-
-    _isolateContactor._delegate = await _IsolateContactor.create(
+    return IsolateContactorInternal.create(
         function: function, debugMode: debugMode);
-    return _isolateContactor;
   }
 
   /// Create an instance with your own isolate function
@@ -38,68 +24,51 @@ class IsolateContactor {
   /// [isolateFunction] You can take a look at the example to see what you need to do
   /// to make it works.
   /// [isolateParams] is the list of parameters that you want to add to your [isolateFunction]
-  ///
-  /// This is form of the [isolateFunction]:
-  /// ``` dart
-  /// void isolateFunction(List<dynamic> params) {
-  ///   final channel = IsolateChannel.connectSend(params.last);
-  ///   channel.stream.listen((rawMessage) {
-  ///     final message = IsolateContactor.getMessage(rawMessage);
-  ///     if (message != null) {
-  ///       // Do more stuff here, [message] is dynamic so you can pass any
-  ///       // supported type
-  ///
-  ///       channel.sendResult(fibonacci(message));
-  ///     }
-  ///   });
-  /// }
-  /// ```
   static Future<IsolateContactor> createOwnIsolate(
-    dynamic Function(List<dynamic>) isolateFunction, [
-    List<dynamic>? isolateParams,
+    dynamic Function(dynamic) isolateFunction, [
+    dynamic isolateParams,
     bool debugMode = !kReleaseMode,
   ]) async {
-    IsolateContactor _isolateContactor = IsolateContactor._();
-
-    _isolateContactor._delegate = await _IsolateContactor.createOwnIsolate(
-      isolateFunction: isolateFunction,
-      isolateParams: isolateParams,
-    );
-    return _isolateContactor;
+    return IsolateContactorInternal.createOwnIsolate(
+        isolateFunction: isolateFunction,
+        isolateParams: isolateParams,
+        debugMode: debugMode);
   }
 
   /// Send message to the [function] for computing
-  void sendMessage(dynamic message) => _delegate.sendMessage(message);
+  void sendMessage(dynamic message) => throw UnimplementedError();
 
-  /// Listen to the result of the [function]
-  Stream get onMessage => _delegate.onMessage;
+  /// Listen to the result of the isolate
+  Stream get onMessage => throw UnimplementedError();
 
   /// Listen to the current state of isolate.
   /// Includes [ComputeState.computed] and [ComputeState.computing]
-  Stream<ComputeState> get onComputeState => _delegate.onComputeState;
+  Stream<ComputeState> get onComputeState => throw UnimplementedError();
 
   /// Get current computing state of the isolate
-  bool get isConputing => _delegate.isComputing;
+  bool get isComputing => throw UnimplementedError();
 
   /// Pause the isolate
-  void pause() => _delegate.pause();
+  ///
+  /// This method is not available in Web platform at the moment
+  void pause() => throw UnimplementedError();
 
   /// Resume the isolate
-  void resume() => _delegate.resume();
+  ///
+  /// This method is not available in Web platform at the moment
+  void resume() => throw UnimplementedError();
 
   /// Restart the paused isolate
-  Future<void> restart() async => await _delegate.restart();
+  ///
+  /// This method is not available in Web platform at the moment
+  Future<void> restart() async => throw UnimplementedError();
 
   /// Close current isolate, the same behavior with [dispose]
-  void close() => _delegate.dispose();
+  void close() => throw UnimplementedError();
 
   /// Close current isolate, the same behavior with [dispose]
-  void terminate() => _delegate.dispose();
+  void terminate() => throw UnimplementedError();
 
   /// Dispose current isolate
-  void dispose() => _delegate.dispose();
-
-  /// Use in isolate function
-  static dynamic getMessage(dynamic rawMessage) =>
-      _IsolateContactor.getMessage(_IsolatePort.child, rawMessage);
+  void dispose() => throw UnimplementedError();
 }
