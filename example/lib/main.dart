@@ -1,11 +1,44 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:isolate_contactor/isolate_contactor.dart';
-import 'package:stream_channel/isolate_channel.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+/// This must be a static or top-level function
+Future<dynamic> fibonacciRescusiveFuture(dynamic n) async {
+  if (n == 0) return 0;
+  if (n <= 2) return 1;
+
+  // Magic code: This is only for non-blocking UI in Web platform because it
+  // use Future
+  await Future.delayed(Duration.zero);
+
+  return await fibonacciRescusiveFuture(n - 1) +
+      await fibonacciRescusiveFuture(n - 2);
+}
+
+/// This must be a static or top-level function
+Future<dynamic> fibonacciFuture(dynamic n) async {
+  if (n == 0) return 0;
+  if (n <= 2) return 1;
+
+  double n1 = 0, n2 = 1, n3 = 1;
+
+  for (int i = 2; i <= n; i++) {
+    n3 = n1 + n2;
+    print('$i: $n3');
+    n1 = n2;
+    n2 = n3;
+
+    // Magic code: This is only for non-blocking UI in Web platform
+    await Future.delayed(Duration.zero);
+  }
+
+  return n3.round();
 }
 
 /// This must be a static or top-level function
@@ -13,18 +46,25 @@ dynamic fibonacci(dynamic n) {
   if (n == 0) return 0;
   if (n == 1 || n == 2) return 1;
 
-  return fibonacci(n - 1) + fibonacci(n - 2);
+  int n1 = 0, n2 = 1, n3 = 1;
+
+  for (int i = 2; i <= n; i++) {
+    n3 = n1 + n2;
+    print(n3);
+    n1 = n2;
+    n2 = n3;
+  }
+
+  return n3.round();
 }
 
-void isolateFunction(List<dynamic> params) {
-  final channel = IsolateChannel.connectSend(params.last);
-  channel.stream.listen((rawMessage) {
-    final message = IsolateContactor.getMessage(rawMessage);
-    if (message != null) {
-      // Do more stuff here
+void isolateFunction(dynamic params) {
+  print('params.runtimeType = ${params.runtimeType}');
+  final channel = IsolateContactorController(params);
+  channel.onMessage.listen((message) {
+    // Do more stuff here
 
-      channel.sendResult(fibonacci(message));
-    }
+    fibonacciFuture(message).then((value) => channel.sendResult(value));
   });
 }
 
@@ -38,8 +78,10 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late IsolateContactor isolateContactor1;
   late IsolateContactor isolateContactor2;
+  late IsolateContactor isolateContactor3;
   int value1 = 2;
   int value2 = 3;
+  int value3 = 4;
 
   bool isLoading = true;
   Random rad = Random();
@@ -54,26 +96,36 @@ class _MyAppState extends State<MyApp> {
   void dispose() {
     isolateContactor1.dispose();
     isolateContactor2.dispose();
+    isolateContactor3.dispose();
     super.dispose();
   }
 
   Future<void> initial() async {
-    isolateContactor1 = await IsolateContactor.create(fibonacci);
+    isolateContactor1 = await IsolateContactor.create(fibonacciFuture);
     isolateContactor2 =
         await IsolateContactor.createOwnIsolate(isolateFunction);
+    isolateContactor3 = await IsolateContactor.create(fibonacciRescusiveFuture);
     setState(() => isLoading = false);
   }
 
-  void calculateValue1([int max = 50]) {
+  void calculateValue1([int max = 100]) {
     value1 = rad.nextInt(max);
     print('Isolate 1: Calculate fibonancci at F$value1');
     isolateContactor1.sendMessage(value1);
+
+    Future.delayed(Duration.zero);
   }
 
-  void calculateValue2([int max = 50]) {
+  void calculateValue2([int max = 100]) {
     value2 = rad.nextInt(max);
     print('Isolate 2: Calculate fibonancci at F$value2');
     isolateContactor2.sendMessage(value2);
+  }
+
+  void calculateValue3([int max = 50]) {
+    value3 = rad.nextInt(max);
+    print('Isolate 2: Calculate fibonancci at F$value2');
+    isolateContactor3.sendMessage(value3);
   }
 
   @override
@@ -81,7 +133,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Multi Isolate Fibonacci'),
+          centerTitle: true,
         ),
         body: SingleChildScrollView(
           child: Center(
@@ -157,6 +210,40 @@ class _MyAppState extends State<MyApp> {
                             isolateContactor2.terminate();
                           },
                           child: const Text('Terminate isolate 2'),
+                        ),
+                      ),
+                      StreamBuilder(
+                        stream: isolateContactor3.onMessage,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            isolateContactor2.sendMessage(value3);
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return Text(
+                              'Isolate3: Fibonacci at F$value3 = ${snapshot.data}');
+                        },
+                      ),
+                      StreamBuilder(
+                          stream: isolateContactor3.onComputeState,
+                          builder: (context, snapshot) {
+                            return ListTile(
+                              title: ElevatedButton(
+                                onPressed: () => calculateValue3(),
+                                child: Text(snapshot.data != null &&
+                                        snapshot.data == ComputeState.computing
+                                    ? 'Computing F$value3..'
+                                    : 'Calculate new Fibonacci'),
+                              ),
+                            );
+                          }),
+                      ListTile(
+                        title: ElevatedButton(
+                          onPressed: () {
+                            isolateContactor3.terminate();
+                          },
+                          child: const Text('Terminate isolate 3'),
                         ),
                       ),
                     ],

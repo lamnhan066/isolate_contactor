@@ -1,11 +1,4 @@
-library isolate_contactor;
-
-import 'dart:async';
-import 'dart:isolate';
-import 'package:flutter/foundation.dart';
-import 'package:stream_channel/isolate_channel.dart';
-
-part 'src/isolate_contactor.dart';
-part 'src/enum.dart';
-part 'src/internal.dart';
-part 'src/extension.dart';
+export 'src/isolate_contactor.dart';
+export 'src/enum.dart' hide IsolatePort;
+// import 'extension.dart' if (dart.library.html) 'extension_web.dart';
+export 'src/extension_web.dart';

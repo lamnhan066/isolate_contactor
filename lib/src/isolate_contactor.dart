@@ -1,12 +1,12 @@
-part of isolate_contactor;
+import 'dart:async';
 
-class IsolateContactor {
-  /// Delegate
-  late _IsolateContactor _delegate;
+import 'package:flutter/foundation.dart';
 
-  /// Create a temporary instance.
-  IsolateContactor._();
+import 'enum.dart';
+// import 'internal.dart' if (dart.library.html) 'internal_web.dart';
+import 'internal_web.dart';
 
+abstract class IsolateContactor {
   /// The easy way to create isolate function
   ///
   /// - [function] must be static or top-level function.
@@ -23,14 +23,11 @@ class IsolateContactor {
   /// }
   /// ```
   static Future<IsolateContactor> create([
-    void Function(dynamic)? function,
+    dynamic Function(dynamic)? function,
     bool debugMode = !kReleaseMode,
   ]) async {
-    IsolateContactor _isolateContactor = IsolateContactor._();
-
-    _isolateContactor._delegate = await _IsolateContactor.create(
+    return IsolateContactorInternal.create(
         function: function, debugMode: debugMode);
-    return _isolateContactor;
   }
 
   /// Create an instance with your own isolate function
@@ -41,7 +38,7 @@ class IsolateContactor {
   ///
   /// This is form of the [isolateFunction]:
   /// ``` dart
-  /// void isolateFunction(List<dynamic> params) {
+  /// void isolateFunction(dynamic params) {
   ///   final channel = IsolateChannel.connectSend(params.last);
   ///   channel.stream.listen((rawMessage) {
   ///     final message = IsolateContactor.getMessage(rawMessage);
@@ -55,51 +52,56 @@ class IsolateContactor {
   /// }
   /// ```
   static Future<IsolateContactor> createOwnIsolate(
-    dynamic Function(List<dynamic>) isolateFunction, [
-    List<dynamic>? isolateParams,
+    dynamic Function(dynamic) isolateFunction, [
+    dynamic isolateParams,
     bool debugMode = !kReleaseMode,
   ]) async {
-    IsolateContactor _isolateContactor = IsolateContactor._();
-
-    _isolateContactor._delegate = await _IsolateContactor.createOwnIsolate(
-      isolateFunction: isolateFunction,
-      isolateParams: isolateParams,
-    );
-    return _isolateContactor;
+    return IsolateContactorInternal.createOwnIsolate(
+        isolateFunction: isolateFunction,
+        isolateParams: isolateParams,
+        debugMode: debugMode);
   }
 
   /// Send message to the [function] for computing
-  void sendMessage(dynamic message) => _delegate.sendMessage(message);
+  void sendMessage(dynamic message) => throw UnimplementedError();
 
   /// Listen to the result of the [function]
-  Stream get onMessage => _delegate.onMessage;
+  Stream get onMessage => throw UnimplementedError();
 
   /// Listen to the current state of isolate.
   /// Includes [ComputeState.computed] and [ComputeState.computing]
-  Stream<ComputeState> get onComputeState => _delegate.onComputeState;
+  Stream<ComputeState> get onComputeState => throw UnimplementedError();
 
   /// Get current computing state of the isolate
-  bool get isConputing => _delegate.isComputing;
+  bool get isComputing => throw UnimplementedError();
 
   /// Pause the isolate
-  void pause() => _delegate.pause();
+  void pause() => throw UnimplementedError();
 
   /// Resume the isolate
-  void resume() => _delegate.resume();
+  void resume() => throw UnimplementedError();
 
   /// Restart the paused isolate
-  Future<void> restart() async => await _delegate.restart();
+  Future<void> restart() async => throw UnimplementedError();
 
   /// Close current isolate, the same behavior with [dispose]
-  void close() => _delegate.dispose();
+  void close() => throw UnimplementedError();
 
   /// Close current isolate, the same behavior with [dispose]
-  void terminate() => _delegate.dispose();
+  void terminate() => throw UnimplementedError();
 
   /// Dispose current isolate
-  void dispose() => _delegate.dispose();
+  void dispose() => throw UnimplementedError();
 
   /// Use in isolate function
-  static dynamic getMessage(dynamic rawMessage) =>
-      _IsolateContactor.getMessage(_IsolatePort.child, rawMessage);
+  // static dynamic getMessage(dynamic rawMessage) =>
+  //     IsolateContactorInternal.getMessage(IsolatePort.child, rawMessage);
+
+  /// Get data with port
+  static dynamic getRawMessage(IsolatePort toPort, dynamic rawMessage) {
+    try {
+      return rawMessage[toPort];
+    } catch (_) {}
+    return null;
+  }
 }

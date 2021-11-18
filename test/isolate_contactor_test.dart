@@ -1,9 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isolate_contactor/isolate_contactor.dart';
-import 'package:stream_channel/isolate_channel.dart';
 
 void main() {
+  test('Test', () async {
+    StreamController streamController = StreamController.broadcast();
+
+    final stream = streamController.stream.listen((event) {
+      print('1: $event');
+    });
+
+    streamController.stream.listen((event) {
+      print('2: $event');
+    });
+
+    streamController.add('adb');
+
+    await Future.delayed(const Duration(seconds: 3));
+  });
   test('Basic use', () async {
     // Just for waiting till the result has come
     bool valueExit = false;
@@ -97,10 +113,18 @@ void main() {
 }
 
 dynamic fibonacci(dynamic n) {
-  if (n == 0) return 0;
-  if (n == 1 || n == 2) return 1;
+  if (n <= 2) return 1;
 
-  return fibonacci(n - 2) + fibonacci(n - 1);
+  int n1 = 0, n2 = 1, n3 = 1;
+
+  for (int i = 2; i <= n; i++) {
+    n3 = n1 + n2;
+    print(n3);
+    n1 = n2;
+    n2 = n3;
+  }
+
+  return n3.round();
 }
 
 // single parameter
@@ -110,14 +134,9 @@ dynamic subtract(dynamic n) => n[1] - n[0];
 dynamic add(dynamic a, dynamic b) => a + b;
 
 // Create your own function here
-void isolateFunction(List<dynamic> params) {
-  final channel = IsolateChannel.connectSend(params.last);
-  channel.stream.listen((rawMessage) {
-    final message = IsolateContactor.getMessage(rawMessage);
-    if (message != null) {
-      // Do more stuff here
-
-      channel.sendResult(add(message[0], message[1]));
-    }
+void isolateFunction(dynamic params) {
+  final channel = IsolateContactorController(params);
+  channel.onMessage.listen((message) {
+    channel.sendResult(add(message[0], message[1]));
   });
 }
