@@ -1,46 +1,48 @@
 import 'dart:async';
-import 'enum.dart';
-import 'isolate_contactor.dart';
 
-class IsolateContactorController {
-  late StreamController _delegate;
+import 'package:stream_channel/isolate_channel.dart';
+import 'enum.dart';
+import 'isolate_contactor_controller.dart';
+
+class IsolateContactorControllerIpl implements IsolateContactorController {
+  late IsolateChannel _delegate;
 
   final StreamController _mainStreamController = StreamController.broadcast();
   final StreamController _messageStreamController =
       StreamController.broadcast();
 
-  IsolateContactorController(dynamic params) {
-    print('params.runtimeType = ${params.runtimeType}');
+  IsolateContactorControllerIpl(dynamic params) {
     if (params is List) {
-      _delegate = params.last.controller;
+      _delegate = IsolateChannel.connectSend(params.last);
     } else {
-      _delegate = params;
+      _delegate = IsolateChannel.connectReceive(params);
     }
 
     _delegate.stream.listen((event) {
-      print(event);
-      dynamic message = IsolateContactor.getRawMessage(IsolatePort.main, event);
+      dynamic message = getRawMessage(IsolatePort.main, event);
       if (message != null) {
         _mainStreamController.add(message);
       }
 
-      message = IsolateContactor.getRawMessage(IsolatePort.child, event);
+      message = getRawMessage(IsolatePort.child, event);
       if (message != null) {
         _messageStreamController.add(message);
       }
     });
   }
 
-  StreamController get controller => _delegate;
+  @override
+  Stream get onMessage => _mainStreamController.stream;
 
-  Stream get onMainMessage => _mainStreamController.stream;
+  @override
+  Stream get onIsolateMessage => _messageStreamController.stream;
 
-  Stream get onMessage => _messageStreamController.stream;
-
+  @override
   void sendIsolate(dynamic message) {
     _delegate.sink.add(<IsolatePort, dynamic>{IsolatePort.child: message});
   }
 
+  @override
   void sendResult(dynamic message) {
     _delegate.sink.add(<IsolatePort, dynamic>{IsolatePort.main: message});
   }

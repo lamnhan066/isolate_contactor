@@ -1,35 +1,40 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 
 import 'enum.dart';
+import 'isolate_contactor_controller.dart';
 import 'isolate_contactor.dart';
-import 'extension_web.dart';
 
 class IsolateContactorInternal implements IsolateContactor {
   /// For debugging
   bool _debugMode = !kReleaseMode;
 
+  /// Create receive port
+  late ReceivePort _receivePort;
+
+  /// Create isolate channel
+  late IsolateContactorController _isolateContactorController;
+
+  /// Create isolate
+  Isolate? _isolate;
+
+  /// For pausing isolate
+  Capability? _pauseCapability;
+
   /// Listener for main isolate
   final StreamController _mainStreamController = StreamController.broadcast();
 
-  /// For releasing current main listener
+  /// For release current main listener
   StreamSubscription<dynamic>? _mainStream;
 
-  /// Check for current isolate in bool
+  /// Check for current computing state in bool
   bool _isComputing = false;
 
-  /// Check for current cumputing state in enum with listener
+  /// Check for current computing state in enum with listener
   final StreamController<ComputeState> _computeStreamController =
       StreamController.broadcast();
-
-  /// Listener for isolate
-  // final StreamController _isolateStreamController =
-  //     StreamController.broadcast();
-
-  /// Listener for result
-  final IsolateContactorController _channelStreamController =
-      IsolateContactorController(StreamController.broadcast());
 
   /// Control the function of isolate
   late void Function(dynamic) _isolateFunction;
@@ -37,12 +42,9 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Control the parameters of isolate
   late dynamic _isolateParam;
 
-  /// Current excuting function
-  Function? _function;
-
-  /// Create an instance
+  /// Internal instance
   IsolateContactorInternal._(
-      {required void Function(dynamic) isolateFunction,
+      {required dynamic Function(dynamic) isolateFunction,
       required dynamic isolateParam,
       bool debugMode = kReleaseMode}) {
     _debugMode = debugMode;
@@ -50,7 +52,7 @@ class IsolateContactorInternal implements IsolateContactor {
     _isolateParam = isolateParam;
   }
 
-  /// Create an instance
+  /// Create an instance with build-in function
   static Future<IsolateContactorInternal> create(
       {dynamic Function(dynamic)? function, bool debugMode = true}) async {
     IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
@@ -61,7 +63,7 @@ class IsolateContactorInternal implements IsolateContactor {
     return _isolateContactor;
   }
 
-  /// Create modified isolate function
+  /// Create an instance with your own function
   static Future<IsolateContactorInternal> createOwnIsolate(
       {required void Function(dynamic) isolateFunction,
       required dynamic isolateParams,
@@ -78,25 +80,23 @@ class IsolateContactorInternal implements IsolateContactor {
 
   /// Initialize
   Future<void> _initial() async {
-    _isolateParam = [_isolateParam, _channelStreamController];
-    _mainStream = _channelStreamController.onMainMessage.listen((message) {
-      _printDebug('[Main Stream] rawMessage = $message');
-
+    _receivePort = ReceivePort();
+    _isolateContactorController = IsolateContactorController(_receivePort);
+    _isolateParam = [_isolateParam, _receivePort.sendPort];
+    _mainStream = _isolateContactorController.onMessage.listen((message) {
       _printDebug('Message received from isolate: $message');
-
-      _mainStreamController.sink.add(message);
       _isComputing = false;
       _computeStreamController.sink.add(ComputeState.computed);
     });
 
-    _isolateFunction(_isolateParam);
+    _isolate = await Isolate.spawn(_isolateFunction, _isolateParam);
 
     _printDebug('Initialized');
   }
 
   /// Get current message as stream
   @override
-  Stream get onMessage => _channelStreamController.onMessage;
+  Stream get onMessage => _isolateContactorController.onMessage;
 
   /// Get current state
   @override
@@ -109,35 +109,36 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Pause current [Isolate]
   @override
   void pause() {
-//     if (_future != null) {
-// _completer.
-//     } else {
-//       _printDebug('Pause Error');
-//     }
+    if (_pauseCapability == null && _isolate != null) {
+      _isolate!.pause(_pauseCapability);
+      _printDebug('Paused');
+    } else {
+      _printDebug('Pause Error');
+    }
   }
 
   /// Resume current [Isolate]
   @override
   void resume() {
-    // if (_pauseCapability != null && _isolate != null) {
-    //   _isolate!.resume(_pauseCapability!);
-    //   _pauseCapability = null;
-    //   _printDebug('Resumed');
-    // } else {
-    //   _printDebug('Resume Error');
-    // }
+    if (_pauseCapability != null && _isolate != null) {
+      _isolate!.resume(_pauseCapability!);
+      _pauseCapability = null;
+      _printDebug('Resumed');
+    } else {
+      _printDebug('Resume Error');
+    }
   }
 
   /// Restart current [Isolate]
   @override
   Future<void> restart() async {
-    // if (_isolate != null) {
-    //   _isolate!.kill(priority: Isolate.immediate);
-    //   _isolate = await Isolate.spawn(_isolateFunction, _isolateParam);
-    //   _printDebug('Restarted');
-    // } else {
-    //   _printDebug('Restart Error');
-    // }
+    if (_isolate != null) {
+      _isolate!.kill(priority: Isolate.immediate);
+      _isolate = await Isolate.spawn(_isolateFunction, _isolateParam);
+      _printDebug('Restarted');
+    } else {
+      _printDebug('Restart Error');
+    }
     _isComputing = false;
     _computeStreamController.sink.add(ComputeState.computed);
   }
@@ -152,7 +153,9 @@ class IsolateContactorInternal implements IsolateContactor {
   @override
   void dispose() {
     _mainStream?.cancel();
-    _function = null;
+    _receivePort.close();
+    _isolate?.kill(priority: Isolate.immediate);
+    _isolate = null;
     _isComputing = false;
     _computeStreamController.sink.add(ComputeState.computed);
     _printDebug('Disposed');
@@ -161,10 +164,10 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Send message to child isolate [function]
   @override
   void sendMessage(dynamic message) {
-    // if (_function == null) {
-    //   _printDebug('! This isolate has been terminated');
-    //   return;
-    // }
+    if (_isolate == null) {
+      _printDebug('! This isolate has been terminated');
+      return;
+    }
 
     if (_isComputing) {
       _printDebug(
@@ -174,7 +177,7 @@ class IsolateContactorInternal implements IsolateContactor {
     _printDebug('Message send to isolate: $message');
     _isComputing = true;
     _computeStreamController.sink.add(ComputeState.computing);
-    _channelStreamController.sendIsolate(message);
+    _isolateContactorController.sendIsolate(message);
   }
 
   /// Print if [debugMode] is true
@@ -186,18 +189,15 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Create a static function to compunicate with main [Isolate]
   static void _internalIsolateFunction(dynamic params) {
     var channel = IsolateContactorController(params);
-    channel.onMessage.listen((message) {
-      if (message != null) {
-        // Check if the params contains function or not
+    channel.onIsolateMessage.listen((message) {
+      try {
+        (params[0](message) as Future).then((value) {
+          channel.sendResult(value);
+        });
+      } catch (_) {
         try {
-          (params[0](message) as Future).then((value) {
-            channel.sendResult(value);
-          });
-        } catch (_) {
-          try {
-            channel.sendResult(params[0](message));
-          } catch (_) {}
-        }
+          channel.sendResult(params[0](message));
+        } catch (_) {}
       }
     });
   }

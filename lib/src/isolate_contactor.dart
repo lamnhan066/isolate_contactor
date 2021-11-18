@@ -1,27 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-
 import 'enum.dart';
-// import 'internal.dart' if (dart.library.html) 'internal_web.dart';
-import 'internal_web.dart';
+import 'isolate_contactor_stub.dart'
+    if (dart.library.html) 'isolate_contactor_web.dart';
 
 abstract class IsolateContactor {
   /// The easy way to create isolate function
   ///
-  /// - [function] must be static or top-level function.
-  /// - [debugMode] use for printing the status of the plugin,
+  /// [function] must be static or top-level function.
+  /// [debugMode] use for printing the status of the plugin,
   /// default is true in Debug and Profile modes.
-  ///
-  /// Example of [function]:
-  /// ``` dart
-  /// dynamic fibonacci(dynamic n) {
-  ///   if (n == 0) return 0;
-  ///   if (n == 1 || n == 2) return 1;
-  ///
-  ///   return fibonacci(n - 1) + fibonacci(n - 2);
-  /// }
-  /// ```
   static Future<IsolateContactor> create([
     dynamic Function(dynamic)? function,
     bool debugMode = !kReleaseMode,
@@ -35,22 +24,6 @@ abstract class IsolateContactor {
   /// [isolateFunction] You can take a look at the example to see what you need to do
   /// to make it works.
   /// [isolateParams] is the list of parameters that you want to add to your [isolateFunction]
-  ///
-  /// This is form of the [isolateFunction]:
-  /// ``` dart
-  /// void isolateFunction(dynamic params) {
-  ///   final channel = IsolateChannel.connectSend(params.last);
-  ///   channel.stream.listen((rawMessage) {
-  ///     final message = IsolateContactor.getMessage(rawMessage);
-  ///     if (message != null) {
-  ///       // Do more stuff here, [message] is dynamic so you can pass any
-  ///       // supported type
-  ///
-  ///       channel.sendResult(fibonacci(message));
-  ///     }
-  ///   });
-  /// }
-  /// ```
   static Future<IsolateContactor> createOwnIsolate(
     dynamic Function(dynamic) isolateFunction, [
     dynamic isolateParams,
@@ -65,7 +38,7 @@ abstract class IsolateContactor {
   /// Send message to the [function] for computing
   void sendMessage(dynamic message) => throw UnimplementedError();
 
-  /// Listen to the result of the [function]
+  /// Listen to the result of the isolate
   Stream get onMessage => throw UnimplementedError();
 
   /// Listen to the current state of isolate.
@@ -92,16 +65,4 @@ abstract class IsolateContactor {
 
   /// Dispose current isolate
   void dispose() => throw UnimplementedError();
-
-  /// Use in isolate function
-  // static dynamic getMessage(dynamic rawMessage) =>
-  //     IsolateContactorInternal.getMessage(IsolatePort.child, rawMessage);
-
-  /// Get data with port
-  static dynamic getRawMessage(IsolatePort toPort, dynamic rawMessage) {
-    try {
-      return rawMessage[toPort];
-    } catch (_) {}
-    return null;
-  }
 }

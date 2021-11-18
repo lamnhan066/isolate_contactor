@@ -61,7 +61,7 @@ dynamic fibonacci(dynamic n) {
 void isolateFunction(dynamic params) {
   print('params.runtimeType = ${params.runtimeType}');
   final channel = IsolateContactorController(params);
-  channel.onMessage.listen((message) {
+  channel.onIsolateMessage.listen((message) {
     // Do more stuff here
 
     fibonacciFuture(message).then((value) => channel.sendResult(value));

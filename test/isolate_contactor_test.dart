@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isolate_contactor/isolate_contactor.dart';
 
@@ -136,7 +135,7 @@ dynamic add(dynamic a, dynamic b) => a + b;
 // Create your own function here
 void isolateFunction(dynamic params) {
   final channel = IsolateContactorController(params);
-  channel.onMessage.listen((message) {
+  channel.onIsolateMessage.listen((message) {
     channel.sendResult(add(message[0], message[1]));
   });
 }
