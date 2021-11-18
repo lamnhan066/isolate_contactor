@@ -6,6 +6,7 @@ import 'isolate_contactor_controller.dart';
 
 class IsolateContactorControllerIpl implements IsolateContactorController {
   late IsolateChannel _delegate;
+  late StreamSubscription _delegateSubscription;
 
   final StreamController _mainStreamController = StreamController.broadcast();
   final StreamController _messageStreamController =
@@ -18,7 +19,7 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
       _delegate = IsolateChannel.connectReceive(params);
     }
 
-    _delegate.stream.listen((event) {
+    _delegateSubscription = _delegate.stream.listen((event) {
       dynamic message = getIsolatePortMessage(IsolatePort.main, event);
       if (message != null) {
         _mainStreamController.add(message);
@@ -49,5 +50,12 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
   @override
   void sendResult(dynamic message) {
     _delegate.sink.add(<IsolatePort, dynamic>{IsolatePort.main: message});
+  }
+
+  @override
+  void close() {
+    _delegateSubscription.cancel();
+    _mainStreamController.close();
+    _messageStreamController.close();
   }
 }

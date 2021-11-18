@@ -21,4 +21,7 @@ abstract class IsolateContactorController {
 
   /// Send the [result] of computation to [onIsolateMessage] stream
   void sendResult(dynamic result) => throw UnimplementedError();
+
+  /// Close this controller
+  void close() => throw UnimplementedError();
 }

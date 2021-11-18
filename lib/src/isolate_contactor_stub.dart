@@ -23,11 +23,8 @@ class IsolateContactorInternal implements IsolateContactor {
   /// For pausing isolate
   Capability? _pauseCapability;
 
-  /// Listener for main isolate
-  final StreamController _mainStreamController = StreamController.broadcast();
-
   /// For release current main listener
-  StreamSubscription<dynamic>? _mainStream;
+  late StreamSubscription<dynamic> _isolateContactorSubscription;
 
   /// Check for current computing state in bool
   bool _isComputing = false;
@@ -83,7 +80,8 @@ class IsolateContactorInternal implements IsolateContactor {
     _receivePort = ReceivePort();
     _isolateContactorController = IsolateContactorController(_receivePort);
     _isolateParam = [_isolateParam, _receivePort.sendPort];
-    _mainStream = _isolateContactorController.onMessage.listen((message) {
+    _isolateContactorSubscription =
+        _isolateContactorController.onMessage.listen((message) {
       _printDebug('Message received from isolate: $message');
       _isComputing = false;
       _computeStreamController.sink.add(ComputeState.computed);
@@ -152,7 +150,8 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Dispose current [Isolate]
   @override
   void dispose() {
-    _mainStream?.cancel();
+    _isolateContactorController.close();
+    _isolateContactorSubscription?.cancel();
     _receivePort.close();
     _isolate?.kill(priority: Isolate.immediate);
     _isolate = null;

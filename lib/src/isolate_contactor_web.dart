@@ -129,6 +129,7 @@ class IsolateContactorInternal implements IsolateContactor {
     _mainStream?.cancel();
     _isComputing = false;
     _computeStreamController.sink.add(ComputeState.computed);
+    _computeStreamController.close;
     _printDebug('Disposed');
   }
 

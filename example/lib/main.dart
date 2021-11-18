@@ -9,6 +9,8 @@ void main() {
 }
 
 /// This must be a static or top-level function
+///
+/// This function is very expensive to calculate, so I can test for un-blocking UI feature
 Future<dynamic> fibonacciRescusiveFuture(dynamic n) async {
   if (n == 0) return 0;
   if (n <= 2) return 1;
@@ -118,7 +120,7 @@ class _MyAppState extends State<MyApp> {
     isolateContactor2.sendMessage(value2);
   }
 
-  void calculateValue3([int max = 50]) {
+  void calculateValue3([int max = 30]) {
     value3 = rad.nextInt(max);
     print('Isolate 3: Calculate fibonancci at F$value3');
     isolateContactor3.sendMessage(value3);

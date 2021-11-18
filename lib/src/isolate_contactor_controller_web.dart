@@ -47,4 +47,11 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
   void sendResult(dynamic message) {
     _delegate.sink.add(<IsolatePort, dynamic>{IsolatePort.main: message});
   }
+
+  @override
+  void close() {
+    _delegate.close();
+    _mainStreamController.close();
+    _messageStreamController.close();
+  }
 }
