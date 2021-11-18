@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:stream_channel/isolate_channel.dart';
-import 'enum.dart';
+import 'utils.dart';
 import 'isolate_contactor_controller.dart';
 
 class IsolateContactorControllerIpl implements IsolateContactorController {
@@ -19,17 +19,21 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
     }
 
     _delegate.stream.listen((event) {
-      dynamic message = getRawMessage(IsolatePort.main, event);
+      dynamic message = getIsolatePortMessage(IsolatePort.main, event);
       if (message != null) {
         _mainStreamController.add(message);
       }
 
-      message = getRawMessage(IsolatePort.child, event);
+      message = getIsolatePortMessage(IsolatePort.child, event);
       if (message != null) {
         _messageStreamController.add(message);
       }
     });
   }
+
+  /// Only need for web platform
+  @override
+  StreamController get controller => throw UnimplementedError();
 
   @override
   Stream get onMessage => _mainStreamController.stream;

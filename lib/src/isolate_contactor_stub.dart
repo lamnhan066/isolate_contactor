@@ -3,7 +3,7 @@ import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 
-import 'enum.dart';
+import 'utils.dart';
 import 'isolate_contactor_controller.dart';
 import 'isolate_contactor.dart';
 
@@ -56,7 +56,7 @@ class IsolateContactorInternal implements IsolateContactor {
   static Future<IsolateContactorInternal> create(
       {dynamic Function(dynamic)? function, bool debugMode = true}) async {
     IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
-        isolateFunction: _internalIsolateFunction, isolateParam: function);
+        isolateFunction: internalIsolateFunction, isolateParam: function);
 
     await _isolateContactor._initial();
 
@@ -184,21 +184,5 @@ class IsolateContactorInternal implements IsolateContactor {
   void _printDebug(Object? object) {
     // ignore: avoid_print
     if (_debugMode) print('[Isolate Contactor]: $object');
-  }
-
-  /// Create a static function to compunicate with main [Isolate]
-  static void _internalIsolateFunction(dynamic params) {
-    var channel = IsolateContactorController(params);
-    channel.onIsolateMessage.listen((message) {
-      try {
-        (params[0](message) as Future).then((value) {
-          channel.sendResult(value);
-        });
-      } catch (_) {
-        try {
-          channel.sendResult(params[0](message));
-        } catch (_) {}
-      }
-    });
   }
 }

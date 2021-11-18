@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'enum.dart';
+import 'utils.dart';
 import 'isolate_contactor_controller.dart';
 
 class IsolateContactorControllerIpl implements IsolateContactorController {
@@ -17,18 +17,19 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
     }
 
     _delegate.stream.listen((event) {
-      dynamic message1 = getRawMessage(IsolatePort.main, event);
+      dynamic message1 = getIsolatePortMessage(IsolatePort.main, event);
       if (message1 != null) {
         _mainStreamController.add(message1);
       }
 
-      dynamic message2 = getRawMessage(IsolatePort.child, event);
+      dynamic message2 = getIsolatePortMessage(IsolatePort.child, event);
       if (message2 != null) {
         _messageStreamController.add(message2);
       }
     });
   }
 
+  @override
   StreamController get controller => _delegate;
 
   @override

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'enum.dart';
+import 'utils.dart';
 import 'isolate_contactor_stub.dart'
     if (dart.library.html) 'isolate_contactor_web.dart';
 
@@ -49,12 +49,18 @@ abstract class IsolateContactor {
   bool get isComputing => throw UnimplementedError();
 
   /// Pause the isolate
+  ///
+  /// This method is not available in Web platform at the moment
   void pause() => throw UnimplementedError();
 
   /// Resume the isolate
+  ///
+  /// This method is not available in Web platform at the moment
   void resume() => throw UnimplementedError();
 
   /// Restart the paused isolate
+  ///
+  /// This method is not available in Web platform at the moment
   Future<void> restart() async => throw UnimplementedError();
 
   /// Close current isolate, the same behavior with [dispose]

@@ -13,8 +13,7 @@ Future<dynamic> fibonacciRescusiveFuture(dynamic n) async {
   if (n == 0) return 0;
   if (n <= 2) return 1;
 
-  // Magic code: This is only for non-blocking UI in Web platform because it
-  // use Future
+  // Magic code: This is only for non-blocking UI in Web platform
   await Future.delayed(Duration.zero);
 
   return await fibonacciRescusiveFuture(n - 1) +
@@ -30,7 +29,6 @@ Future<dynamic> fibonacciFuture(dynamic n) async {
 
   for (int i = 2; i <= n; i++) {
     n3 = n1 + n2;
-    print('$i: $n3');
     n1 = n2;
     n2 = n3;
 
@@ -50,7 +48,6 @@ dynamic fibonacci(dynamic n) {
 
   for (int i = 2; i <= n; i++) {
     n3 = n1 + n2;
-    print(n3);
     n1 = n2;
     n2 = n3;
   }
@@ -59,7 +56,6 @@ dynamic fibonacci(dynamic n) {
 }
 
 void isolateFunction(dynamic params) {
-  print('params.runtimeType = ${params.runtimeType}');
   final channel = IsolateContactorController(params);
   channel.onIsolateMessage.listen((message) {
     // Do more stuff here
@@ -124,7 +120,7 @@ class _MyAppState extends State<MyApp> {
 
   void calculateValue3([int max = 50]) {
     value3 = rad.nextInt(max);
-    print('Isolate 2: Calculate fibonancci at F$value2');
+    print('Isolate 3: Calculate fibonancci at F$value3');
     isolateContactor3.sendMessage(value3);
   }
 
@@ -216,7 +212,7 @@ class _MyAppState extends State<MyApp> {
                         stream: isolateContactor3.onMessage,
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
-                            isolateContactor2.sendMessage(value3);
+                            isolateContactor3.sendMessage(value3);
                             return const Center(
                               child: CircularProgressIndicator(),
                             );

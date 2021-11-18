@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'isolate_contactor_controller_stub.dart'
     if (dart.library.html) 'isolate_contactor_controller_web.dart';
 
@@ -5,6 +7,8 @@ abstract class IsolateContactorController {
   /// Create controller for current [IsolateContactor]
   factory IsolateContactorController(dynamic params) =
       IsolateContactorControllerIpl;
+
+  StreamController get controller => throw UnimplementedError();
 
   /// Listen to result of the isolate
   Stream get onMessage => throw UnimplementedError();

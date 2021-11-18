@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import 'enum.dart';
+import 'utils.dart';
 import 'isolate_contactor.dart';
 import 'isolate_contactor_controller.dart';
 
@@ -30,9 +30,6 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Control the parameters of isolate
   late dynamic _isolateParam;
 
-  /// Current excuting function
-  Function? _function;
-
   /// Create an instance
   IsolateContactorInternal._(
       {required void Function(dynamic) isolateFunction,
@@ -47,7 +44,7 @@ class IsolateContactorInternal implements IsolateContactor {
   static Future<IsolateContactorInternal> create(
       {dynamic Function(dynamic)? function, bool debugMode = true}) async {
     IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
-        isolateFunction: _internalIsolateFunction, isolateParam: function);
+        isolateFunction: internalIsolateFunction, isolateParam: function);
 
     await _isolateContactor._initial();
 
@@ -96,39 +93,28 @@ class IsolateContactorInternal implements IsolateContactor {
   bool get isComputing => _isComputing;
 
   /// Pause current [Isolate]
+  ///
+  /// Umplemented in web platform at the moment.
   @override
   void pause() {
-//     if (_future != null) {
-// _completer.
-//     } else {
-//       _printDebug('Pause Error');
-//     }
+    _printDebug(
+        'This method still unimplemented in web platform at the moment!');
   }
 
   /// Resume current [Isolate]
+  ///
+  /// Umplemented in web platform at the moment.
   @override
   void resume() {
-    // if (_pauseCapability != null && _isolate != null) {
-    //   _isolate!.resume(_pauseCapability!);
-    //   _pauseCapability = null;
-    //   _printDebug('Resumed');
-    // } else {
-    //   _printDebug('Resume Error');
-    // }
+    _printDebug(
+        'This method still unimplemented in web platform at the moment!');
   }
 
   /// Restart current [Isolate]
   @override
   Future<void> restart() async {
-    // if (_isolate != null) {
-    //   _isolate!.kill(priority: Isolate.immediate);
-    //   _isolate = await Isolate.spawn(_isolateFunction, _isolateParam);
-    //   _printDebug('Restarted');
-    // } else {
-    //   _printDebug('Restart Error');
-    // }
-    _isComputing = false;
-    _computeStreamController.sink.add(ComputeState.computed);
+    _printDebug(
+        'This method still unimplemented in web platform at the moment!');
   }
 
   @override
@@ -141,7 +127,6 @@ class IsolateContactorInternal implements IsolateContactor {
   @override
   void dispose() {
     _mainStream?.cancel();
-    _function = null;
     _isComputing = false;
     _computeStreamController.sink.add(ComputeState.computed);
     _printDebug('Disposed');
@@ -150,10 +135,10 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Send message to child isolate [function]
   @override
   void sendMessage(dynamic message) {
-    // if (_function == null) {
-    //   _printDebug('! This isolate has been terminated');
-    //   return;
-    // }
+    if (!_isolateContactorController.controller.hasListener) {
+      _printDebug('! This isolate has been terminated');
+      return;
+    }
 
     if (_isComputing) {
       _printDebug(
@@ -167,27 +152,8 @@ class IsolateContactorInternal implements IsolateContactor {
   }
 
   /// Print if [debugMode] is true
-  void _printDebug(Object? object) {
+  void _printDebug(Object? object, [bool force = false]) {
     // ignore: avoid_print
-    if (_debugMode) print('[Isolate Contactor]: $object');
-  }
-
-  /// Create a static function to compunicate with main [Isolate]
-  static void _internalIsolateFunction(dynamic params) {
-    var channel = IsolateContactorController(params);
-    channel.onIsolateMessage.listen((message) {
-      if (message != null) {
-        // Check if the params contains function or not
-        try {
-          (params[0](message) as Future).then((value) {
-            channel.sendResult(value);
-          });
-        } catch (_) {
-          try {
-            channel.sendResult(params[0](message));
-          } catch (_) {}
-        }
-      }
-    });
+    if (_debugMode && !force) print('[Isolate Contactor]: $object');
   }
 }
