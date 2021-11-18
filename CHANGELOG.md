@@ -1,6 +1,6 @@
 ## 1.0.0
 
-* Support web platform with limited features. The package use `Future` to provide the same feature with `Isolate` but it doesn't have `pause`, `resume`, `restart` methods. I'll try to bring the same action with `Isolate` as most as possible.
+* Support web platform with limited features. The package use `Future` to provide the same features to `Isolate` but it doesn't have `pause`, `resume`, `restart` methods. I'll try to bring the same action with `Isolate` as much as possible.
 * Support `Future` when creating build-in method. More information please read Readme.
 * **BREAKING CHANGE**:
   - Create your own isolate:

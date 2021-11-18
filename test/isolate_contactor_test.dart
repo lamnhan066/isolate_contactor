@@ -40,7 +40,7 @@ void main() {
     // Send 10 to fibonacci isolate function
     isolateContactor.sendMessage(10);
 
-    // Only for waiting the result. Don't need to use in your real app
+    // Only for waiting the result in Console app. Don't need to use in your real app
     while (!valueExit) {
       await Future.delayed(const Duration(milliseconds: 10));
     }
@@ -81,6 +81,7 @@ void main() {
     // Send 20 and 10 to [subtract]
     isolateContactor2.sendMessage([10, 20]);
 
+    // Only for waiting the result in Console app. Don't need to use in your real app
     while (!value1Exit && !value2Exit) {
       await Future.delayed(const Duration(milliseconds: 10));
     }
@@ -105,6 +106,7 @@ void main() {
     // Send 10 and 20 to [isolateFunction]
     isolateContactor.sendMessage([10, 20]);
 
+    // Only for waiting the result in Console app. Don't need to use in your real app
     while (!valueExit) {
       await Future.delayed(const Duration(milliseconds: 10));
     }
@@ -120,7 +122,6 @@ dynamic fibonacci(dynamic n) {
 
   for (int i = 2; i <= n; i++) {
     n3 = n1 + n2;
-    print(n3);
     n1 = n2;
     n2 = n3;
   }

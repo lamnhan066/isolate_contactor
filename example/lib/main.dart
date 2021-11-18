@@ -62,6 +62,7 @@ void isolateFunction(dynamic params) {
   channel.onIsolateMessage.listen((message) {
     // Do more stuff here
 
+    // Send the result to your [onMessage] stream
     fibonacciFuture(message).then((value) => channel.sendResult(value));
   });
 }
