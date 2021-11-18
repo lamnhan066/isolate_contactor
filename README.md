@@ -1,6 +1,6 @@
 # Isolate Contactor
 
-An easy way to create a new isolate and comunicate with it and support sending values between main and child isolate multiple times.
+An easy way to create a new isolate and comunicate with it and support sending values between main and child isolate multiple times via `stream`. So you can build your `widget` with `StreamBuilder` and always listen to the value from your `isolate`.
 
 This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data data until you terminate it. It'll  save a lot of starting time.
 
@@ -46,7 +46,7 @@ main() async {
     // Send 10 to fibonacci isolate function
     isolateContactor.sendMessage(10);
 
-    // Only for waiting the result. Don't need to use in your real app
+    // Only for waiting the result in Console app. Don't need to use in your real app
     while (!valueExit) {
       await Future.delayed(const Duration(milliseconds: 10));
     }
@@ -63,7 +63,7 @@ dynamic fibonacci(dynamic n) {
 }
 ```
 
-# Easy build-in function
+## Easy build-in function
 I have implemented a build-in static function to make you easier to create an isolate as fast as possible.
 You just need to create a function of this form:
 ``` dart
@@ -72,13 +72,20 @@ dynamic function(dynamic param) {
   return something; // <-- This result will be send back to your `onMessage` in main isolate.
 }
 ```
+or
+``` dart
+Future<dynamic> function(dynamic param) async {
+  // do something
+  return something; // <-- This result will be send back to your `onMessage` in main isolate.
+}
+```
 The `param` can be anything even a `List` of variable like this (but its type must be `dynamic`):
 ``` dart
 dynamic subtract(dynamic n) => n[1] - n[0];
 ```
-Add create the instance with `IsolateContactor.create(function)` or `IsolateContactor.create(subtract)`.
+And create the instance with `IsolateContactor.create(function)` or `IsolateContactor.create(subtract)`.
 
-This is an example test:
+This is a test example:
 ``` dart
 void main() {
   test('Create isolate with build-in function', () async {
@@ -111,6 +118,7 @@ void main() {
     // Send 10 and 20 to [subtract]
     isolateContactor2.sendMessage([10, 20]);
 
+    // Only for waiting the result in Console app. Don't need to use in your real app
     while (!value1Exit && !value2Exit) {
       await Future.delayed(const Duration(milliseconds: 10));
     }
@@ -132,21 +140,17 @@ dynamic fibonacci(dynamic n) {
 dynamic subtract(dynamic n) => n[1] - n[0];
 ```
 
-# Create your own function
+## Create your own function
 This is also not too complicated to use, you're completely control your isolate function with this method.
 You just need to create a function of this form:
 ``` dart
-void isolateFunction(List<dynamic> params) {
-  final channel = IsolateChannel.connectSend(params.last);
-  channel.stream.listen((rawMessage) {
-    final message = IsolateContactor.getMessage(rawMessage);
-    if (message != null) {
-      // Do your stuff here
-      final result = add(message[0], message[1]);
-
-      // This method will send the results to the main isolate. Listen through `onMessage`.
-      channel.sendResult(result);
-    }
+void isolateFunction(dynamic params) {
+  final channel = IsolateContactorController(params);
+  channel.onIsolateMessage.listen((message) {
+    // Do your stuff here
+    
+    // Send value back to your main process in stream [onMessage]
+    channel.sendResult(add(message[0], message[1]));
   });
 }
 ```
@@ -168,17 +172,13 @@ main() async {
 }
 
 // Create your own function here
-void isolateFunction(List<dynamic> params) {
-  final channel = IsolateChannel.connectSend(params.last);
-  channel.stream.listen((rawMessage) {
-    final message = IsolateContactor.getMessage(rawMessage);
-    if (message != null) {
-      // Do your stuff here
-      final result = add(message[0], message[1]);
-
-      // This method will send the results to the main isolate. Listen through `onMessage`.
-      channel.sendResult(result);
-    }
+void isolateFunction(dynamic params) {
+  final channel = IsolateContactorController(params);
+  channel.onIsolateMessage.listen((message) {
+    // Do your stuff here
+    
+    // Send value back to your main process in stream [onMessage]
+    channel.sendResult(add(message[0], message[1]));
   });
 }
 
@@ -186,8 +186,9 @@ void isolateFunction(List<dynamic> params) {
 dynamic add(dynamic a, dynamic b) => a + b;
 ```
 
-# Notice
-This package is still in the early stages of development.
+## Notice
+- This package is still in the early stages of development.
+- Support web with limited feature because the package use `Future` for Web platform.
 
-# Contributions
+## Contributions
 If you encounter any problems or feel the library is missing a feature, please feel free to open an issue. Pull request are also welcome.
