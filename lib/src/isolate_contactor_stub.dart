@@ -151,12 +151,13 @@ class IsolateContactorInternal implements IsolateContactor {
   @override
   void dispose() {
     _isolateContactorController.close();
-    _isolateContactorSubscription?.cancel();
+    _isolateContactorSubscription.cancel();
     _receivePort.close();
     _isolate?.kill(priority: Isolate.immediate);
     _isolate = null;
     _isComputing = false;
     _computeStreamController.sink.add(ComputeState.computed);
+    _computeStreamController.close();
     _printDebug('Disposed');
   }
 

@@ -7,17 +7,19 @@ void main() {
   test('Test', () async {
     StreamController streamController = StreamController.broadcast();
 
-    final stream = streamController.stream.listen((event) {
+    final stream1 = streamController.stream.listen((event) {
       print('1: $event');
     });
 
-    streamController.stream.listen((event) {
+    final stream2 = streamController.stream.listen((event) {
       print('2: $event');
     });
 
     streamController.add('adb');
 
     await Future.delayed(const Duration(seconds: 3));
+    stream1.cancel();
+    stream2.cancel();
   });
   test('Basic use', () async {
     // Just for waiting till the result has come
