@@ -5,15 +5,19 @@ An easy way to create a new isolate and comunicate with it and support sending v
 This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data data until you terminate it. It'll  save a lot of starting time.
 
 ## How to use it
+
 There are multiple ways to use this package, the only thing to notice that the `function` have to be a `static` or `top-level` function to make it works.
 
 ### Create IsolateContactor instance
+
 ``` dart
 IsolateContactor isolateContactor = await IsolateContactor.create(fibonacci);
 ```
 
 ### Listen to the result of the isolate
+
 Like the above example, the result will be passed into `stream` listener, so you need to make sure that the `stream` has been called before sending message to the isolate for computing.
+
 ``` dart
 isolateContactor.onMessage.listen((message) {
   print('Result from isolate: $message');
@@ -21,11 +25,13 @@ isolateContactor.onMessage.listen((message) {
 ```
 
 ### Send data to isolate for computing
+
 ``` dart
 isolateContactor.sendMessage(value);
 ```
 
-# This is the very basic example of the package
+## This is a basic example of the package
+
 ``` dart
 main() async {
     // Just for waiting until the results have arrived
@@ -64,28 +70,36 @@ dynamic fibonacci(dynamic n) {
 ```
 
 ## Easy build-in function
+
 I have implemented a build-in static function to make you easier to create an isolate as fast as possible.
 You just need to create a function of this form:
+
 ``` dart
 dynamic function(dynamic param) {
   // do something
   return something; // <-- This result will be send back to your `onMessage` in main isolate.
 }
 ```
+
 or
+
 ``` dart
 Future<dynamic> function(dynamic param) async {
   // do something
   return something; // <-- This result will be send back to your `onMessage` in main isolate.
 }
 ```
+
 The `param` can be anything even a `List` of variable like this (but its type must be `dynamic`):
+
 ``` dart
 dynamic subtract(dynamic n) => n[1] - n[0];
 ```
+
 And create the instance with `IsolateContactor.create(function)` or `IsolateContactor.create(subtract)`.
 
 This is a test example:
+
 ``` dart
 void main() {
   test('Create isolate with build-in function', () async {
@@ -141,8 +155,10 @@ dynamic subtract(dynamic n) => n[1] - n[0];
 ```
 
 ## Create your own function
+
 This is also not too complicated to use, you're completely control your isolate function with this method.
 You just need to create a function of this form:
+
 ``` dart
 void isolateFunction(dynamic params) {
   final channel = IsolateContactorController(params);
@@ -154,8 +170,10 @@ void isolateFunction(dynamic params) {
   });
 }
 ```
+
 And use `IsolateContactor.createOwnIsolate(isolateFunction)` and the package will do anything else for you. Please remember that you need to create exactly the same form to make it works.
 This is the example:
+
 ``` dart
 main() async {
   IsolateContactor isolateContactor = await IsolateContactor.createOwnIsolate(isolateFunction);
@@ -187,8 +205,10 @@ dynamic add(dynamic a, dynamic b) => a + b;
 ```
 
 ## Notice
+
 - This package is still in the early stages of development.
-- Support web with limited feature because the package use `Future` for Web platform.
+- Support web with limited features because the package use `Future` for Web platform.
 
 ## Contributions
+
 If you encounter any problems or feel the library is missing a feature, please feel free to open an issue. Pull request are also welcome.
