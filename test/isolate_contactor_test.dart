@@ -1,7 +1,9 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
-import 'package:flutter_test/flutter_test.dart';
 import 'package:isolate_contactor/isolate_contactor.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('Test', () async {

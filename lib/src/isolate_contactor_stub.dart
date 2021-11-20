@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import 'package:flutter/foundation.dart';
-
 import 'utils.dart';
 import 'isolate_contactor_controller.dart';
 import 'isolate_contactor.dart';
 
 class IsolateContactorInternal implements IsolateContactor {
   /// For debugging
-  bool _debugMode = !kReleaseMode;
+  bool _debugMode = false;
 
   /// Create receive port
   late ReceivePort _receivePort;
@@ -43,7 +41,7 @@ class IsolateContactorInternal implements IsolateContactor {
   IsolateContactorInternal._(
       {required dynamic Function(dynamic) isolateFunction,
       required dynamic isolateParam,
-      bool debugMode = kReleaseMode}) {
+      bool debugMode = false}) {
     _debugMode = debugMode;
     _isolateFunction = isolateFunction;
     _isolateParam = isolateParam;
@@ -64,7 +62,7 @@ class IsolateContactorInternal implements IsolateContactor {
   static Future<IsolateContactorInternal> createOwnIsolate(
       {required void Function(dynamic) isolateFunction,
       required dynamic isolateParams,
-      bool debugMode = kReleaseMode}) async {
+      bool debugMode = false}) async {
     IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
         isolateFunction: isolateFunction,
         isolateParam: isolateParams ?? [],

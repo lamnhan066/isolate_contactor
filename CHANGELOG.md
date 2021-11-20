@@ -1,11 +1,16 @@
+## 1.1.0
+
+* Remove flutter dependencies to support dart native
+
 ## 1.0.0
 
 * Support web platform with limited features. The package use `Future` to provide the same features to `Isolate` but it doesn't have `pause`, `resume`, `restart` methods. I'll try to bring the same action with `Isolate` as much as possible.
 * Support `Future` when creating build-in method. More information please read Readme.
 * **BREAKING CHANGE**:
-  - Create your own isolate:
+  * Create your own isolate:
 
     Before:
+
     ``` dart
     void isolateFunction(List<dynamic> params) {
       final channel = IsolateChannel.connectSend(params.last);
@@ -19,7 +24,9 @@
         }
     }
     ```
+
     Now:
+
     ``` dart
     void isolateFunction(dynamic params) {
       final channel = IsolateContactorController(params);
@@ -31,6 +38,7 @@
       });
     }
     ```
+
 ## 0.0.1+2
 
 * Update flutter version
@@ -38,6 +46,7 @@
 ## 0.0.1+1
 
 * Update description
+
 ## 0.0.1
 
 * Initial release
