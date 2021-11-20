@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Remove flutter dependencies to support dart native
+
 ## 1.0.0
 
 * Support web platform with limited features. The package use `Future` to provide the same features to `Isolate` but it doesn't have `pause`, `resume`, `restart` methods. I'll try to bring the same action with `Isolate` as much as possible.

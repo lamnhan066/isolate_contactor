@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'utils.dart';
 import 'isolate_contactor_stub.dart'
     if (dart.library.html) 'isolate_contactor_web.dart';
@@ -9,11 +8,10 @@ abstract class IsolateContactor {
   /// The easy way to create isolate function
   ///
   /// [function] must be static or top-level function.
-  /// [debugMode] use for printing the status of the plugin,
-  /// default is true in Debug and Profile modes.
+  /// [debugMode] allow printing debug data in console. Default is set to false.
   static Future<IsolateContactor> create([
     dynamic Function(dynamic)? function,
-    bool debugMode = !kReleaseMode,
+    bool debugMode = false,
   ]) async {
     return IsolateContactorInternal.create(
         function: function, debugMode: debugMode);
@@ -24,10 +22,11 @@ abstract class IsolateContactor {
   /// [isolateFunction] You can take a look at the example to see what you need to do
   /// to make it works.
   /// [isolateParams] is the list of parameters that you want to add to your [isolateFunction]
+  /// [debugMode] allow printing debug data in console. Default is set to false.
   static Future<IsolateContactor> createOwnIsolate(
     dynamic Function(dynamic) isolateFunction, [
     dynamic isolateParams,
-    bool debugMode = !kReleaseMode,
+    bool debugMode = false,
   ]) async {
     return IsolateContactorInternal.createOwnIsolate(
         isolateFunction: isolateFunction,

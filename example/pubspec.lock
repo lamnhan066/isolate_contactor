@@ -74,25 +74,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_web_plugins:
-    dependency: transitive
-    description: flutter
-    source: sdk
-    version: "0.0.0"
   isolate_contactor:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "1.0.0"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.6.3"
+    version: "1.0.0+1"
   lints:
     dependency: transitive
     description:
@@ -184,4 +172,3 @@ packages:
     version: "2.1.1"
 sdks:
   dart: ">=2.15.0-268.8.beta <3.0.0"
-  flutter: ">=1.12.0"
