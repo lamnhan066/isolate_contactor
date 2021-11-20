@@ -1,6 +1,7 @@
-## 1.1.0
+## 1.1.0+1
 
 * Remove flutter dependencies to support dart native
+* Add a better description
 
 ## 1.0.0
 
