@@ -1,6 +1,6 @@
 name: isolate_contactor
-description: An easy way to create a new isolate and comunicate with it and support sending values between main and child isolate multiple times via `stream`. So you can build your `widget` with `StreamBuilder` and always listen to the value from your `isolate`.
-version: 1.1.0
+description: An easy way to create a new isolate and comunicate with it and support sending values between main and child isolate multiple times via `stream`.
+version: 1.1.0+1
 homepage: https://github.com/fatasin/isolate_contactor
 
 environment:
