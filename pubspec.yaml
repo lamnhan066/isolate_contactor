@@ -1,5 +1,5 @@
 name: isolate_contactor
-description: An easy way to create a new isolate and comunicate with it and support sending values between main and child isolate multiple times via `stream`.
+description: An easy way to create a new isolate, keep it running and comunicate with it. It supports sending values between main and child isolate multiple times via stream.
 version: 1.1.0+1
 homepage: https://github.com/fatasin/isolate_contactor
 

@@ -1,6 +1,6 @@
 # Isolate Contactor
 
-An easy way to create a new isolate and comunicate with it and support sending values between main and child isolate multiple times via `stream`. So you can build your `widget` with `StreamBuilder` and always listen to the value from your `isolate`.
+An easy way to create a new isolate, keep it running and comunicate with it. It supports sending values between main and child isolate multiple times via `stream`, so you can build your `widget` with `StreamBuilder` and always listen to the new value from your `isolate`.
 
 This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data data until you terminate it. It'll  save a lot of starting time.
 
@@ -11,7 +11,7 @@ There are multiple ways to use this package, the only thing to notice that the `
 ### Create IsolateContactor instance
 
 ``` dart
-IsolateContactor isolateContactor = await IsolateContactor.create(fibonacci);
+IsolateContactor isolateContactor = await IsolateContactor.create(<function>);
 ```
 
 ### Listen to the result of the isolate
@@ -77,7 +77,7 @@ You just need to create a function of this form:
 ``` dart
 dynamic function(dynamic param) {
   // do something
-  return something; // <-- This result will be send back to your `onMessage` in main isolate.
+  return something; // <-- This result will be sent back to your `onMessage` in main isolate.
 }
 ```
 
@@ -86,7 +86,7 @@ or
 ``` dart
 Future<dynamic> function(dynamic param) async {
   // do something
-  return something; // <-- This result will be send back to your `onMessage` in main isolate.
+  return something; // <-- This result will be sent back to your `onMessage` in main isolate.
 }
 ```
 
@@ -150,7 +150,7 @@ dynamic fibonacci(dynamic n) {
   return fibonacci(n - 2) + fibonacci(n - 1);
 }
 
-// multi parameters as an dynamic
+// multi parameters as a dynamic
 dynamic subtract(dynamic n) => n[1] - n[0];
 ```
 
@@ -161,7 +161,10 @@ You just need to create a function of this form:
 
 ``` dart
 void isolateFunction(dynamic params) {
+  // Create IsolateContactor controller from params
   final channel = IsolateContactorController(params);
+
+  // Listen to to the `message` sent from main process
   channel.onIsolateMessage.listen((message) {
     // Do your stuff here
     
@@ -171,8 +174,8 @@ void isolateFunction(dynamic params) {
 }
 ```
 
-And use `IsolateContactor.createOwnIsolate(isolateFunction)` and the package will do anything else for you. Please remember that you need to create exactly the same form to make it works.
-This is the example:
+And use `IsolateContactor.createOwnIsolate(isolateFunction)` and the package will do anything else for you. Please remember that you need to create exactly the same form of the function to make it works.
+This is an example:
 
 ``` dart
 main() async {
@@ -204,10 +207,9 @@ void isolateFunction(dynamic params) {
 dynamic add(dynamic a, dynamic b) => a + b;
 ```
 
-## Notice
+## Limitation
 
-- This package is still in the early stages of development.
-- Support web with limited features because the package use `Future` for Web platform.
+Support web platform with limited features. The package use `Future` to provide the same features to Isolate but it currently doesn't have `pause`, `resume`, `restart` methods. I'll try to bring the same action with Isolate as much as possible in the next version.
 
 ## Contributions
 
