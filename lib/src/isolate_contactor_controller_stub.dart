@@ -9,7 +9,7 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
   late StreamSubscription _delegateSubscription;
 
   final StreamController _mainStreamController = StreamController.broadcast();
-  final StreamController _messageStreamController =
+  final StreamController _isolateStreamController =
       StreamController.broadcast();
 
   IsolateContactorControllerIpl(dynamic params) {
@@ -20,42 +20,50 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
     }
 
     _delegateSubscription = _delegate.stream.listen((event) {
-      dynamic message = getIsolatePortMessage(IsolatePort.main, event);
-      if (message != null) {
-        _mainStreamController.add(message);
+      dynamic _message1 = getPortMessage(IsolatePort.main, event);
+      if (_message1 != null) {
+        _mainStreamController.add(_message1);
       }
 
-      message = getIsolatePortMessage(IsolatePort.child, event);
-      if (message != null) {
-        _messageStreamController.add(message);
+      dynamic _message2 = getPortMessage(IsolatePort.isolate, event);
+      if (_message2 != null) {
+        _isolateStreamController.add(_message2);
       }
     });
   }
 
   /// Only need for web platform
   @override
-  StreamController get controller => throw UnimplementedError();
+  IsolateChannel get controller => _delegate;
 
   @override
   Stream get onMessage => _mainStreamController.stream;
 
   @override
-  Stream get onIsolateMessage => _messageStreamController.stream;
+  Stream get onIsolateMessage => _isolateStreamController.stream;
 
   @override
   void sendIsolate(dynamic message) {
-    _delegate.sink.add(<IsolatePort, dynamic>{IsolatePort.child: message});
+    try {
+      _delegate.sink.add({IsolatePort.isolate: message});
+    } catch (_) {
+      // The delegate may be closed
+    }
   }
 
   @override
   void sendResult(dynamic message) {
-    _delegate.sink.add(<IsolatePort, dynamic>{IsolatePort.main: message});
+    try {
+      _delegate.sink.add({IsolatePort.main: message});
+    } catch (_) {
+      // The delegate may be closed
+    }
   }
 
   @override
   void close() {
     _delegateSubscription.cancel();
     _mainStreamController.close();
-    _messageStreamController.close();
+    _isolateStreamController.close();
   }
 }

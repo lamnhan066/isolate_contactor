@@ -1,3 +1,11 @@
+## 1.2.0
+
+* Fixed issue with the `restart` method.
+* Cleanup and reformat internal code.
+* **BREAKING CHANGE:**  
+  * Temporarily removed the `pause` and `resume` methods.
+  * The `debugMode` in the `create()` and `createOwnIsolate()` methods was refactored to **named optional parameters**.
+
 ## 1.1.0+1
 
 * Remove flutter dependencies to support dart native

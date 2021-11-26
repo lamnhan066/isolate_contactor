@@ -18,17 +18,15 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Create isolate
   Isolate? _isolate;
 
-  /// For pausing isolate
-  Capability? _pauseCapability;
-
-  /// For release current main listener
-  late StreamSubscription<dynamic> _isolateContactorSubscription;
-
   /// Check for current computing state in bool
   bool _isComputing = false;
 
   /// Check for current computing state in enum with listener
-  final StreamController<ComputeState> _computeStreamController =
+  final StreamController<ComputeState> _computeStateStreamController =
+      StreamController.broadcast();
+
+  /// Check for current computing state in enum with listener
+  final StreamController<dynamic> _mainStreamController =
       StreamController.broadcast();
 
   /// Control the function of isolate
@@ -51,7 +49,10 @@ class IsolateContactorInternal implements IsolateContactor {
   static Future<IsolateContactorInternal> create(
       {dynamic Function(dynamic)? function, bool debugMode = true}) async {
     IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
-        isolateFunction: internalIsolateFunction, isolateParam: function);
+      isolateFunction: internalIsolateFunction,
+      isolateParam: function,
+      debugMode: debugMode,
+    );
 
     await _isolateContactor._initial();
 
@@ -64,9 +65,10 @@ class IsolateContactorInternal implements IsolateContactor {
       required dynamic isolateParams,
       bool debugMode = false}) async {
     IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
-        isolateFunction: isolateFunction,
-        isolateParam: isolateParams ?? [],
-        debugMode: debugMode);
+      isolateFunction: isolateFunction,
+      isolateParam: isolateParams ?? [],
+      debugMode: debugMode,
+    );
 
     await _isolateContactor._initial();
 
@@ -77,66 +79,54 @@ class IsolateContactorInternal implements IsolateContactor {
   Future<void> _initial() async {
     _receivePort = ReceivePort();
     _isolateContactorController = IsolateContactorController(_receivePort);
-    _isolateParam = [_isolateParam, _receivePort.sendPort];
-    _isolateContactorSubscription =
-        _isolateContactorController.onMessage.listen((message) {
+    _isolateContactorController.onMessage.listen((message) {
       _printDebug('Message received from isolate: $message');
       _isComputing = false;
-      _computeStreamController.sink.add(ComputeState.computed);
+      _computeStateStreamController.sink.add(ComputeState.computed);
+      _mainStreamController.sink.add(message);
     });
 
-    _isolate = await Isolate.spawn(_isolateFunction, _isolateParam);
+    _isolate = await Isolate.spawn(
+        _isolateFunction, [_isolateParam, _receivePort.sendPort]);
+
+    _isComputing = false;
+    _computeStateStreamController.sink.add(ComputeState.computed);
 
     _printDebug('Initialized');
   }
 
+  void _dispose() {
+    _isolate!.kill(priority: Isolate.immediate);
+    _isolate = null;
+    _receivePort.close();
+    _isolateContactorController.close();
+    _isComputing = false;
+    _computeStateStreamController.sink.add(ComputeState.computed);
+  }
+
   /// Get current message as stream
   @override
-  Stream get onMessage => _isolateContactorController.onMessage;
+  Stream get onMessage => _mainStreamController.stream;
 
   /// Get current state
   @override
-  Stream<ComputeState> get onComputeState => _computeStreamController.stream;
+  Stream<ComputeState> get onComputeState =>
+      _computeStateStreamController.stream;
 
   /// Is current isolate computing
   @override
   bool get isComputing => _isComputing;
 
-  /// Pause current [Isolate]
-  @override
-  void pause() {
-    if (_pauseCapability == null && _isolate != null) {
-      _isolate!.pause(_pauseCapability);
-      _printDebug('Paused');
-    } else {
-      _printDebug('Pause Error');
-    }
-  }
-
-  /// Resume current [Isolate]
-  @override
-  void resume() {
-    if (_pauseCapability != null && _isolate != null) {
-      _isolate!.resume(_pauseCapability!);
-      _pauseCapability = null;
-      _printDebug('Resumed');
-    } else {
-      _printDebug('Resume Error');
-    }
-  }
-
   /// Restart current [Isolate]
   @override
   Future<void> restart() async {
-    if (_isolate != null) {
-      _isolate!.kill(priority: Isolate.immediate);
-      _isolate = await Isolate.spawn(_isolateFunction, _isolateParam);
-      _printDebug('Restarted');
-    } else {
-      _printDebug('Restart Error');
+    if (_isolate == null) {
+      _printDebug('! This isolate was terminated');
+      return;
     }
-    _isComputing = false;
-    _computeStreamController.sink.add(ComputeState.computed);
+    _dispose();
+    _initial();
+    _printDebug('Restarted');
   }
 
   @override
@@ -148,14 +138,14 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Dispose current [Isolate]
   @override
   void dispose() {
-    _isolateContactorController.close();
-    _isolateContactorSubscription.cancel();
-    _receivePort.close();
-    _isolate?.kill(priority: Isolate.immediate);
-    _isolate = null;
-    _isComputing = false;
-    _computeStreamController.sink.add(ComputeState.computed);
-    _computeStreamController.close();
+    if (_isolate == null) {
+      _printDebug('! This isolate was terminated');
+      return;
+    }
+
+    _dispose();
+    _computeStateStreamController.close();
+    _mainStreamController.close();
     _printDebug('Disposed');
   }
 
@@ -163,7 +153,7 @@ class IsolateContactorInternal implements IsolateContactor {
   @override
   void sendMessage(dynamic message) {
     if (_isolate == null) {
-      _printDebug('! This isolate has been terminated');
+      _printDebug('! This isolate was terminated');
       return;
     }
 
@@ -174,7 +164,7 @@ class IsolateContactorInternal implements IsolateContactor {
 
     _printDebug('Message send to isolate: $message');
     _isComputing = true;
-    _computeStreamController.sink.add(ComputeState.computing);
+    _computeStateStreamController.sink.add(ComputeState.computing);
     _isolateContactorController.sendIsolate(message);
   }
 

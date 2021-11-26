@@ -6,7 +6,7 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
   late StreamController _delegate;
 
   final StreamController _mainStreamController = StreamController.broadcast();
-  final StreamController _messageStreamController =
+  final StreamController _isolateStreamController =
       StreamController.broadcast();
 
   IsolateContactorControllerIpl(dynamic params) {
@@ -17,14 +17,14 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
     }
 
     _delegate.stream.listen((event) {
-      dynamic message1 = getIsolatePortMessage(IsolatePort.main, event);
-      if (message1 != null) {
-        _mainStreamController.add(message1);
+      dynamic _message1 = getPortMessage(IsolatePort.main, event);
+      if (_message1 != null) {
+        _mainStreamController.add(_message1);
       }
 
-      dynamic message2 = getIsolatePortMessage(IsolatePort.child, event);
-      if (message2 != null) {
-        _messageStreamController.add(message2);
+      dynamic _message2 = getPortMessage(IsolatePort.isolate, event);
+      if (_message2 != null) {
+        _isolateStreamController.add(_message2);
       }
     });
   }
@@ -36,22 +36,30 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
   Stream get onMessage => _mainStreamController.stream;
 
   @override
-  Stream get onIsolateMessage => _messageStreamController.stream;
+  Stream get onIsolateMessage => _isolateStreamController.stream;
 
   @override
   void sendIsolate(dynamic message) {
-    _delegate.sink.add(<IsolatePort, dynamic>{IsolatePort.child: message});
+    try {
+      _delegate.sink.add({IsolatePort.isolate: message});
+    } catch (_) {
+      // The delegate may be closed
+    }
   }
 
   @override
   void sendResult(dynamic message) {
-    _delegate.sink.add(<IsolatePort, dynamic>{IsolatePort.main: message});
+    try {
+      _delegate.sink.add({IsolatePort.main: message});
+    } catch (_) {
+      // The delegate may be closed
+    }
   }
 
   @override
   void close() {
     _delegate.close();
     _mainStreamController.close();
-    _messageStreamController.close();
+    _isolateStreamController.close();
   }
 }

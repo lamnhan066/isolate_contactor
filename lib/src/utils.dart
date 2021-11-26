@@ -4,10 +4,10 @@ import 'isolate_contactor_controller.dart';
 enum ComputeState { computing, computed }
 
 /// Port for sending message
-enum IsolatePort { main, child, debug }
+enum IsolatePort { main, isolate }
 
 /// Get data with port
-dynamic getIsolatePortMessage(IsolatePort toPort, dynamic rawMessage) {
+dynamic getPortMessage(IsolatePort toPort, dynamic rawMessage) {
   try {
     return rawMessage[toPort];
   } catch (_) {}
@@ -18,6 +18,7 @@ dynamic getIsolatePortMessage(IsolatePort toPort, dynamic rawMessage) {
 void internalIsolateFunction(dynamic params) {
   var channel = IsolateContactorController(params);
   channel.onIsolateMessage.listen((message) {
+    print('[Isolate Contactor Isolate]: $message');
     try {
       (params[0](message) as Future).then((value) {
         channel.sendResult(value);
