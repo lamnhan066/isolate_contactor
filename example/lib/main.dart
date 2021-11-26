@@ -102,10 +102,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> initial() async {
-    isolateContactor1 = await IsolateContactor.create(fibonacciFuture);
-    isolateContactor2 =
-        await IsolateContactor.createOwnIsolate(isolateFunction);
-    isolateContactor3 = await IsolateContactor.create(fibonacciRescusiveFuture);
+    isolateContactor1 =
+        await IsolateContactor.create(fibonacciFuture, debugMode: true);
+    isolateContactor2 = await IsolateContactor.createOwnIsolate(isolateFunction,
+        debugMode: true);
+    isolateContactor3 = await IsolateContactor.create(fibonacciRescusiveFuture,
+        debugMode: true);
     setState(() => isLoading = false);
   }
 
@@ -179,6 +181,14 @@ class _MyAppState extends State<MyApp> {
                           child: const Text('Restart isolate 1'),
                         ),
                       ),
+                      ListTile(
+                        title: ElevatedButton(
+                          onPressed: () {
+                            isolateContactor1.terminate();
+                          },
+                          child: const Text('Terminate isolate 1'),
+                        ),
+                      ),
                       StreamBuilder(
                         stream: isolateContactor2.onMessage,
                         builder: (context, snapshot) {
@@ -205,6 +215,14 @@ class _MyAppState extends State<MyApp> {
                               ),
                             );
                           }),
+                      ListTile(
+                        title: ElevatedButton(
+                          onPressed: () {
+                            isolateContactor2.restart();
+                          },
+                          child: const Text('Restart isolate 2'),
+                        ),
+                      ),
                       ListTile(
                         title: ElevatedButton(
                           onPressed: () {
@@ -239,6 +257,14 @@ class _MyAppState extends State<MyApp> {
                               ),
                             );
                           }),
+                      ListTile(
+                        title: ElevatedButton(
+                          onPressed: () {
+                            isolateContactor3.restart();
+                          },
+                          child: const Text('Restart isolate 3'),
+                        ),
+                      ),
                       ListTile(
                         title: ElevatedButton(
                           onPressed: () {

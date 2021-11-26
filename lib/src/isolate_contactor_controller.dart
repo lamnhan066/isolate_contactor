@@ -8,7 +8,11 @@ abstract class IsolateContactorController {
   factory IsolateContactorController(dynamic params) =
       IsolateContactorControllerIpl;
 
-  StreamController get controller => throw UnimplementedError();
+  /// Get current controller. This method only needs for internal use only
+  ///
+  /// [StreamController] on Web platform
+  /// [IsolateChannel] on other platforms
+  dynamic get controller => throw UnimplementedError();
 
   /// Listen to result of the isolate
   Stream get onMessage => throw UnimplementedError();

@@ -9,10 +9,10 @@ abstract class IsolateContactor {
   ///
   /// [function] must be static or top-level function.
   /// [debugMode] allow printing debug data in console. Default is set to false.
-  static Future<IsolateContactor> create([
-    dynamic Function(dynamic)? function,
+  static Future<IsolateContactor> create(
+    dynamic Function(dynamic) function, {
     bool debugMode = false,
-  ]) async {
+  }) async {
     return IsolateContactorInternal.create(
         function: function, debugMode: debugMode);
   }
@@ -24,10 +24,10 @@ abstract class IsolateContactor {
   /// [isolateParams] is the list of parameters that you want to add to your [isolateFunction]
   /// [debugMode] allow printing debug data in console. Default is set to false.
   static Future<IsolateContactor> createOwnIsolate(
-    dynamic Function(dynamic) isolateFunction, [
+    dynamic Function(dynamic) isolateFunction, {
     dynamic isolateParams,
     bool debugMode = false,
-  ]) async {
+  }) async {
     return IsolateContactorInternal.createOwnIsolate(
         isolateFunction: isolateFunction,
         isolateParams: isolateParams,
@@ -47,19 +47,9 @@ abstract class IsolateContactor {
   /// Get current computing state of the isolate
   bool get isComputing => throw UnimplementedError();
 
-  /// Pause the isolate
-  ///
-  /// This method is not available in Web platform at the moment
-  void pause() => throw UnimplementedError();
-
-  /// Resume the isolate
-  ///
-  /// This method is not available in Web platform at the moment
-  void resume() => throw UnimplementedError();
-
   /// Restart the paused isolate
   ///
-  /// This method is not available in Web platform at the moment
+  /// This method is not available on Web platform at the moment
   Future<void> restart() async => throw UnimplementedError();
 
   /// Close current isolate, the same behavior with [dispose]
