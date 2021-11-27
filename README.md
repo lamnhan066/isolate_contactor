@@ -209,7 +209,7 @@ dynamic add(dynamic a, dynamic b) => a + b;
 
 ## Limitation
 
-Support web platform with limited features. The package use `Future` to provide the same features to Isolate but it currently doesn't have `pause`, `resume`, `restart` methods. I'll try to bring the same action with Isolate as much as possible in the next version.
+Support web platform with limited features. The package use `Future` to provide the same features to Isolate.
 
 ## Contributions
 
