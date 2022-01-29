@@ -1,5 +1,8 @@
 ## 1.2.0
 
+* Update README
+## 1.2.0
+
 * Fixed issue with the `restart` method.
 * Cleanup and reformat internal code.
 * **BREAKING CHANGE:**  
