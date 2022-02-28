@@ -1,3 +1,7 @@
+## 1.2.0+2
+
+* Update homepage
+
 ## 1.2.0+1
 
 * Update README
