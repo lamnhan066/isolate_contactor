@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:stream_channel/isolate_channel.dart';
-import 'utils.dart';
-import 'isolate_contactor_controller.dart';
+import '../isolate_contactor_controller.dart';
+import '../utils/utils.dart';
 
 class IsolateContactorControllerIpl implements IsolateContactorController {
-  late IsolateChannel _delegate;
-  late StreamSubscription _delegateSubscription;
+  late StreamController _delegate;
 
   final StreamController _mainStreamController = StreamController.broadcast();
   final StreamController _isolateStreamController =
@@ -14,12 +12,12 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
 
   IsolateContactorControllerIpl(dynamic params) {
     if (params is List) {
-      _delegate = IsolateChannel.connectSend(params.last);
+      _delegate = params.last.controller;
     } else {
-      _delegate = IsolateChannel.connectReceive(params);
+      _delegate = params;
     }
 
-    _delegateSubscription = _delegate.stream.listen((event) {
+    _delegate.stream.listen((event) {
       dynamic _message1 = getPortMessage(IsolatePort.main, event);
       if (_message1 != null) {
         _mainStreamController.add(_message1);
@@ -32,9 +30,8 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
     });
   }
 
-  /// Only need for web platform
   @override
-  IsolateChannel get controller => _delegate;
+  StreamController get controller => _delegate;
 
   @override
   Stream get onMessage => _mainStreamController.stream;
@@ -62,7 +59,7 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
 
   @override
   void close() {
-    _delegateSubscription.cancel();
+    _delegate.close();
     _mainStreamController.close();
     _isolateStreamController.close();
   }

@@ -1,4 +1,4 @@
-import 'isolate_contactor_controller.dart';
+import '../isolate_contactor_controller.dart';
 
 /// States of current isolate
 enum ComputeState { computing, computed }

@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'utils.dart';
-import 'isolate_contactor_stub.dart'
-    if (dart.library.html) 'isolate_contactor_web.dart';
+import 'isolate_contactor/isolate_contactor_stub.dart'
+    if (dart.library.html) 'isolate_contactor/isolate_contactor_web.dart';
+import 'utils/utils.dart';
 
 abstract class IsolateContactor {
   /// The easy way to create isolate function

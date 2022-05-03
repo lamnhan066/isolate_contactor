@@ -1,3 +1,9 @@
+## 1.2.1
+
+* Update dependencies
+* Update homepage
+* Cleanup
+
 ## 1.2.0+2
 
 * Update homepage

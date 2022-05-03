@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import 'utils.dart';
-import 'isolate_contactor_controller.dart';
-import 'isolate_contactor.dart';
+import '../isolate_contactor.dart';
+import '../isolate_contactor_controller.dart';
+import '../utils/utils.dart';
 
 class IsolateContactorInternal implements IsolateContactor {
   /// For debugging
