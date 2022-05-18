@@ -48,15 +48,15 @@ class IsolateContactorInternal implements IsolateContactor {
   /// Create an instance with build-in function
   static Future<IsolateContactorInternal> create(
       {dynamic Function(dynamic)? function, bool debugMode = true}) async {
-    IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
+    IsolateContactorInternal isolateContactor = IsolateContactorInternal._(
       isolateFunction: internalIsolateFunction,
       isolateParam: function,
       debugMode: debugMode,
     );
 
-    await _isolateContactor._initial();
+    await isolateContactor._initial();
 
-    return _isolateContactor;
+    return isolateContactor;
   }
 
   /// Create an instance with your own function
@@ -64,15 +64,15 @@ class IsolateContactorInternal implements IsolateContactor {
       {required void Function(dynamic) isolateFunction,
       required dynamic isolateParams,
       bool debugMode = false}) async {
-    IsolateContactorInternal _isolateContactor = IsolateContactorInternal._(
+    IsolateContactorInternal isolateContactor = IsolateContactorInternal._(
       isolateFunction: isolateFunction,
       isolateParam: isolateParams ?? [],
       debugMode: debugMode,
     );
 
-    await _isolateContactor._initial();
+    await isolateContactor._initial();
 
-    return _isolateContactor;
+    return isolateContactor;
   }
 
   /// Initialize

@@ -14,7 +14,7 @@ dynamic getPortMessage(IsolatePort toPort, dynamic rawMessage) {
   return null;
 }
 
-/// Create a static function to compunicate with main [Isolate]
+/// Create a static function to compunicate with main `Isolate`
 void internalIsolateFunction(dynamic params) {
   var channel = IsolateContactorController(params);
   channel.onIsolateMessage.listen((message) {

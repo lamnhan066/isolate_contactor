@@ -18,14 +18,14 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
     }
 
     _delegate.stream.listen((event) {
-      dynamic _message1 = getPortMessage(IsolatePort.main, event);
-      if (_message1 != null) {
-        _mainStreamController.add(_message1);
+      dynamic message1 = getPortMessage(IsolatePort.main, event);
+      if (message1 != null) {
+        _mainStreamController.add(message1);
       }
 
-      dynamic _message2 = getPortMessage(IsolatePort.isolate, event);
-      if (_message2 != null) {
-        _isolateStreamController.add(_message2);
+      dynamic message2 = getPortMessage(IsolatePort.isolate, event);
+      if (message2 != null) {
+        _isolateStreamController.add(message2);
       }
     });
   }

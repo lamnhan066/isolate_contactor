@@ -1,3 +1,8 @@
+## 1.3.0
+
+* Updated dependencies.
+* Improved function headers.
+
 ## 1.2.1
 
 * Update dependencies
