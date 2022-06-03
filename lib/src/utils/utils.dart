@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../isolate_contactor_controller.dart';
 
 /// States of current isolate
@@ -18,15 +20,8 @@ dynamic getPortMessage(IsolatePort toPort, dynamic rawMessage) {
 void internalIsolateFunction(dynamic params) {
   var channel = IsolateContactorController(params);
   channel.onIsolateMessage.listen((message) {
-    print('[Isolate Contactor Isolate]: $message');
-    try {
-      (params[0](message) as Future).then((value) {
-        channel.sendResult(value);
-      });
-    } catch (_) {
-      try {
-        channel.sendResult(params[0](message));
-      } catch (_) {}
-    }
+    Completer completer = Completer();
+    completer.future.then((value) => channel.sendResult(value));
+    completer.complete(params[0](message));
   });
 }

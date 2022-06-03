@@ -1,3 +1,7 @@
+## 1.4.0
+
+* Fixed issue in `internalIsolateFunction` makes this function run twice.
+
 ## 1.3.0
 
 * Updated dependencies.

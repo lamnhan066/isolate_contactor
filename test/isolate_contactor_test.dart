@@ -59,6 +59,8 @@ void main() {
         await IsolateContactor.create(fibonacci);
     IsolateContactor isolateContactor2 =
         await IsolateContactor.create(subtract);
+    IsolateContactor isolateContactor3 =
+        await IsolateContactor.create(fibonacciFuture);
 
     // Listen to f10
     isolateContactor1.onMessage.listen((event) {
@@ -77,11 +79,22 @@ void main() {
       value2Exit = true;
     });
 
+    // Listen to f13
+    isolateContactor3.onMessage.listen((event) {
+      print('isolate 3: $event');
+      expect(event, 233);
+
+      value1Exit = true;
+    });
+
     // Send 10 to [fibonacci]
     isolateContactor1.sendMessage(10);
 
     // Send 20 and 10 to [subtract]
     isolateContactor2.sendMessage([10, 20]);
+
+    // Send 13 to [fibonacciFuture]
+    isolateContactor3.sendMessage(13);
 
     // Only for waiting the result in Console app. Don't need to use in your real app
     while (!value1Exit && !value2Exit) {
@@ -90,6 +103,7 @@ void main() {
 
     isolateContactor1.dispose();
     isolateContactor2.dispose();
+    isolateContactor3.dispose();
   });
   test('Create isolate with your own function', () async {
     bool valueExit = false;
@@ -126,6 +140,24 @@ dynamic fibonacci(dynamic n) {
     n3 = n1 + n2;
     n1 = n2;
     n2 = n3;
+  }
+
+  return n3.round();
+}
+
+Future<dynamic> fibonacciFuture(dynamic n) async {
+  if (n == 0) return 0;
+  if (n <= 2) return 1;
+
+  double n1 = 0, n2 = 1, n3 = 1;
+
+  for (int i = 2; i <= n; i++) {
+    n3 = n1 + n2;
+    n1 = n2;
+    n2 = n3;
+
+    // Magic code: This is only for non-blocking UI in Web platform
+    await Future.delayed(Duration.zero);
   }
 
   return n3.round();
