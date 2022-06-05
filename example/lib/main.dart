@@ -25,7 +25,7 @@ Future<dynamic> fibonacciRescusiveFuture(dynamic n) async {
 }
 
 /// This must be a static or top-level function
-Future<dynamic> fibonacciFuture(dynamic n) async {
+Future<int> fibonacciFuture(dynamic n) async {
   if (n == 0) return 0;
   if (n <= 2) return 1;
 

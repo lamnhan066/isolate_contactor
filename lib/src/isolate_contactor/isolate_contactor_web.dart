@@ -4,7 +4,7 @@ import '../isolate_contactor.dart';
 import '../isolate_contactor_controller.dart';
 import '../utils/utils.dart';
 
-class IsolateContactorInternal implements IsolateContactor {
+class IsolateContactorInternal<T> implements IsolateContactor {
   /// For debugging
   bool _debugMode = false;
 
@@ -16,7 +16,7 @@ class IsolateContactorInternal implements IsolateContactor {
       StreamController.broadcast();
 
   /// Check for current cumputing state in enum with listener
-  final StreamController<dynamic> _mainStreamController =
+  final StreamController<T> _mainStreamController =
       StreamController.broadcast();
 
   /// Listener for result
@@ -88,7 +88,7 @@ class IsolateContactorInternal implements IsolateContactor {
 
   /// Get current message as stream
   @override
-  Stream get onMessage => _mainStreamController.stream;
+  Stream<T> get onMessage => _mainStreamController.stream;
 
   /// Get current state
   @override

@@ -28,7 +28,7 @@ void main() {
     bool valueExit = false;
 
     // Create IsolateContactor
-    IsolateContactor isolateContactor =
+    IsolateContactor<int> isolateContactor =
         await IsolateContactor.create(fibonacci);
 
     // Listen to the result
@@ -55,11 +55,11 @@ void main() {
     bool value1Exit = false;
     bool value2Exit = false;
 
-    IsolateContactor isolateContactor1 =
+    IsolateContactor<int> isolateContactor1 =
         await IsolateContactor.create(fibonacci);
-    IsolateContactor isolateContactor2 =
+    IsolateContactor<int> isolateContactor2 =
         await IsolateContactor.create(subtract);
-    IsolateContactor isolateContactor3 =
+    IsolateContactor<int> isolateContactor3 =
         await IsolateContactor.create(fibonacciFuture);
 
     // Listen to f10
@@ -131,7 +131,7 @@ void main() {
   });
 }
 
-dynamic fibonacci(dynamic n) {
+int fibonacci(dynamic n) {
   if (n <= 2) return 1;
 
   int n1 = 0, n2 = 1, n3 = 1;
@@ -145,7 +145,7 @@ dynamic fibonacci(dynamic n) {
   return n3.round();
 }
 
-Future<dynamic> fibonacciFuture(dynamic n) async {
+Future<int> fibonacciFuture(dynamic n) async {
   if (n == 0) return 0;
   if (n <= 2) return 1;
 
@@ -164,10 +164,10 @@ Future<dynamic> fibonacciFuture(dynamic n) async {
 }
 
 // single parameter
-dynamic subtract(dynamic n) => n[1] - n[0];
+int subtract(dynamic n) => n[1] - n[0];
 
 // multi parameters as an dynamic
-dynamic add(dynamic a, dynamic b) => a + b;
+int add(dynamic a, dynamic b) => a + b;
 
 // Create your own function here
 void isolateFunction(dynamic params) {

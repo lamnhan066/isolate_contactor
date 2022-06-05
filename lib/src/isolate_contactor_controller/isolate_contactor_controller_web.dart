@@ -3,10 +3,12 @@ import 'dart:async';
 import '../isolate_contactor_controller.dart';
 import '../utils/utils.dart';
 
-class IsolateContactorControllerIpl implements IsolateContactorController {
+class IsolateContactorControllerIpl<T>
+    implements IsolateContactorController<T> {
   late StreamController _delegate;
 
-  final StreamController _mainStreamController = StreamController.broadcast();
+  final StreamController<T> _mainStreamController =
+      StreamController.broadcast();
   final StreamController _isolateStreamController =
       StreamController.broadcast();
 
@@ -34,7 +36,7 @@ class IsolateContactorControllerIpl implements IsolateContactorController {
   StreamController get controller => _delegate;
 
   @override
-  Stream get onMessage => _mainStreamController.stream;
+  Stream<T> get onMessage => _mainStreamController.stream;
 
   @override
   Stream get onIsolateMessage => _isolateStreamController.stream;

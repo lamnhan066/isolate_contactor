@@ -4,16 +4,16 @@ import 'isolate_contactor/isolate_contactor_stub.dart'
     if (dart.library.html) 'isolate_contactor/isolate_contactor_web.dart';
 import 'utils/utils.dart';
 
-abstract class IsolateContactor {
+abstract class IsolateContactor<T> {
   /// The easy way to create isolate function
   ///
   /// `function` must be static or top-level function.
   /// `debugMode` allow printing debug data in console. Default is set to `false`.
-  static Future<IsolateContactor> create(
-    dynamic Function(dynamic) function, {
+  static Future<IsolateContactor<T>> create<T>(
+    FutureOr<T> Function(dynamic) function, {
     bool debugMode = false,
   }) async {
-    return IsolateContactorInternal.create(
+    return await IsolateContactorInternal.create<T>(
         function: function, debugMode: debugMode);
   }
 
@@ -23,12 +23,12 @@ abstract class IsolateContactor {
   /// to make it works.
   /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
   /// `debugMode` allow printing debug data in console. Default is set to false.
-  static Future<IsolateContactor> createOwnIsolate(
-    dynamic Function(dynamic) isolateFunction, {
+  static Future<IsolateContactor> createOwnIsolate<T>(
+    void Function(dynamic) isolateFunction, {
     dynamic isolateParams,
     bool debugMode = false,
   }) async {
-    return IsolateContactorInternal.createOwnIsolate(
+    return IsolateContactorInternal.createOwnIsolate<T>(
         isolateFunction: isolateFunction,
         isolateParams: isolateParams,
         debugMode: debugMode);
@@ -38,7 +38,7 @@ abstract class IsolateContactor {
   void sendMessage(dynamic message) => throw UnimplementedError();
 
   /// Listen to the result of the isolate
-  Stream get onMessage => throw UnimplementedError();
+  Stream<T> get onMessage => throw UnimplementedError();
 
   /// Listen to the current state of isolate.
   /// Includes `ComputeState.computed` and `ComputeState.computing`

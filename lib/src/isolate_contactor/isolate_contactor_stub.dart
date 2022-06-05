@@ -5,7 +5,7 @@ import '../isolate_contactor.dart';
 import '../isolate_contactor_controller.dart';
 import '../utils/utils.dart';
 
-class IsolateContactorInternal implements IsolateContactor {
+class IsolateContactorInternal<T> implements IsolateContactor<T> {
   /// For debugging
   bool _debugMode = false;
 
@@ -26,7 +26,7 @@ class IsolateContactorInternal implements IsolateContactor {
       StreamController.broadcast();
 
   /// Check for current computing state in enum with listener
-  final StreamController<dynamic> _mainStreamController =
+  final StreamController<T> _mainStreamController =
       StreamController.broadcast();
 
   /// Control the function of isolate
@@ -46,9 +46,9 @@ class IsolateContactorInternal implements IsolateContactor {
   }
 
   /// Create an instance with build-in function
-  static Future<IsolateContactorInternal> create(
-      {dynamic Function(dynamic)? function, bool debugMode = true}) async {
-    IsolateContactorInternal isolateContactor = IsolateContactorInternal._(
+  static Future<IsolateContactorInternal<T>> create<T>(
+      {FutureOr<T> Function(dynamic)? function, bool debugMode = true}) async {
+    IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(
       isolateFunction: internalIsolateFunction,
       isolateParam: function,
       debugMode: debugMode,
@@ -60,7 +60,7 @@ class IsolateContactorInternal implements IsolateContactor {
   }
 
   /// Create an instance with your own function
-  static Future<IsolateContactorInternal> createOwnIsolate(
+  static Future<IsolateContactorInternal> createOwnIsolate<T>(
       {required void Function(dynamic) isolateFunction,
       required dynamic isolateParams,
       bool debugMode = false}) async {
@@ -106,7 +106,7 @@ class IsolateContactorInternal implements IsolateContactor {
 
   /// Get current message as stream
   @override
-  Stream get onMessage => _mainStreamController.stream;
+  Stream<T> get onMessage => _mainStreamController.stream;
 
   /// Get current state
   @override
