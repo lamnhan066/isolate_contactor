@@ -37,7 +37,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
 
   /// Internal instance
   IsolateContactorInternal._(
-      {required dynamic Function(dynamic) isolateFunction,
+      {required FutureOr<void> Function(dynamic) isolateFunction,
       required dynamic isolateParam,
       bool debugMode = false}) {
     _debugMode = debugMode;
@@ -60,11 +60,11 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }
 
   /// Create an instance with your own function
-  static Future<IsolateContactorInternal> createOwnIsolate<T>(
-      {required void Function(dynamic) isolateFunction,
+  static Future<IsolateContactorInternal<T>> createOwnIsolate<T>(
+      {required FutureOr<void> Function(dynamic) isolateFunction,
       required dynamic isolateParams,
       bool debugMode = false}) async {
-    IsolateContactorInternal isolateContactor = IsolateContactorInternal._(
+    IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(
       isolateFunction: isolateFunction,
       isolateParam: isolateParams ?? [],
       debugMode: debugMode,

@@ -20,7 +20,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
       StreamController.broadcast();
 
   /// Listener for result
-  IsolateContactorController? _isolateContactorController;
+  IsolateContactorController<T>? _isolateContactorController;
 
   /// Control the function of isolate
   late void Function(dynamic) _isolateFunction;
@@ -30,7 +30,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
 
   /// Create an instance
   IsolateContactorInternal._(
-      {required void Function(dynamic) isolateFunction,
+      {required FutureOr<void> Function(dynamic) isolateFunction,
       required dynamic isolateParam,
       bool debugMode = false}) {
     _debugMode = debugMode;
@@ -39,9 +39,9 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }
 
   /// Create an instance
-  static Future<IsolateContactorInternal> create<T>(
+  static Future<IsolateContactorInternal<T>> create<T>(
       {FutureOr<T> Function(dynamic)? function, bool debugMode = true}) async {
-    IsolateContactorInternal isolateContactor = IsolateContactorInternal._(
+    IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(
       isolateFunction: internalIsolateFunction,
       isolateParam: function,
       debugMode: debugMode,
@@ -53,11 +53,11 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }
 
   /// Create modified isolate function
-  static Future<IsolateContactorInternal> createOwnIsolate<T>(
-      {required void Function(dynamic) isolateFunction,
+  static Future<IsolateContactorInternal<T>> createOwnIsolate<T>(
+      {required FutureOr<void> Function(dynamic) isolateFunction,
       required dynamic isolateParams,
       bool debugMode = false}) async {
-    IsolateContactorInternal isolateContactor = IsolateContactorInternal._(
+    IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(
       isolateFunction: isolateFunction,
       isolateParam: isolateParams ?? [],
       debugMode: debugMode,
