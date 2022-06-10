@@ -4,7 +4,7 @@ import '../isolate_contactor.dart';
 import '../isolate_contactor_controller.dart';
 import '../utils/utils.dart';
 
-class IsolateContactorInternal<T> implements IsolateContactor {
+class IsolateContactorInternal<T> implements IsolateContactor<T> {
   /// For debugging
   bool _debugMode = false;
 
@@ -39,8 +39,8 @@ class IsolateContactorInternal<T> implements IsolateContactor {
   }
 
   /// Create an instance
-  static Future<IsolateContactorInternal> create(
-      {dynamic Function(dynamic)? function, bool debugMode = true}) async {
+  static Future<IsolateContactorInternal> create<T>(
+      {FutureOr<T> Function(dynamic)? function, bool debugMode = true}) async {
     IsolateContactorInternal isolateContactor = IsolateContactorInternal._(
       isolateFunction: internalIsolateFunction,
       isolateParam: function,
@@ -53,7 +53,7 @@ class IsolateContactorInternal<T> implements IsolateContactor {
   }
 
   /// Create modified isolate function
-  static Future<IsolateContactorInternal> createOwnIsolate(
+  static Future<IsolateContactorInternal> createOwnIsolate<T>(
       {required void Function(dynamic) isolateFunction,
       required dynamic isolateParams,
       bool debugMode = false}) async {
