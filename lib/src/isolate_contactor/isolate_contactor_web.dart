@@ -54,7 +54,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
 
   /// Create modified isolate function
   static Future<IsolateContactorInternal<T>> createOwnIsolate<T>(
-      {required FutureOr<void> Function(dynamic) isolateFunction,
+      {required void Function(dynamic) isolateFunction,
       required dynamic isolateParams,
       bool debugMode = false}) async {
     IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(

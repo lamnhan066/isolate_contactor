@@ -6,15 +6,19 @@ import 'package:isolate_contactor/isolate_contactor.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('Test', () async {
+  test('Test multi listener of stream', () async {
     StreamController streamController = StreamController.broadcast();
 
     final stream1 = streamController.stream.listen((event) {
       print('1: $event');
+
+      expect(event, 'adb');
     });
 
     final stream2 = streamController.stream.listen((event) {
       print('2: $event');
+
+      expect(event, 'adb');
     });
 
     streamController.add('adb');
@@ -106,28 +110,47 @@ void main() {
     isolateContactor3.dispose();
   });
   test('Create isolate with your own function', () async {
-    bool valueExit = false;
+    bool valueExit1 = false;
+    bool valueExit2 = false;
 
-    IsolateContactor isolateContactor =
-        await IsolateContactor.createOwnIsolate(isolateFunction);
-    // Listen to f20
+    late IsolateContactor<int> isolateContactor;
+    late IsolateContactor<int> isolateContactorFuture;
+
+    isolateContactor = await IsolateContactor.createOwnIsolate(isolateFunction);
+    isolateContactorFuture =
+        await IsolateContactor.createOwnIsolate(isolateFunctionFuture);
+
+    // Listen to 10 + 20
     isolateContactor.onMessage.listen((event) {
       print('isolate: $event');
 
       expect(event, 30);
 
-      valueExit = true;
+      valueExit1 = true;
+    });
+
+    // Listen to 15 + 20
+    isolateContactorFuture.onMessage.listen((event) {
+      print('isolate: $event');
+
+      expect(event, 35);
+
+      valueExit2 = true;
     });
 
     // Send 10 and 20 to [isolateFunction]
     isolateContactor.sendMessage([10, 20]);
 
+    // Send 10 and 20 to [isolateFunction]
+    isolateContactorFuture.sendMessage([15, 20]);
+
     // Only for waiting the result in Console app. Don't need to use in your real app
-    while (!valueExit) {
+    while (!valueExit1 && !valueExit2) {
       await Future.delayed(const Duration(milliseconds: 10));
     }
 
     isolateContactor.dispose();
+    isolateContactorFuture.dispose();
   });
 }
 
@@ -169,10 +192,25 @@ int subtract(dynamic n) => n[1] - n[0];
 // multi parameters as an dynamic
 int add(dynamic a, dynamic b) => a + b;
 
+// multi parameters as an dynamic
+Future<int> addFuture(dynamic a, dynamic b) async {
+  await null;
+
+  return a + b;
+}
+
 // Create your own function here
 void isolateFunction(dynamic params) {
   final channel = IsolateContactorController(params);
   channel.onIsolateMessage.listen((message) {
     channel.sendResult(add(message[0], message[1]));
+  });
+}
+
+// Create your own function here
+void isolateFunctionFuture(dynamic params) {
+  final channel = IsolateContactorController(params);
+  channel.onIsolateMessage.listen((message) async {
+    channel.sendResult(await addFuture(message[0], message[1]));
   });
 }

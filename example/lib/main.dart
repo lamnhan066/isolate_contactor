@@ -115,8 +115,6 @@ class _MyAppState extends State<MyApp> {
     value1 = rad.nextInt(max);
     print('Isolate 1: Calculate fibonancci at F$value1');
     isolateContactor1.sendMessage(value1);
-
-    Future.delayed(Duration.zero);
   }
 
   void calculateValue2([int max = 100]) {

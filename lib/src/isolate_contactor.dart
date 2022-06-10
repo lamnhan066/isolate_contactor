@@ -23,8 +23,8 @@ abstract class IsolateContactor<T> {
   /// to make it works.
   /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
   /// `debugMode` allow printing debug data in console. Default is set to false.
-  static Future<IsolateContactor> createOwnIsolate<T>(
-    void Function(dynamic) isolateFunction, {
+  static Future<IsolateContactor<T>> createOwnIsolate<T>(
+    FutureOr<void> Function(dynamic) isolateFunction, {
     dynamic isolateParams,
     bool debugMode = false,
   }) async {
