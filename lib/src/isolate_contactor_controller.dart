@@ -20,6 +20,9 @@ abstract class IsolateContactorController<T> {
   /// Listen to the message is sent to isolate
   Stream get onIsolateMessage => throw UnimplementedError();
 
+  /// Pass value `true` to this stream if `dispose` is called
+  Stream<bool> get onDispose => throw UnimplementedError();
+
   /// Send `message` to the isolate for computation
   void sendIsolate(T message) => throw UnimplementedError();
 
