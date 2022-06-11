@@ -1,4 +1,31 @@
-## 1.5.0
+## 1.5.0+1
+
+* Now you can add return type for the stream listener. Example:
+
+``` dart
+// `fibonacci` have `int` return type
+IsolateContactor<int> isolateContactor = await IsolateContactor.create(fibonacci);
+
+// `intEvent` will be `int` type
+isolateContactorFuture.onMessage.listen((intEvent) {
+  // intEvent
+});
+
+// `fibonacci` have `int` return type
+int fibonacci(dynamic n) {
+  if (n <= 2) return 1;
+
+  int n1 = 0, n2 = 1, n3 = 1;
+
+  for (int i = 2; i <= n; i++) {
+    n3 = n1 + n2;
+    n1 = n2;
+    n2 = n3;
+  }
+
+  return n3.round();
+}
+```
 
 * Add `onDispose` parameter to `IsolateContactorController`, this parameter allows you to add your own dispose method inside `isolateFunction` for `.createOwnIsolate`.
 
