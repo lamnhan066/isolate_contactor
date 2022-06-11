@@ -1,3 +1,7 @@
+## 1.5.0
+
+* Add `onDispose` parameter to `IsolateContactorController`, this parameter allows you to add your own dispose method inside `isolateFunction` for `.createOwnIsolate`.
+
 ## 1.4.0
 
 * Fixed issue in `internalIsolateFunction` makes this function run twice.

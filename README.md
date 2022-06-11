@@ -2,7 +2,7 @@
 
 An easy way to create a new isolate, keep it running and comunicate with it. It supports sending values between main and child isolate multiple times via `stream`, so you can build your `widget` with `StreamBuilder` and always listen to the new value from your `isolate`.
 
-This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data data until you terminate it. It'll  save a lot of starting time.
+This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data from creating until you terminate it. It'll  save a lot of starting time.
 
 ## How to use it
 
@@ -194,7 +194,9 @@ main() async {
 
 // Create your own function here
 void isolateFunction(dynamic params) {
-  final channel = IsolateContactorController(params);
+  final channel = IsolateContactorController(params, onDispose: () {
+    print('Disposing isolateFunction');
+  });
   channel.onIsolateMessage.listen((message) {
     // Do your stuff here
     
