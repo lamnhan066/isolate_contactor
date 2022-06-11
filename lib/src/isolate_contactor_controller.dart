@@ -5,7 +5,7 @@ import 'isolate_contactor_controller/isolate_contactor_controller_stub.dart'
 
 abstract class IsolateContactorController<T> {
   /// Create controller for current `IsolateContactor`
-  factory IsolateContactorController(dynamic params) =
+  factory IsolateContactorController(dynamic params, {Function()? onDispose}) =
       IsolateContactorControllerIpl;
 
   /// Get current controller. This method only needs for internal use only
@@ -20,11 +20,8 @@ abstract class IsolateContactorController<T> {
   /// Listen to the message is sent to isolate
   Stream get onIsolateMessage => throw UnimplementedError();
 
-  /// Pass value `true` to this stream if `dispose` is called
-  Stream<bool> get onDispose => throw UnimplementedError();
-
   /// Send `message` to the isolate for computation
-  void sendIsolate(T message) => throw UnimplementedError();
+  void sendIsolate(dynamic message) => throw UnimplementedError();
 
   /// Send the `result` of computation to `onIsolateMessage` stream
   void sendResult(T result) => throw UnimplementedError();

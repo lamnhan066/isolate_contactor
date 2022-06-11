@@ -14,10 +14,9 @@ class IsolateContactorControllerIpl<T>
       StreamController.broadcast();
   final StreamController _isolateStreamController =
       StreamController.broadcast();
-  final StreamController<bool> _isolateOnDisposeStreamController =
-      StreamController.broadcast();
+  final Function()? onDispose;
 
-  IsolateContactorControllerIpl(dynamic params) {
+  IsolateContactorControllerIpl(dynamic params, {this.onDispose}) {
     if (params is List) {
       _delegate = IsolateChannel<T>.connectSend(params.last);
     } else {
@@ -32,7 +31,12 @@ class IsolateContactorControllerIpl<T>
 
       dynamic message2 = getPortMessage(IsolatePort.isolate, event);
       if (message2 != null) {
-        _isolateStreamController.add(message2);
+        if (message2 == IsolateState.dispose) {
+          if (onDispose != null) onDispose!();
+          close();
+        } else {
+          _isolateStreamController.add(message2);
+        }
       }
     });
   }
@@ -46,9 +50,6 @@ class IsolateContactorControllerIpl<T>
 
   @override
   Stream get onIsolateMessage => _isolateStreamController.stream;
-
-  @override
-  Stream<bool> get onDispose => _isolateOnDisposeStreamController.stream;
 
   @override
   void sendIsolate(dynamic message) {
@@ -70,7 +71,6 @@ class IsolateContactorControllerIpl<T>
 
   @override
   void close() {
-    _isolateOnDisposeStreamController.add(true);
     _delegateSubscription.cancel();
     _mainStreamController.close();
     _isolateStreamController.close();

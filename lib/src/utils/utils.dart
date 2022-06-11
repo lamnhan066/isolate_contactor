@@ -8,6 +8,9 @@ enum ComputeState { computing, computed }
 /// Port for sending message
 enum IsolatePort { main, isolate }
 
+/// Isolate state
+enum IsolateState { dispose }
+
 /// Get data with port
 dynamic getPortMessage(IsolatePort toPort, dynamic rawMessage) {
   try {
@@ -18,7 +21,7 @@ dynamic getPortMessage(IsolatePort toPort, dynamic rawMessage) {
 
 /// Create a static function to compunicate with main `Isolate`
 void internalIsolateFunction(dynamic params) {
-  var channel = IsolateContactorController(params);
+  var channel = IsolateContactorController(params, onDispose: () {});
   channel.onIsolateMessage.listen((message) {
     Completer completer = Completer();
     completer.future.then((value) => channel.sendResult(value));

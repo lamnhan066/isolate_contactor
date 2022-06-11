@@ -116,9 +116,11 @@ void main() {
     late IsolateContactor<int> isolateContactor;
     late IsolateContactor<int> isolateContactorFuture;
 
-    isolateContactor = await IsolateContactor.createOwnIsolate(isolateFunction);
-    isolateContactorFuture =
-        await IsolateContactor.createOwnIsolate(isolateFunctionFuture);
+    isolateContactor = await IsolateContactor.createOwnIsolate(isolateFunction,
+        debugMode: true);
+    isolateContactorFuture = await IsolateContactor.createOwnIsolate(
+        isolateFunctionFuture,
+        debugMode: true);
 
     // Listen to 10 + 20
     isolateContactor.onMessage.listen((event) {
@@ -201,7 +203,9 @@ Future<int> addFuture(dynamic a, dynamic b) async {
 
 // Create your own function here
 void isolateFunction(dynamic params) {
-  final channel = IsolateContactorController(params);
+  final channel = IsolateContactorController(params, onDispose: () {
+    print('Dispose isolateFunction');
+  });
   channel.onIsolateMessage.listen((message) {
     channel.sendResult(add(message[0], message[1]));
   });
@@ -209,7 +213,9 @@ void isolateFunction(dynamic params) {
 
 // Create your own function here
 void isolateFunctionFuture(dynamic params) {
-  final channel = IsolateContactorController(params);
+  final channel = IsolateContactorController(params, onDispose: () {
+    print('Dispose isolateFunctionFuture');
+  });
   channel.onIsolateMessage.listen((message) async {
     channel.sendResult(await addFuture(message[0], message[1]));
   });

@@ -96,10 +96,11 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }
 
   void _dispose() {
-    _isolate!.kill(priority: Isolate.immediate);
-    _isolate = null;
-    _receivePort.close();
+    _isolateContactorController.sendIsolate(IsolateState.dispose);
     _isolateContactorController.close();
+    _receivePort.close();
+    _isolate!.kill(priority: Isolate.beforeNextEvent);
+    _isolate = null;
     _isComputing = false;
     _computeStateStreamController.sink.add(ComputeState.computed);
   }

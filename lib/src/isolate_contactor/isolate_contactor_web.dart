@@ -124,6 +124,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   @override
   void dispose() {
     _isComputing = false;
+    _isolateContactorController?.sendIsolate(IsolateState.dispose);
     _computeStateStreamController.sink.add(ComputeState.computed);
     _computeStateStreamController.close;
     _isolateContactorController?.close();
