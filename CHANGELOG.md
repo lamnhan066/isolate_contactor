@@ -1,4 +1,4 @@
-## 1.5.1
+## 1.5.1+1
 
 * Improved result parser.
 * Improved README for allowed return type version, Improved Test and Example.

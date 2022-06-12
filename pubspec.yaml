@@ -1,6 +1,6 @@
 name: isolate_contactor
 description: An easy way to create a new isolate, keep it running and comunicate with it. It supports sending values between main and child isolate multiple times via stream.
-version: 1.5.1
+version: 1.5.1+1
 homepage: https://github.com/vursin/isolate_contactor
 
 environment:
