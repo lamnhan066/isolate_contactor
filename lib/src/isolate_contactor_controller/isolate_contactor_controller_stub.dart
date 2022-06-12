@@ -18,26 +18,27 @@ class IsolateContactorControllerIpl<T>
 
   IsolateContactorControllerIpl(dynamic params, {this.onDispose}) {
     if (params is List) {
-      _delegate = IsolateChannel<T>.connectSend(params.last);
+      _delegate = IsolateChannel.connectSend(params.last);
     } else {
-      _delegate = IsolateChannel<T>.connectReceive(params);
+      _delegate = IsolateChannel.connectReceive(params);
     }
 
     _delegateSubscription = _delegate.stream.listen((event) {
-      T message1 = getPortMessage(IsolatePort.main, event);
-      if (message1 != null) {
-        _mainStreamController.add(message1);
-      }
-
-      dynamic message2 = getPortMessage(IsolatePort.isolate, event);
-      if (message2 != null) {
-        if (message2 == IsolateState.dispose) {
-          if (onDispose != null) onDispose!();
-          close();
-        } else {
-          _isolateStreamController.add(message2);
+      (event as Map<IsolatePort, dynamic>).forEach((key, value) {
+        switch (key) {
+          case IsolatePort.main:
+            _mainStreamController.add(value as T);
+            break;
+          case IsolatePort.isolate:
+            if (value == IsolateState.dispose) {
+              if (onDispose != null) onDispose!();
+              close();
+            } else {
+              _isolateStreamController.add(value);
+            }
+            break;
         }
-      }
+      });
     });
   }
 

@@ -11,14 +11,6 @@ enum IsolatePort { main, isolate }
 /// Isolate state
 enum IsolateState { dispose }
 
-/// Get data with port
-dynamic getPortMessage(IsolatePort toPort, dynamic rawMessage) {
-  try {
-    return rawMessage[toPort];
-  } catch (_) {}
-  return null;
-}
-
 /// Create a static function to compunicate with main `Isolate`
 void internalIsolateFunction(dynamic params) {
   var channel = IsolateContactorController(params, onDispose: () {});

@@ -21,20 +21,21 @@ class IsolateContactorControllerIpl<T>
     }
 
     _delegate.stream.listen((event) {
-      dynamic message1 = getPortMessage(IsolatePort.main, event);
-      if (message1 != null) {
-        _mainStreamController.add(message1);
-      }
-
-      dynamic message2 = getPortMessage(IsolatePort.isolate, event);
-      if (message2 != null) {
-        if (message2 == IsolateState.dispose) {
-          if (onDispose != null) onDispose!();
-          close();
-        } else {
-          _isolateStreamController.add(message2);
+      (event as Map<IsolatePort, dynamic>).forEach((key, value) {
+        switch (key) {
+          case IsolatePort.main:
+            _mainStreamController.add(value as T);
+            break;
+          case IsolatePort.isolate:
+            if (value == IsolateState.dispose) {
+              if (onDispose != null) onDispose!();
+              close();
+            } else {
+              _isolateStreamController.add(value);
+            }
+            break;
         }
-      }
+      });
     });
   }
 
