@@ -6,8 +6,6 @@ This package is different from the `compute` method, IsolateContactor allows the
 
 ## How to use it
 
----
-
 There are multiple ways to use this package, the only thing to notice that the `function` have to be a `static` or `top-level` function to make it works.
 
 ### Create IsolateContactor instance
@@ -33,8 +31,6 @@ isolateContactor.sendMessage(value);
 ```
 
 ## Basic example
-
----
 
 ``` dart
 main() async {
@@ -74,8 +70,6 @@ int fibonacci(dynamic n) {
 ```
 
 ## Easy build-in function
-
----
 
 I have implemented a build-in static function to make you easier to create an isolate as fast as possible.
 You just need to create a function of this form:
@@ -154,8 +148,6 @@ double subtract(dynamic n) => n[1] - n[0];
 
 ## Create your own function
 
----
-
 This is also not too complicated to use, you're completely control your isolate function with this method.
 You just need to create a function of this form:
 
@@ -210,8 +202,6 @@ double add(dynamic a, dynamic b) => a + b;
 ```
 
 ## Flutter Example
-
----
 
 Create an expensive to calculate function:
 
