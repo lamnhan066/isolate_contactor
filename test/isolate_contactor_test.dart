@@ -61,7 +61,7 @@ void main() {
 
     IsolateContactor<int> isolateContactor1 =
         await IsolateContactor.create(fibonacci);
-    IsolateContactor<int> isolateContactor2 =
+    IsolateContactor<double> isolateContactor2 =
         await IsolateContactor.create(subtract);
     IsolateContactor<int> isolateContactor3 =
         await IsolateContactor.create(fibonacciFuture);
@@ -76,7 +76,7 @@ void main() {
 
     // Listen to f20
     isolateContactor2.onMessage.listen((event) {
-      print('isolate 3: $event');
+      print('isolate 2: $event');
 
       expect(event, 10);
 
@@ -95,7 +95,7 @@ void main() {
     isolateContactor1.sendMessage(10);
 
     // Send 20 and 10 to [subtract]
-    isolateContactor2.sendMessage([10, 20]);
+    isolateContactor2.sendMessage([10.0, 20.0]);
 
     // Send 13 to [fibonacciFuture]
     isolateContactor3.sendMessage(13);
@@ -113,8 +113,8 @@ void main() {
     bool valueExit1 = false;
     bool valueExit2 = false;
 
-    late IsolateContactor<int> isolateContactor;
-    late IsolateContactor<int> isolateContactorFuture;
+    late IsolateContactor<double> isolateContactor;
+    late IsolateContactor<double> isolateContactorFuture;
 
     isolateContactor = await IsolateContactor.createOwnIsolate(isolateFunction,
         debugMode: true);
@@ -126,7 +126,7 @@ void main() {
     isolateContactor.onMessage.listen((event) {
       print('isolate: $event');
 
-      expect(event, 30);
+      expect(event, 30.0);
 
       valueExit1 = true;
     });
@@ -135,16 +135,16 @@ void main() {
     isolateContactorFuture.onMessage.listen((event) {
       print('isolate: $event');
 
-      expect(event, 35);
+      expect(event, 35.0);
 
       valueExit2 = true;
     });
 
     // Send 10 and 20 to [isolateFunction]
-    isolateContactor.sendMessage([10, 20]);
+    isolateContactor.sendMessage([10.0, 20.0]);
 
     // Send 10 and 20 to [isolateFunction]
-    isolateContactorFuture.sendMessage([15, 20]);
+    isolateContactorFuture.sendMessage([15.0, 20.0]);
 
     // Only for waiting the result in Console app. Don't need to use in your real app
     while (!valueExit1 && !valueExit2) {
@@ -189,13 +189,13 @@ Future<int> fibonacciFuture(dynamic n) async {
 }
 
 // single parameter
-int subtract(dynamic n) => n[1] - n[0];
+double subtract(dynamic n) => n[1] - n[0];
 
 // multi parameters as an dynamic
-int add(dynamic a, dynamic b) => a + b;
+double add(dynamic a, dynamic b) => a + b;
 
 // multi parameters as an dynamic
-Future<int> addFuture(dynamic a, dynamic b) async {
+Future<double> addFuture(dynamic a, dynamic b) async {
   await null;
 
   return a + b;
@@ -203,17 +203,20 @@ Future<int> addFuture(dynamic a, dynamic b) async {
 
 // Create your own function here
 void isolateFunction(dynamic params) {
-  final channel = IsolateContactorController(params, onDispose: () {
+  final channel = IsolateContactorController<double>(params, onDispose: () {
     print('Dispose isolateFunction');
   });
   channel.onIsolateMessage.listen((message) {
+    // Do your stuff here
+
+    // Send value back to your main process in stream [onMessage]
     channel.sendResult(add(message[0], message[1]));
   });
 }
 
 // Create your own function here
 void isolateFunctionFuture(dynamic params) {
-  final channel = IsolateContactorController(params, onDispose: () {
+  final channel = IsolateContactorController<double>(params, onDispose: () {
     print('Dispose isolateFunctionFuture');
   });
   channel.onIsolateMessage.listen((message) async {

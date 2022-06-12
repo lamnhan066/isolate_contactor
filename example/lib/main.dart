@@ -13,11 +13,11 @@ void main() {
 /// This must be a static or top-level function
 ///
 /// This function is very expensive to calculate, so I can test for un-blocking UI feature
-Future<dynamic> fibonacciRescusiveFuture(dynamic n) async {
+Future<double> fibonacciRescusiveFuture(dynamic n) async {
   if (n == 0) return 0;
   if (n <= 2) return 1;
 
-  // Magic code: This is only for non-blocking UI in Web platform
+  // Magic code: This is only for non-blocking UI on Web platform
   await Future.delayed(Duration.zero);
 
   return await fibonacciRescusiveFuture(n - 1) +
@@ -79,7 +79,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late IsolateContactor isolateContactor1;
   late IsolateContactor isolateContactor2;
-  late IsolateContactor isolateContactor3;
+  late IsolateContactor<double> isolateContactor3;
   int value1 = 2;
   int value2 = 3;
   int value3 = 4;

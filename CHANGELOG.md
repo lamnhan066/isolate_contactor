@@ -1,3 +1,8 @@
+## 1.5.1
+
+* Improved result parser.
+* Improved README for allowed return type version, Improved Test and Example.
+
 ## 1.5.0+1
 
 * Now you can add return type for the stream listener. Example:
