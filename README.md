@@ -209,7 +209,7 @@ Create an expensive to calculate function:
 /// This must be a static or top-level function
 ///
 /// This function is very expensive to calculate, so I can test for un-blocking UI feature
-Future<dynamic> fibonacciRescusiveFuture(dynamic n) async {
+Future<double> fibonacciRescusiveFuture(dynamic n) async {
   if (n == 0) return 0;
   if (n <= 2) return 1;
 
