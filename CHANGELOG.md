@@ -1,3 +1,8 @@
+## 1.6.0
+
+* Now you can `await` for the result when using `isolateContactor.sendMessage`.
+* Improved README and Test.
+
 ## 1.5.1+1
 
 * Improved result parser.
