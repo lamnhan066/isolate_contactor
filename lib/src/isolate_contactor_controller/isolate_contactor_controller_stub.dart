@@ -5,7 +5,7 @@ import 'package:stream_channel/isolate_channel.dart';
 import '../isolate_contactor_controller.dart';
 import '../utils/utils.dart';
 
-class IsolateContactorControllerIpl<T>
+class IsolateContactorControllerImpl<T>
     implements IsolateContactorController<T> {
   late IsolateChannel _delegate;
   late StreamSubscription _delegateSubscription;
@@ -16,7 +16,7 @@ class IsolateContactorControllerIpl<T>
       StreamController.broadcast();
   final Function()? onDispose;
 
-  IsolateContactorControllerIpl(dynamic params, {this.onDispose}) {
+  IsolateContactorControllerImpl(dynamic params, {this.onDispose}) {
     if (params is List) {
       _delegate = IsolateChannel.connectSend(params.last);
     } else {

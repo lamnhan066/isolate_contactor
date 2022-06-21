@@ -3,7 +3,7 @@ import 'dart:async';
 import '../isolate_contactor_controller.dart';
 import '../utils/utils.dart';
 
-class IsolateContactorControllerIpl<T>
+class IsolateContactorControllerImpl<T>
     implements IsolateContactorController<T> {
   late StreamController _delegate;
 
@@ -13,7 +13,7 @@ class IsolateContactorControllerIpl<T>
       StreamController.broadcast();
   final Function()? onDispose;
 
-  IsolateContactorControllerIpl(dynamic params, {this.onDispose}) {
+  IsolateContactorControllerImpl(dynamic params, {this.onDispose}) {
     if (params is List) {
       _delegate = params.last.controller;
     } else {

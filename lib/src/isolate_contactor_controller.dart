@@ -6,7 +6,7 @@ import 'isolate_contactor_controller/isolate_contactor_controller_stub.dart'
 abstract class IsolateContactorController<T> {
   /// Create controller for current `IsolateContactor`
   factory IsolateContactorController(dynamic params, {Function()? onDispose}) =
-      IsolateContactorControllerIpl<T>;
+      IsolateContactorControllerImpl<T>;
 
   /// Get current controller. This method only needs for internal use only
   ///
