@@ -135,10 +135,10 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
 
   /// Send message to child isolate [function]
   @override
-  void sendMessage(dynamic message) {
+  Future<T> sendMessage(dynamic message) {
     if (_isolateContactorController == null) {
       _printDebug('! This isolate has been terminated');
-      return;
+      return throw Exception('This isolate was terminated');
     }
 
     if (_isComputing) {
@@ -146,10 +146,16 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
           '! This isolate is still computing, so the current request may be revoked!');
     }
 
+    final Completer<T> completer = Completer();
+    _isolateContactorController!.onMessage
+        .listen((result) => completer.complete(result));
+
     _printDebug('Message send to isolate: $message');
     _isComputing = true;
     _computeStateStreamController.sink.add(ComputeState.computing);
     _isolateContactorController!.sendIsolate(message);
+
+    return completer.future;
   }
 
   /// Print if [debugMode] is true

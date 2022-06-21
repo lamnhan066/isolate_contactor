@@ -35,7 +35,7 @@ abstract class IsolateContactor<T> {
   }
 
   /// Send message to the `function` for computing
-  void sendMessage(dynamic message) => throw UnimplementedError();
+  Future<T> sendMessage(dynamic message) => throw UnimplementedError();
 
   /// Listen to the result of the isolate
   Stream<T> get onMessage => throw UnimplementedError();

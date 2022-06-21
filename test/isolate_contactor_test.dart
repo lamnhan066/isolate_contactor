@@ -27,6 +27,7 @@ void main() {
     stream1.cancel();
     stream2.cancel();
   });
+
   test('Basic use', () async {
     // Just for waiting till the result has come
     bool valueExit = false;
@@ -153,6 +154,26 @@ void main() {
 
     isolateContactor.dispose();
     isolateContactorFuture.dispose();
+  });
+
+  test('Test receive result from sendMessage', () async {
+    // Create IsolateContactor
+    IsolateContactor<int> isolateContactor =
+        await IsolateContactor.create(fibonacci);
+
+    // Listen to the result
+    isolateContactor.onMessage.listen((event) {
+      print('isolate 1: $event');
+      expect(event, 55);
+    });
+
+    // Send 10 to fibonacci isolate function
+    final result = await isolateContactor.sendMessage(10);
+    print('Result from sendMessage: $result');
+    expect(result, 55);
+
+    // Dispose
+    isolateContactor.dispose();
   });
 }
 
