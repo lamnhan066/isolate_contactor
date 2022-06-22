@@ -11,6 +11,12 @@ enum IsolatePort { main, isolate }
 /// Isolate state
 enum IsolateState { dispose }
 
+class IsolateContactorException implements Exception {
+  final String message;
+
+  IsolateContactorException(this.message);
+}
+
 /// Create a static function to compunicate with main `Isolate`
 void internalIsolateFunction(dynamic params) {
   var channel = IsolateContactorController(params, onDispose: () {});

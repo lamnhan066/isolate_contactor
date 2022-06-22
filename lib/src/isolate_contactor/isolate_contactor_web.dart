@@ -29,10 +29,11 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   late dynamic _isolateParam;
 
   /// Create an instance
-  IsolateContactorInternal._(
-      {required FutureOr<void> Function(dynamic) isolateFunction,
-      required dynamic isolateParam,
-      bool debugMode = false}) {
+  IsolateContactorInternal._({
+    required FutureOr<void> Function(dynamic) isolateFunction,
+    required dynamic isolateParam,
+    bool debugMode = false,
+  }) {
     _debugMode = debugMode;
     _isolateFunction = isolateFunction;
     _isolateParam = isolateParam;
@@ -53,10 +54,11 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }
 
   /// Create modified isolate function
-  static Future<IsolateContactorInternal<T>> createOwnIsolate<T>(
-      {required void Function(dynamic) isolateFunction,
-      required dynamic isolateParams,
-      bool debugMode = false}) async {
+  static Future<IsolateContactorInternal<T>> createOwnIsolate<T>({
+    required void Function(dynamic) isolateFunction,
+    required dynamic isolateParams,
+    bool debugMode = false,
+  }) async {
     IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(
       isolateFunction: isolateFunction,
       isolateParam: isolateParams ?? [],
@@ -74,9 +76,9 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
         IsolateContactorController(StreamController.broadcast());
     _isolateContactorController!.onMessage.listen((message) {
       _printDebug('[Main Stream] rawMessage = $message');
-      _isComputing = false;
       _computeStateStreamController.sink.add(ComputeState.computed);
       _mainStreamController.sink.add(message);
+      _isComputing = false;
     });
 
     _isolateFunction([_isolateParam, _isolateContactorController]);
@@ -138,13 +140,19 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   Future<T> sendMessage(dynamic message) {
     if (_isolateContactorController == null) {
       _printDebug('! This isolate has been terminated');
-      return throw Exception('This isolate was terminated');
+      return throw IsolateContactorException('This isolate was terminated');
     }
 
     if (_isComputing) {
       _printDebug(
-          '! This isolate is still computing, so the current request may be revoked!');
+          '! This isolate is still being computed, so the current request has been revoked!');
+
+      return throw IsolateContactorException(
+          'This isolate is still being computed, so the current request has been revoked');
     }
+
+    _isComputing = true;
+    _computeStateStreamController.sink.add(ComputeState.computing);
 
     final Completer<T> completer = Completer();
     _isolateContactorController!.onMessage.listen((result) {
@@ -154,8 +162,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
     });
 
     _printDebug('Message send to isolate: $message');
-    _isComputing = true;
-    _computeStateStreamController.sink.add(ComputeState.computing);
+
     _isolateContactorController!.sendIsolate(message);
 
     return completer.future;
