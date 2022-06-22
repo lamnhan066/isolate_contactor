@@ -154,6 +154,8 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }
 
   /// Send message to child isolate [function]
+  ///
+  /// Throw IsolateContactorException if error occurs.
   @override
   Future<T> sendMessage(dynamic message) async {
     if (_isolate == null) {
@@ -174,9 +176,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
 
     final Completer<T> completer = Completer();
     _isolateContactorController.onMessage.listen((result) {
-      if (!completer.isCompleted) {
-        completer.complete(result);
-      }
+      if (!completer.isCompleted) completer.complete(result);
     });
 
     _printDebug('Message send to isolate: $message');

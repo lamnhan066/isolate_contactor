@@ -35,6 +35,8 @@ abstract class IsolateContactor<T> {
   }
 
   /// Send message to the `function` for computing
+  ///
+  /// Throw `IsolateContactorException` when error occurs.
   Future<T> sendMessage(dynamic message) => throw UnimplementedError();
 
   /// Listen to the result of the isolate

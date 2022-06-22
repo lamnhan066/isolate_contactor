@@ -135,7 +135,9 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
     _printDebug('Disposed');
   }
 
-  /// Send message to child isolate [function]
+  /// Send message to child isolate [function].
+  ///
+  /// Throw IsolateContactorException if error occurs.
   @override
   Future<T> sendMessage(dynamic message) {
     if (_isolateContactorController == null) {
@@ -156,9 +158,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
 
     final Completer<T> completer = Completer();
     _isolateContactorController!.onMessage.listen((result) {
-      if (!completer.isCompleted) {
-        completer.complete(result);
-      }
+      if (!completer.isCompleted) completer.complete(result);
     });
 
     _printDebug('Message send to isolate: $message');
