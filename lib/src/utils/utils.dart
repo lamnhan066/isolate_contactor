@@ -15,6 +15,11 @@ class IsolateContactorException implements Exception {
   final String message;
 
   IsolateContactorException(this.message);
+
+  @override
+  String toString() {
+    return 'IsolateContactorException: $message';
+  }
 }
 
 /// Create a static function to compunicate with main `Isolate`
