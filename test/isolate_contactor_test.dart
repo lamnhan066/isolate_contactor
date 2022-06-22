@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:isolate_contactor/isolate_contactor.dart';
+import 'package:isolate_contactor/src/isolate_manager/isolate_manager.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -174,6 +175,31 @@ void main() {
 
     // Dispose
     isolateContactor.dispose();
+  });
+
+  test('Test IsolateManager', () async {
+    // Create IsolateContactor
+    IsolateManager<int> isolateManager =
+        IsolateManager(numOfIsolates: 3, isolateFunction: fibonacci);
+
+    await isolateManager.start();
+
+    await Future.wait([
+      for (int i = 0; i < 10; i++)
+        isolateManager.compute(i).then((value) {
+          print('Fibonacci $i = $value');
+          expect(value, fibonacci(i));
+        })
+    ]);
+
+    // for (int i = 0; i < 2; i++) {
+    //   await isolateManager.compute(i).then((value) => print(value));
+    // }
+
+    await Future.delayed(Duration(seconds: 3));
+
+    // Dispose
+    isolateManager.stop();
   });
 }
 

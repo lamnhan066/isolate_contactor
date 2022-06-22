@@ -147,8 +147,11 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
     }
 
     final Completer<T> completer = Completer();
-    _isolateContactorController!.onMessage
-        .listen((result) => completer.complete(result));
+    _isolateContactorController!.onMessage.listen((result) {
+      if (!completer.isCompleted) {
+        completer.complete(result);
+      }
+    });
 
     _printDebug('Message send to isolate: $message');
     _isComputing = true;
