@@ -1,3 +1,8 @@
+## 1.6.1
+
+* Added `IsolateContactorException`, throw it when error occurs on `sendMessage` method.
+* Return `Future` for `dispose` method.
+
 ## 1.6.0
 
 * Now you can `await` for the result when using `isolateContactor.sendMessage`.
