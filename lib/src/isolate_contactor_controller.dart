@@ -27,5 +27,5 @@ abstract class IsolateContactorController<T> {
   void sendResult(T result) => throw UnimplementedError();
 
   /// Close this controller
-  void close() => throw UnimplementedError();
+  Future<void> close() => throw UnimplementedError();
 }

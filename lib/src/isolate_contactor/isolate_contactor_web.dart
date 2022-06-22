@@ -117,21 +117,24 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }
 
   @override
-  void close() => dispose();
+  Future<void> close() => dispose();
 
   @override
-  void terminate() => dispose();
+  Future<void> terminate() => dispose();
 
   /// Dispose current [Isolate]
   @override
-  void dispose() {
+  Future<void> dispose() async {
     _isComputing = false;
     _isolateContactorController?.sendIsolate(IsolateState.dispose);
     _computeStateStreamController.sink.add(ComputeState.computed);
+
     _computeStateStreamController.close;
-    _isolateContactorController?.close();
+    await _isolateContactorController?.close();
+    await _mainStreamController.close();
+
     _isolateContactorController = null;
-    _mainStreamController.close();
+
     _printDebug('Disposed');
   }
 

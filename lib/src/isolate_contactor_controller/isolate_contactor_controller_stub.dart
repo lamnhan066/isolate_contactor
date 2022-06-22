@@ -71,9 +71,11 @@ class IsolateContactorControllerImpl<T>
   }
 
   @override
-  void close() {
-    _delegateSubscription.cancel();
-    _mainStreamController.close();
-    _isolateStreamController.close();
+  Future<void> close() async {
+    await Future.wait([
+      _delegateSubscription.cancel(),
+      _mainStreamController.close(),
+      _isolateStreamController.close(),
+    ]);
   }
 }

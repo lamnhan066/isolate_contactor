@@ -55,11 +55,11 @@ abstract class IsolateContactor<T> {
   Future<void> restart() async => throw UnimplementedError();
 
   /// Close current isolate, the same behavior with `dispose`
-  void close() => throw UnimplementedError();
+  Future<void> close() => throw UnimplementedError();
 
   /// Close current isolate, the same behavior with `dispose`
-  void terminate() => throw UnimplementedError();
+  Future<void> terminate() => throw UnimplementedError();
 
   /// Dispose current isolate
-  void dispose() => throw UnimplementedError();
+  Future<void> dispose() => throw UnimplementedError();
 }
