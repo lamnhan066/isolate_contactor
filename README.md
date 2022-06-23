@@ -70,17 +70,25 @@ You just need to create a function of this form:
 // Create your own function here
 void isolateFunction(dynamic params) {
   // Initial the controller for child isolate
-  final channel = IsolateContactorController<double>(params, onDispose: () {
-    print('Dispose isolateFunction');
-  });
+  final controller = IsolateContactorController<double>(
+    params, 
+    onDispose: () {
+      print('Dispose isolateFunction');
+    }
+  );
+
+  // Get your initialParams.
+  // Notice that this `initialParams` different from the `params` above.
+  final initialParams = controller.initialParams;
+  print(initialParams);
 
   // Listen to the message receiving from main isolate
-  channel.onIsolateMessage.listen((message) {
+  controller.onIsolateMessage.listen((message) {
     // Do your stuff here
     final result = add(message[0], message[1]);
     
     // Send value back to your main process in stream [onMessage]
-    channel.sendResult(result);
+    controller.sendResult(result);
   });
 }
 ```
@@ -88,7 +96,11 @@ void isolateFunction(dynamic params) {
 ### Then create IsolateContactor for that function
 
 ``` dart
-IsolateContactor<double> isolateContactor = await IsolateContactor.createOwnIsolate(isolateFunction);
+IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIsolate(
+      isolateFunction,
+      initialParams: 'This is initialParams',
+      debugMode: true,
+    );
 ```
 
 ### Then you can use `isolateContactor` like above example

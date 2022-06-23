@@ -24,10 +24,11 @@ class IsolateContactorException implements Exception {
 
 /// Create a static function to compunicate with main `Isolate`
 void internalIsolateFunction(dynamic params) {
-  var channel = IsolateContactorController(params, onDispose: () {});
-  channel.onIsolateMessage.listen((message) {
+  final controller = IsolateContactorController(params, onDispose: () {});
+  final function = controller.initialParams;
+  controller.onIsolateMessage.listen((message) {
     Completer completer = Completer();
-    completer.future.then((value) => channel.sendResult(value));
-    completer.complete(params[0](message));
+    completer.future.then((value) => controller.sendResult(value));
+    completer.complete(function(message));
   });
 }

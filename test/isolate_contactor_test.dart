@@ -117,11 +117,14 @@ void main() {
     late IsolateContactor<double> isolateContactor;
     late IsolateContactor<double> isolateContactorFuture;
 
-    isolateContactor = await IsolateContactor.createOwnIsolate(isolateFunction,
-        debugMode: true);
+    isolateContactor = await IsolateContactor.createOwnIsolate(
+      isolateFunction,
+      debugMode: true,
+    );
     isolateContactorFuture = await IsolateContactor.createOwnIsolate(
-        isolateFunctionFuture,
-        debugMode: true);
+      isolateFunctionFuture,
+      debugMode: true,
+    );
 
     // Listen to 10 + 20
     isolateContactor.onMessage.listen((event) {

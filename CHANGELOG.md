@@ -1,3 +1,18 @@
+## 1.7.0
+
+* **BREAKING CHANGE:** Change parameter name from `isolateParams` to `initialParams` for `createOwnIsolate`.
+* Now you can get the `initialParams` when creating an own isolate:
+
+``` dart
+void isolateFunction(dynamic params) {
+  var controller = IsolateContactorController(params, onDispose: () {});
+  var initialParams = controller.initialParams;
+  controller.onIsolateMessage.listen((message) {
+    // Do your stuff here
+  });
+}
+```
+
 ## 1.6.1
 
 * Added `IsolateContactorException`, throw it when error occurs on `sendMessage` method.
