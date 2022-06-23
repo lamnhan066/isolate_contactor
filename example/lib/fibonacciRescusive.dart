@@ -10,7 +10,7 @@ import 'package:js/js_util.dart' as js_util;
 @pjs.JS('self')
 external dynamic get globalScopeSelf;
 
-// dart compile js fibonacciRescusive.dart -o fibonacciRescusive.dart.js
+// dart compile js fibonacciRescusive.dart -o fibonacciRescusive.js
 
 main() {
   callbackToStream('onmessage', (html.MessageEvent e) {

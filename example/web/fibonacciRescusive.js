@@ -4043,16 +4043,13 @@
     main() {
       A.callbackToStream("onmessage", new A.main_closure(), type$.MessageEvent, type$.dynamic).listen$1(new A.main_closure0());
     },
-    fibonacciFuture(n) {
-      var n1, n2, n3, i,
-        t1 = J.getInterceptor$(n);
+    fibonacciRescusive(n) {
+      var t1 = J.getInterceptor$(n);
       if (t1.$eq(n, 0))
         return 0;
       if (t1.$le(n, 2))
         return 1;
-      for (A._asNum(n), n1 = 0, n2 = 1, n3 = 1, i = 2; i <= n; ++i, n1 = n2, n2 = n3)
-        n3 = n1 + n2;
-      return B.JSInt_methods.round$0(n3);
+      return A.fibonacciRescusive(t1.$sub(n, 1)) + A.fibonacciRescusive(t1.$sub(n, 2));
     },
     callbackToStream($name, unwrapValue, $J, $T) {
       var t1 = $T._eval$1("_SyncBroadcastStreamController<0>"),
@@ -4448,14 +4445,6 @@
     }
   };
   J.JSNumber.prototype = {
-    round$0(receiver) {
-      if (receiver > 0) {
-        if (receiver !== 1 / 0)
-          return Math.round(receiver);
-      } else if (receiver > -1 / 0)
-        return 0 - Math.round(0 - receiver);
-      throw A.wrapException(A.UnsupportedError$("" + receiver + ".round()"));
-    },
     toString$0(receiver) {
       if (receiver === 0 && 1 / receiver < 0)
         return "-0.0";
@@ -4472,6 +4461,9 @@
       factor = Math.pow(2, floorLog2);
       scaled = absolute < 1 ? absolute / factor : factor / absolute;
       return ((scaled * 9007199254740992 | 0) + (scaled * 3542243181176521 | 0)) * 599197 + floorLog2 * 1259 & 536870911;
+    },
+    $sub(receiver, other) {
+      return receiver - other;
     },
     _shrOtherPositive$1(receiver, other) {
       var t1;
@@ -7207,7 +7199,7 @@
           switch ($async$goto) {
             case 0:
               // Function start
-              result = A.fibonacciFuture(message);
+              result = A.fibonacciRescusive(message);
               $.$get$_context().callMethod$2("postMessage", [result]);
               // implicit return
               return A._asyncReturn(null, $async$completer);
@@ -7791,4 +7783,4 @@
   });
 })();
 
-//# sourceMappingURL=fibonacci.dart.js.map
+//# sourceMappingURL=fibonacciRescusive.js.map

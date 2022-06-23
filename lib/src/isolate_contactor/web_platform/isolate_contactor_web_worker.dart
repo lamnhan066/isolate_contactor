@@ -80,14 +80,14 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
   /// Create modified isolate function
   static Future<IsolateContactorInternalWorker<T>> createOwnIsolate<T>({
     required void Function(dynamic) isolateFunction,
-    required String isolateFunctionName,
+    required String workerName,
     required dynamic initialParams,
     bool debugMode = false,
   }) async {
     IsolateContactorInternalWorker<T> isolateContactor =
         IsolateContactorInternalWorker._(
       isolateFunction: isolateFunction,
-      workerName: isolateFunctionName,
+      workerName: workerName,
       isolateParam: initialParams ?? [],
       debugMode: debugMode,
     );
@@ -101,7 +101,7 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
   Future<void> _initial() async {
     print(_isolateFunction.runtimeType);
     _isolateContactorController =
-        IsolateContactorController(Worker("$_workerName.dart.js"));
+        IsolateContactorController(Worker("$_workerName.js"));
     _isolateContactorController!.onMessage.listen((message) {
       _printDebug('[Main Stream] rawMessage = $message');
       _computeStateStreamController.sink.add(ComputeState.computed);

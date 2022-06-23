@@ -10,7 +10,7 @@ import 'package:js/js_util.dart' as js_util;
 @pjs.JS('self')
 external dynamic get globalScopeSelf;
 
-// dart compile js fibonacci.dart -o fibonacci.dart.js
+// dart compile js fibonacci.dart -o fibonacci.js
 
 main() {
   callbackToStream('onmessage', (html.MessageEvent e) {

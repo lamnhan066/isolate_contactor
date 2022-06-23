@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:isolate_contactor/isolate_contactor.dart';
 import 'package:test/test.dart';
 
+//  dart test --platform=chrome
+
 void main() {
   test('Test multi listener of stream', () async {
     StreamController streamController = StreamController.broadcast();
@@ -174,6 +176,33 @@ void main() {
     final result = await isolateContactor.sendMessage(10);
     print('Result from sendMessage: $result');
     expect(result, 55);
+
+    // Dispose
+    isolateContactor.dispose();
+  });
+
+  test('Test for Worker (Web only with flag --platform=chrome)', () async {
+    // Create IsolateContactor
+    IsolateContactor<int> isolateContactor =
+        await IsolateContactor.create(fibonacci, workerName: 'fibonacci');
+
+    IsolateContactor<int> isolateContactor1 =
+        await IsolateContactor.create(fibonacci, workerName: 'add');
+
+    // Listen to the result
+    isolateContactor.onMessage.listen((event) {
+      print('isolate 1: $event');
+      expect(event, 55);
+    });
+
+    // Send 10 to fibonacci isolate function
+    final result = await isolateContactor.sendMessage(10);
+    print('Result from fibonaccijs: $result');
+    expect(result, 55);
+
+    final result1 = await isolateContactor1.sendMessage([10, 15]);
+    print('Result from add.dart.js: $result');
+    expect(result1, 25);
 
     // Dispose
     isolateContactor.dispose();

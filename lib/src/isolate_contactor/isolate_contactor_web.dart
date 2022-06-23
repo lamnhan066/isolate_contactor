@@ -45,7 +45,7 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
     } else {
       return IsolateContactorInternalWorker.createOwnIsolate(
         isolateFunction: isolateFunction,
-        isolateFunctionName: workerName,
+        workerName: workerName,
         initialParams: initialParams,
         debugMode: debugMode,
       );
