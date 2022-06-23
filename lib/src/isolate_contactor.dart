@@ -25,12 +25,12 @@ abstract class IsolateContactor<T> {
   /// `debugMode` allow printing debug data in console. Default is set to false.
   static Future<IsolateContactor<T>> createOwnIsolate<T>(
     FutureOr<void> Function(dynamic) isolateFunction, {
-    dynamic isolateParams,
+    dynamic initialParams,
     bool debugMode = false,
   }) async {
     return IsolateContactorInternal.createOwnIsolate<T>(
         isolateFunction: isolateFunction,
-        isolateParams: isolateParams,
+        initialParams: initialParams,
         debugMode: debugMode);
   }
 
