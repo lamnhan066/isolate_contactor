@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:isolate_contactor/src/utils/utils.dart';
+
 import '../isolate_contactor_controller_web.dart';
 
 class IsolateContactorControllerImplWorker<T>
@@ -11,7 +13,7 @@ class IsolateContactorControllerImplWorker<T>
       StreamController.broadcast();
   final StreamController _isolateStreamController =
       StreamController.broadcast();
-  @override
+
   final Function()? onDispose;
   dynamic _initialParams;
 
@@ -24,6 +26,11 @@ class IsolateContactorControllerImplWorker<T>
     }
 
     _delegate.onMessage.listen((event) {
+      if (event.data == IsolateState.dispose) {
+        onDispose!();
+        close();
+      }
+
       _mainStreamController.add(event.data as T);
     });
   }
