@@ -11,7 +11,7 @@ class IsolateContactorControllerImplFuture<T>
       StreamController.broadcast();
   final StreamController _isolateStreamController =
       StreamController.broadcast();
-  @override
+
   final Function()? onDispose;
   dynamic _initialParams;
 

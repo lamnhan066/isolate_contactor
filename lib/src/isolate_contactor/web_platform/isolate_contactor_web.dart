@@ -28,6 +28,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   /// Control the parameters of isolate
   late dynamic _isolateParam;
 
+  // ignore: unused_field
   late String _workerName;
 
   /// Create an instance

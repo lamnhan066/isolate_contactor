@@ -41,6 +41,7 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
   late void Function(dynamic) _isolateFunction;
 
   /// Control the parameters of isolate
+  // ignore: unused_field
   late dynamic _isolateParam;
 
   late String _workerName;

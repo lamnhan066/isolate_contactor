@@ -36,17 +36,19 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   late dynamic _isolateParam;
 
   /// Only for web platform
-  late String _functionName;
+  // ignore: unused_field
+  late String _workerName;
 
   /// Internal instance
   IsolateContactorInternal._({
     required FutureOr<void> Function(dynamic) isolateFunction,
     required dynamic isolateParam,
-    required String isolateFunctionName,
+    required String workerName,
     bool debugMode = false,
   }) {
     _debugMode = debugMode;
     _isolateFunction = isolateFunction;
+    _workerName = workerName;
     _isolateParam = isolateParam;
   }
 
@@ -58,7 +60,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }) async {
     IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(
       isolateFunction: internalIsolateFunction,
-      isolateFunctionName: workerName,
+      workerName: workerName,
       isolateParam: function,
       debugMode: debugMode,
     );
@@ -77,7 +79,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }) async {
     IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(
       isolateFunction: isolateFunction,
-      isolateFunctionName: workerName,
+      workerName: workerName,
       isolateParam: initialParams ?? [],
       debugMode: debugMode,
     );

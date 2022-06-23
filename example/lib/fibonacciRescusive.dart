@@ -1,5 +1,4 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
-
+// ignore_for_file: avoid_web_libraries_in_flutter, file_names
 import 'dart:async';
 import 'dart:html' as html;
 import 'dart:js' as js;
