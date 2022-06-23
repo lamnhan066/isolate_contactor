@@ -79,7 +79,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late IsolateContactor<int> isolateContactor1;
+  late IsolateContactor<dynamic> isolateContactor1;
   late IsolateContactor<int> isolateContactor2;
   late IsolateContactor<int> isolateContactor3;
   int value1 = 2;
@@ -104,12 +104,20 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> initial() async {
-    isolateContactor1 =
-        await IsolateContactor.create<int>(fibonacciFuture, debugMode: true);
-    isolateContactor2 = await IsolateContactor.createOwnIsolate(isolateFunction,
-        debugMode: true);
-    isolateContactor3 = await IsolateContactor.create(fibonacciRescusiveFuture,
-        debugMode: true);
+    isolateContactor1 = await IsolateContactor.create<int>(
+      fibonacciFuture,
+      workerName: 'fibonacci',
+      debugMode: true,
+    );
+    isolateContactor2 = await IsolateContactor.createOwnIsolate(
+      isolateFunction,
+      workerName: 'fibonacciRescusive',
+      debugMode: true,
+    );
+    isolateContactor3 = await IsolateContactor.create(
+      fibonacciRescusiveFuture,
+      debugMode: true,
+    );
     setState(() => isLoading = false);
   }
 
