@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'isolate_contactor/isolate_contactor_stub.dart'
-    if (dart.library.html) 'isolate_contactor/isolate_contactor_web.dart';
+    if (dart.library.html) 'isolate_contactor/web.dart';
 import 'utils/utils.dart';
 
 abstract class IsolateContactor<T> {
