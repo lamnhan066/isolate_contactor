@@ -12,10 +12,12 @@ class IsolateContactorControllerImpl<T>
   final StreamController _isolateStreamController =
       StreamController.broadcast();
   final Function()? onDispose;
+  dynamic _initialParams;
 
   IsolateContactorControllerImpl(dynamic params, {this.onDispose}) {
     if (params is List) {
       _delegate = params.last.controller;
+      _initialParams = params.first;
     } else {
       _delegate = params;
     }
@@ -41,6 +43,10 @@ class IsolateContactorControllerImpl<T>
 
   @override
   StreamController get controller => _delegate;
+
+  /// Get initial params for `createOwnIsolate`
+  @override
+  dynamic get initialParams => _initialParams;
 
   @override
   Stream<T> get onMessage => _mainStreamController.stream;

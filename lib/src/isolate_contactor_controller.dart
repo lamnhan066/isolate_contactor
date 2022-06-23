@@ -14,6 +14,9 @@ abstract class IsolateContactorController<T> {
   /// `IsolateChannel` on other platforms
   dynamic get controller => throw UnimplementedError();
 
+  /// Get initial params for `createOwnIsolate`
+  dynamic get initialParams => throw UnimplementedError();
+
   /// Listen to result of the isolate
   Stream<T> get onMessage => throw UnimplementedError();
 
