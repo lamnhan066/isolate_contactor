@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:isolate_contactor/src/isolate_contactor_controller/isolate_contactor_controller_web.dart';
+
 import '../../../isolate_contactor.dart';
 import '../../utils/utils.dart';
 import '../isolate_contactor_web.dart';
@@ -100,7 +102,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
 
   /// Initialize
   Future<void> _initial() async {
-    _isolateContactorController = IsolateContactorController(
+    _isolateContactorController = IsolateContactorControllerImpl(
       StreamController.broadcast(),
       converter: _converter,
     );

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import '../isolate_contactor.dart';
-import '../isolate_contactor_controller.dart';
+import '../isolate_contactor_controller/isolate_contactor_controller_stub.dart';
 import '../utils/utils.dart';
 
 class IsolateContactorInternal<T> implements IsolateContactor<T> {
@@ -13,7 +13,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   late ReceivePort _receivePort;
 
   /// Create isolate channel
-  late IsolateContactorController _isolateContactorController;
+  late IsolateContactorControllerImpl _isolateContactorController;
 
   /// Create isolate
   Isolate? _isolate;
@@ -107,7 +107,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   /// Initialize
   Future<void> _initial() async {
     _receivePort = ReceivePort();
-    _isolateContactorController = IsolateContactorController(
+    _isolateContactorController = IsolateContactorControllerImpl(
       _receivePort,
       converter: _converter,
       workerConverter: _workerConverter,

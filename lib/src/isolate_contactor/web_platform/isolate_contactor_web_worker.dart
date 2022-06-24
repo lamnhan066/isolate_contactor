@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:isolate_contactor/src/isolate_contactor_controller/isolate_contactor_controller_web.dart';
+
 import '../../isolate_contactor_controller.dart';
 import '../../utils/utils.dart';
 import '../isolate_contactor_web.dart';
@@ -103,7 +105,7 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
 
   /// Initialize
   Future<void> _initial() async {
-    _isolateContactorController = IsolateContactorController(
+    _isolateContactorController = IsolateContactorControllerImpl(
       Worker("$_workerName.js"),
       converter: _converter,
       workerConverter: _workerConverter,
