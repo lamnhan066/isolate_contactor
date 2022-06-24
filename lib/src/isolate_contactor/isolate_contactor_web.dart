@@ -11,6 +11,7 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
   static Future<IsolateContactorInternal<T>> create<T>({
     required FutureOr<T> Function(dynamic) function,
     required String workerName,
+    T Function(dynamic)? converter,
     bool debugMode = true,
   }) async {
     if (workerName == '') {
@@ -33,6 +34,7 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
     required void Function(dynamic) isolateFunction,
     required String workerName,
     required dynamic initialParams,
+    T Function(dynamic)? converter,
     bool debugMode = false,
   }) async {
     if (workerName == '') {

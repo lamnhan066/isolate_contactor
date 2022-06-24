@@ -14,10 +14,13 @@ class IsolateContactorControllerImpl<T>
       StreamController.broadcast();
   final StreamController _isolateStreamController =
       StreamController.broadcast();
+
   final Function()? onDispose;
+  final T Function(dynamic)? converter;
   dynamic _initialParams;
 
-  IsolateContactorControllerImpl(dynamic params, {this.onDispose}) {
+  IsolateContactorControllerImpl(dynamic params,
+      {this.onDispose, this.converter}) {
     if (params is List) {
       _delegate = IsolateChannel.connectSend(params.last);
       _initialParams = params.first;
@@ -29,7 +32,8 @@ class IsolateContactorControllerImpl<T>
       (event as Map<IsolatePort, dynamic>).forEach((key, value) {
         switch (key) {
           case IsolatePort.main:
-            _mainStreamController.add(value as T);
+            _mainStreamController
+                .add(converter == null ? value : converter!(value));
             break;
           case IsolatePort.isolate:
             if (value == IsolateState.dispose) {

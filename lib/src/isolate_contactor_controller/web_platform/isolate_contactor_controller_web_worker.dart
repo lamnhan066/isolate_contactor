@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:html';
 
 import 'package:isolate_contactor/src/utils/utils.dart';
@@ -16,9 +15,11 @@ class IsolateContactorControllerImplWorker<T>
       StreamController.broadcast();
 
   final Function()? onDispose;
+  final T Function(dynamic value) converter;
   dynamic _initialParams;
 
-  IsolateContactorControllerImplWorker(dynamic params, {this.onDispose}) {
+  IsolateContactorControllerImplWorker(dynamic params,
+      {this.onDispose, required this.converter}) {
     if (params is List) {
       _delegate = params.last.controller;
       _initialParams = params.first;
@@ -33,7 +34,7 @@ class IsolateContactorControllerImplWorker<T>
       }
 
       // Decode json from string which sent from isolate
-      _mainStreamController.add(jsonDecode(event.data) as T);
+      _mainStreamController.add(converter(event.data));
     });
   }
 

@@ -5,8 +5,11 @@ import 'isolate_contactor_controller/isolate_contactor_controller_stub.dart'
 
 abstract class IsolateContactorController<T> {
   /// Create controller for current `IsolateContactor`
-  factory IsolateContactorController(dynamic params, {Function()? onDispose}) =
-      IsolateContactorControllerImpl<T>;
+  factory IsolateContactorController(
+    dynamic params, {
+    Function()? onDispose,
+    T Function(dynamic)? converter,
+  }) = IsolateContactorControllerImpl<T>;
 
   /// Get current controller. This method only needs for internal use only
   ///

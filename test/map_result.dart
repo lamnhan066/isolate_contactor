@@ -25,7 +25,7 @@ main() {
 }
 
 /// This must be a static or top-level function
-dynamic convertToMap(dynamic n) => {'a': n, 'b': n};
+Map<String, double> convertToMap(dynamic n) => {'a': n * 1.112, 'b': n * 1.112};
 
 Stream<T> callbackToStream<J, T>(
     String name, T Function(J jsValue) unwrapValue) {

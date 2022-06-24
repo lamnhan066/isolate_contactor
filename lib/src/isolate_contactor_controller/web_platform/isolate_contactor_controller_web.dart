@@ -13,9 +13,11 @@ class IsolateContactorControllerImplFuture<T>
       StreamController.broadcast();
 
   final Function()? onDispose;
+  final T Function(dynamic) converter;
   dynamic _initialParams;
 
-  IsolateContactorControllerImplFuture(dynamic params, {this.onDispose}) {
+  IsolateContactorControllerImplFuture(dynamic params,
+      {this.onDispose, required this.converter}) {
     if (params is List) {
       _delegate = params.last.controller;
       _initialParams = params.first;
@@ -27,7 +29,7 @@ class IsolateContactorControllerImplFuture<T>
       (event as Map<IsolatePort, dynamic>).forEach((key, value) {
         switch (key) {
           case IsolatePort.main:
-            _mainStreamController.add(value as T);
+            _mainStreamController.add(converter(value));
             break;
           case IsolatePort.isolate:
             if (value == IsolateState.dispose) {

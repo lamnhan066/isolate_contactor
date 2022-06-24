@@ -31,16 +31,20 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   // ignore: unused_field
   late String _workerName;
 
+  late T Function(dynamic)? _converter;
+
   /// Create an instance
   IsolateContactorInternalFuture._({
     required FutureOr<void> Function(dynamic) isolateFunction,
     required String workerName,
     required dynamic isolateParam,
+    T Function(dynamic)? converter,
     bool debugMode = false,
   }) {
     _debugMode = debugMode;
     _isolateFunction = isolateFunction;
     _workerName = workerName;
+    _converter = converter ?? (value) => value as T;
     _isolateParam = isolateParam;
   }
 
@@ -48,6 +52,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   static Future<IsolateContactorInternalFuture<T>> create<T>({
     required FutureOr<T> Function(dynamic) function,
     required String functionName,
+    T Function(dynamic)? converter,
     bool debugMode = true,
   }) async {
     IsolateContactorInternalFuture<T> isolateContactor =
@@ -55,6 +60,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
       isolateFunction: internalIsolateFunction,
       workerName: functionName,
       isolateParam: function,
+      converter: converter,
       debugMode: debugMode,
     );
 
@@ -68,6 +74,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
     required void Function(dynamic) isolateFunction,
     required String isolateFunctionName,
     required dynamic initialParams,
+    T Function(dynamic)? converter,
     bool debugMode = false,
   }) async {
     IsolateContactorInternalFuture<T> isolateContactor =
@@ -75,6 +82,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
       isolateFunction: isolateFunction,
       workerName: isolateFunctionName,
       isolateParam: initialParams ?? [],
+      converter: converter,
       debugMode: debugMode,
     );
 
@@ -85,8 +93,9 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
 
   /// Initialize
   Future<void> _initial() async {
-    _isolateContactorController =
-        IsolateContactorController(StreamController.broadcast());
+    _isolateContactorController = IsolateContactorController(
+        StreamController.broadcast(),
+        converter: _converter);
     _isolateContactorController!.onMessage.listen((message) {
       _printDebug('[Main Stream] rawMessage = $message');
       _computeStateStreamController.sink.add(ComputeState.computed);
