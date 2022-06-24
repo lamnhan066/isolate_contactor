@@ -113,7 +113,7 @@ IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIso
 
 ## Configuration for Worker (Real Isolate on Web)
 
-* **Step 1:** Download [this file](https://raw.githubusercontent.com/vursin/isolate_contactor/worker.js/lib/function_name.dart) and rename it to the `<function_name>.dart` that you want to create isolate.
+* **Step 1:** Download [isolate_contactor/worker/function_name.dart](https://raw.githubusercontent.com/vursin/isolate_contactor/worker.js/worker/function_name.dart) and rename it to the `<function_name>.dart` that you want to create isolate.
 * **Step 2:** Modify the function `dynamic functionName(dynamic message)` in the script to serves your purposes. Then rename it to the same as the above `<function_name>` (Just helping you easier to remember for later use). You can also use the `top-level or static function` above.
 
   ***You should copy that function to separated file or copy to `<function_name>.dart` file to prevent the `dart compile js` error because some other functions depend on flutter library.***
