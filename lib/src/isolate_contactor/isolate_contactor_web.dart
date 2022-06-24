@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:html';
 
 import 'package:isolate_contactor/src/utils/utils.dart';
 
@@ -15,7 +16,13 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
     required T Function(dynamic) workerConverter,
     bool debugMode = true,
   }) async {
-    if (workerName == '') {
+    /// If browser is not supported Worker then use Future
+    if (workerName == '' || !Worker.supported) {
+      if (workerName != '' && debugMode) {
+        print(
+            '[Isolate Manager]: This browser doesn\'t support Worker, Future will be applied!');
+      }
+
       return IsolateContactorInternalFuture.create(
         function: function,
         functionName: workerName,
@@ -43,7 +50,13 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
     required T Function(dynamic) workerConverter,
     bool debugMode = false,
   }) async {
-    if (workerName == '') {
+    /// If browser is not supported Worker then use Future
+    if (workerName == '' || !Worker.supported) {
+      if (workerName != '' && debugMode) {
+        print(
+            '[Isolate Manager]: This browser doesn\'t support Worker, Future will be applied!');
+      }
+
       return IsolateContactorInternalFuture.createOwnIsolate(
         isolateFunction: isolateFunction,
         isolateFunctionName: workerName,
