@@ -12,6 +12,10 @@ abstract class IsolateContactor<T> {
   /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
   /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
   ///
+  /// `converter` (for Native) convert result before sending to to the result.
+  ///
+  /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
+  ///
   /// `debugMode` allow printing debug data in console. Default is set to `false`.
   static Future<IsolateContactor<T>> create<T>(
     FutureOr<T> Function(dynamic) function, {
@@ -36,6 +40,10 @@ abstract class IsolateContactor<T> {
   ///
   /// `functionName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
   /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
+  ///
+  /// `converter` (for Native) convert result before sending to to the result.
+  ///
+  /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
   ///
   /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
   /// `debugMode` allow printing debug data in console. Default is set to false.
