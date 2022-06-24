@@ -1,6 +1,7 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: avoid_web_libraries_in_flutter, depend_on_referenced_packages
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:js' as js;
 
@@ -10,7 +11,7 @@ import 'package:js/js_util.dart' as js_util;
 @pjs.JS('self')
 external dynamic get globalScopeSelf;
 
-// dart compile js isolate.dart -o [functionName].dart.js
+// dart compile js isolate.dart -o isolate.js
 
 main() {
   callbackToStream('onmessage', (html.MessageEvent e) {
@@ -36,5 +37,5 @@ Stream<T> callbackToStream<J, T>(
 }
 
 void jsSendMessage(dynamic m) {
-  js.context.callMethod('postMessage', [m]);
+  js.context.callMethod('postMessage', [jsonEncode(m)]);
 }

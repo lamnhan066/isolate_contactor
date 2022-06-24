@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:html';
 
 import 'package:isolate_contactor/src/utils/utils.dart';
@@ -31,7 +32,8 @@ class IsolateContactorControllerImplWorker<T>
         close();
       }
 
-      _mainStreamController.add(event.data as T);
+      // Decode json from string which sent from isolate
+      _mainStreamController.add(jsonDecode(event.data) as T);
     });
   }
 
