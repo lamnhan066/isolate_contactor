@@ -161,4 +161,4 @@ If you encounter any problems or feel the library is missing a feature, please f
 
 * [x] Await for the result from isolate when using `isolateContactor.sendMessage`.
 * [x] Allow creating multiple child isolates at the same time to solve multiple inputs sent from main isolate. Move this feature to `isolate_manager`: [pub](https://pub.dev/packages/isolate_manager) | [git](https://github.com/vursin/isolate_manager)
-* [ ] Add real isolate for web platform with service-worker.js.
+* [x] Add real isolate for web platform with service-worker.js.
