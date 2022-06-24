@@ -11,19 +11,24 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
   static Future<IsolateContactorInternal<T>> create<T>({
     required FutureOr<T> Function(dynamic) function,
     required String workerName,
-    T Function(dynamic)? converter,
+    required T Function(dynamic) converter,
+    required T Function(dynamic) workerConverter,
     bool debugMode = true,
   }) async {
     if (workerName == '') {
       return IsolateContactorInternalFuture.create(
         function: function,
         functionName: workerName,
+        converter: converter,
+        workerConverter: workerConverter,
         debugMode: debugMode,
       );
     } else {
       return IsolateContactorInternalWorker.create(
         function: function,
         workerName: workerName,
+        converter: converter,
+        workerConverter: workerConverter,
         debugMode: debugMode,
       );
     }
@@ -34,7 +39,8 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
     required void Function(dynamic) isolateFunction,
     required String workerName,
     required dynamic initialParams,
-    T Function(dynamic)? converter,
+    required T Function(dynamic) converter,
+    required T Function(dynamic) workerConverter,
     bool debugMode = false,
   }) async {
     if (workerName == '') {
@@ -42,6 +48,8 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
         isolateFunction: isolateFunction,
         isolateFunctionName: workerName,
         initialParams: initialParams,
+        converter: converter,
+        workerConverter: workerConverter,
         debugMode: debugMode,
       );
     } else {
@@ -49,6 +57,8 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
         isolateFunction: isolateFunction,
         workerName: workerName,
         initialParams: initialParams,
+        converter: converter,
+        workerConverter: workerConverter,
         debugMode: debugMode,
       );
     }

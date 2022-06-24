@@ -16,8 +16,12 @@ class IsolateContactorControllerImplFuture<T>
   final T Function(dynamic) converter;
   dynamic _initialParams;
 
-  IsolateContactorControllerImplFuture(dynamic params,
-      {this.onDispose, required this.converter}) {
+  IsolateContactorControllerImplFuture(
+    dynamic params, {
+    this.onDispose,
+    required this.converter,
+    required T Function(dynamic) workerConverter,
+  }) {
     if (params is List) {
       _delegate = params.last.controller;
       _initialParams = params.first;

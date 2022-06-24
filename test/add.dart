@@ -1,7 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:js' as js;
 
@@ -11,7 +10,7 @@ import 'package:js/js_util.dart' as js_util;
 @pjs.JS('self')
 external dynamic get globalScopeSelf;
 
-// dart compile js add.dart -o add.js
+// dart compile js add.dart -o add.js -O4
 
 main() {
   callbackToStream('onmessage', (html.MessageEvent e) {
@@ -37,5 +36,5 @@ Stream<T> callbackToStream<J, T>(
 }
 
 void jsSendMessage(dynamic m) {
-  js.context.callMethod('postMessage', [jsonEncode(m)]);
+  js.context.callMethod('postMessage', [m]);
 }

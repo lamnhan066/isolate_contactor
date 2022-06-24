@@ -35,19 +35,22 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
   late String _workerName;
 
   late T Function(dynamic) _converter;
+  late T Function(dynamic) _workerConverter;
 
   /// Create an instance
   IsolateContactorInternalWorker._({
     required FutureOr<void> Function(dynamic) isolateFunction,
     required dynamic isolateParam,
     required String workerName,
-    T Function(dynamic)? converter,
+    required T Function(dynamic) converter,
+    required T Function(dynamic) workerConverter,
     bool debugMode = false,
   }) {
     _debugMode = debugMode;
     _isolateFunction = isolateFunction;
     _workerName = workerName;
-    _converter = converter ?? (value) => value as T;
+    _converter = converter;
+    _workerConverter = workerConverter;
     _isolateParam = isolateParam;
   }
 
@@ -55,7 +58,8 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
   static Future<IsolateContactorInternalWorker<T>> create<T>({
     required FutureOr<T> Function(dynamic) function,
     required String workerName,
-    T Function(dynamic)? converter,
+    required T Function(dynamic) converter,
+    required T Function(dynamic) workerConverter,
     bool debugMode = true,
   }) async {
     IsolateContactorInternalWorker<T> isolateContactor =
@@ -64,6 +68,7 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
       workerName: workerName,
       isolateParam: function,
       converter: converter,
+      workerConverter: workerConverter,
       debugMode: debugMode,
     );
 
@@ -77,7 +82,8 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
     required void Function(dynamic) isolateFunction,
     required String workerName,
     required dynamic initialParams,
-    T Function(dynamic)? converter,
+    required T Function(dynamic) converter,
+    required T Function(dynamic) workerConverter,
     bool debugMode = false,
   }) async {
     IsolateContactorInternalWorker<T> isolateContactor =
@@ -86,6 +92,7 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
       workerName: workerName,
       isolateParam: initialParams ?? [],
       converter: converter,
+      workerConverter: workerConverter,
       debugMode: debugMode,
     );
 
@@ -99,6 +106,7 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
     _isolateContactorController = IsolateContactorController(
       Worker("$_workerName.js"),
       converter: _converter,
+      workerConverter: _workerConverter,
     );
     _isolateContactorController!.onMessage.listen((message) {
       _printDebug('[Main Stream] rawMessage = $message');

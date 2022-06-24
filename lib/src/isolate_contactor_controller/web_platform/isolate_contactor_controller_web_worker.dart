@@ -15,11 +15,15 @@ class IsolateContactorControllerImplWorker<T>
       StreamController.broadcast();
 
   final Function()? onDispose;
-  final T Function(dynamic value) converter;
+  final T Function(dynamic value) workerConverter;
   dynamic _initialParams;
 
-  IsolateContactorControllerImplWorker(dynamic params,
-      {this.onDispose, required this.converter}) {
+  IsolateContactorControllerImplWorker(
+    dynamic params, {
+    this.onDispose,
+    required T Function(dynamic) converter, // Converter for native
+    required this.workerConverter, // Converter for Worker (Web Only)
+  }) {
     if (params is List) {
       _delegate = params.last.controller;
       _initialParams = params.first;
@@ -34,7 +38,7 @@ class IsolateContactorControllerImplWorker<T>
       }
 
       // Decode json from string which sent from isolate
-      _mainStreamController.add(converter(event.data));
+      _mainStreamController.add(workerConverter(event.data));
     });
   }
 

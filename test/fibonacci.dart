@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_web_libraries_in_flutter, depend_on_referenced_packages
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:js' as js;
 
@@ -50,5 +49,5 @@ Stream<T> callbackToStream<J, T>(
 }
 
 void jsSendMessage(dynamic m) {
-  js.context.callMethod('postMessage', [jsonEncode(m)]);
+  js.context.callMethod('postMessage', [m]);
 }

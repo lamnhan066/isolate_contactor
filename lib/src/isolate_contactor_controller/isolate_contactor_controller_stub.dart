@@ -19,8 +19,12 @@ class IsolateContactorControllerImpl<T>
   final T Function(dynamic)? converter;
   dynamic _initialParams;
 
-  IsolateContactorControllerImpl(dynamic params,
-      {this.onDispose, this.converter}) {
+  IsolateContactorControllerImpl(
+    dynamic params, {
+    this.onDispose,
+    this.converter, // Converter for native
+    T Function(dynamic)? workerConverter, // Converter for Worker (Web Only)
+  }) {
     if (params is List) {
       _delegate = IsolateChannel.connectSend(params.last);
       _initialParams = params.first;

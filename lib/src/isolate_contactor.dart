@@ -16,11 +16,15 @@ abstract class IsolateContactor<T> {
   static Future<IsolateContactor<T>> create<T>(
     FutureOr<T> Function(dynamic) function, {
     String workerName = '',
+    T Function(dynamic)? converter,
+    T Function(dynamic)? workerConverter,
     bool debugMode = false,
   }) async {
     return await IsolateContactorInternal.create<T>(
       function: function,
       workerName: workerName,
+      converter: converter ?? (result) => result,
+      workerConverter: workerConverter ?? (result) => result,
       debugMode: debugMode,
     );
   }
@@ -38,12 +42,16 @@ abstract class IsolateContactor<T> {
   static Future<IsolateContactor<T>> createOwnIsolate<T>(
     FutureOr<void> Function(dynamic) isolateFunction, {
     String workerName = '',
+    T Function(dynamic)? converter,
+    T Function(dynamic)? workerConverter,
     dynamic initialParams,
     bool debugMode = false,
   }) async {
     return IsolateContactorInternal.createOwnIsolate<T>(
         isolateFunction: isolateFunction,
         workerName: workerName,
+        converter: converter ?? (result) => result,
+        workerConverter: workerConverter ?? (result) => result,
         initialParams: initialParams,
         debugMode: debugMode);
   }

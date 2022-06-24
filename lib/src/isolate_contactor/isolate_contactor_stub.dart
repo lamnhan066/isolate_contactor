@@ -40,19 +40,22 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   late String _workerName;
 
   T Function(dynamic)? _converter;
+  T Function(dynamic)? _workerConverter;
 
   /// Internal instance
   IsolateContactorInternal._({
     required FutureOr<void> Function(dynamic) isolateFunction,
     required dynamic isolateParam,
     required String workerName,
-    T Function(dynamic)? converter,
+    required T Function(dynamic) converter,
+    required T Function(dynamic) workerConverter,
     bool debugMode = false,
   }) {
     _debugMode = debugMode;
     _isolateFunction = isolateFunction;
     _workerName = workerName;
     _converter = converter;
+    _workerConverter = workerConverter;
     _isolateParam = isolateParam;
   }
 
@@ -60,7 +63,8 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   static Future<IsolateContactorInternal<T>> create<T>({
     required FutureOr<T> Function(dynamic) function,
     required String workerName,
-    T Function(dynamic)? converter,
+    required T Function(dynamic) converter,
+    required T Function(dynamic) workerConverter,
     bool debugMode = true,
   }) async {
     IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(
@@ -68,6 +72,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
       workerName: workerName,
       isolateParam: function,
       converter: converter,
+      workerConverter: workerConverter,
       debugMode: debugMode,
     );
 
@@ -81,7 +86,8 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
     required void Function(dynamic) isolateFunction,
     required dynamic initialParams,
     required String workerName,
-    T Function(dynamic)? converter,
+    required T Function(dynamic) converter,
+    required T Function(dynamic) workerConverter,
     bool debugMode = false,
   }) async {
     IsolateContactorInternal<T> isolateContactor = IsolateContactorInternal._(
@@ -89,6 +95,7 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
       workerName: workerName,
       isolateParam: initialParams ?? [],
       converter: converter,
+      workerConverter: workerConverter,
       debugMode: debugMode,
     );
 
@@ -100,8 +107,11 @@ class IsolateContactorInternal<T> implements IsolateContactor<T> {
   /// Initialize
   Future<void> _initial() async {
     _receivePort = ReceivePort();
-    _isolateContactorController =
-        IsolateContactorController(_receivePort, converter: _converter);
+    _isolateContactorController = IsolateContactorController(
+      _receivePort,
+      converter: _converter,
+      workerConverter: _workerConverter,
+    );
     _isolateContactorController.onMessage.listen((message) {
       _printDebug('Message received from isolate: $message');
       _computeStateStreamController.sink.add(ComputeState.computed);

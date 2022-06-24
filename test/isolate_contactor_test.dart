@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:isolate_contactor/isolate_contactor.dart';
 import 'package:test/test.dart';
@@ -183,11 +184,16 @@ void main() {
 
   test('Test for Worker (Web only with flag --platform=chrome)', () async {
     // Create IsolateContactor
-    IsolateContactor<int> isolateContactor =
-        await IsolateContactor.create(fibonacci, workerName: 'fibonacci');
+    IsolateContactor<int> isolateContactor = await IsolateContactor.create(
+      fibonacci,
+      workerName: 'fibonacci',
+      // converter: (result) => int.parse(result.toString()),
+    );
 
-    IsolateContactor<double> isolateContactor1 =
-        await IsolateContactor.create(add, workerName: 'add');
+    IsolateContactor<double> isolateContactor1 = await IsolateContactor.create(
+      add,
+      workerName: 'add',
+    );
 
     // Listen to the result
     isolateContactor.onMessage.listen((event) {
@@ -201,7 +207,7 @@ void main() {
     expect(result, 55);
 
     final result1 = await isolateContactor1.sendMessage([10.0, 15.0]);
-    print('Result from add.js: $result');
+    print('Result from add.js: $result1');
     expect(result1, 25);
 
     // Dispose
@@ -211,8 +217,23 @@ void main() {
   test('Test for Worker with Map result (Web only with flag --platform=chrome)',
       () async {
     // Create IsolateContactor
-    IsolateContactor isolateContactor =
-        await IsolateContactor.create(convertToMap, workerName: 'map_result');
+    IsolateContactor<Map<int, double>> isolateContactor =
+        await IsolateContactor.create(
+      convertToMap,
+      workerName: 'map_result',
+      workerConverter: (result) {
+        print(result);
+
+        final Map<int, double> convert = {};
+
+        (jsonDecode(result) as Map).forEach((key, value) => {
+              convert.addAll({int.parse(key): double.parse(value)})
+            });
+
+        print('convert: $convert');
+        return convert;
+      },
+    );
 
     // Listen to the result
     isolateContactor.onMessage.listen((event) {
@@ -299,4 +320,4 @@ void isolateFunctionFuture(dynamic params) {
 }
 
 /// This must be a static or top-level function
-dynamic convertToMap(dynamic n) => {1: n * 1.112, 2: n * 1.112};
+Map<int, double> convertToMap(dynamic n) => {1: n * 1.112, 2: n * 1.112};

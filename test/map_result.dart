@@ -11,21 +11,24 @@ import 'package:js/js_util.dart' as js_util;
 @pjs.JS('self')
 external dynamic get globalScopeSelf;
 
-// dart compile js map_result.dart -o map_result.js
+// dart compile js map_result.dart -o map_result.js -O4
 
 main() {
   callbackToStream('onmessage', (html.MessageEvent e) {
     return js_util.getProperty(e, 'data');
   }).listen((message) async {
     // TODO: Function for computation here
-    final result = convertToMap(message);
+    final Map<String, String> result = {};
 
-    jsSendMessage(result);
+    convertToMap(message).forEach(
+        (key, value) => result.addAll({key.toString(): value.toString()}));
+
+    jsSendMessage(jsonEncode(result));
   });
 }
 
 /// This must be a static or top-level function
-Map<String, double> convertToMap(dynamic n) => {'a': n * 1.112, 'b': n * 1.112};
+Map<int, double> convertToMap(dynamic n) => {1: n * 1.112, 2: n * 1.112};
 
 Stream<T> callbackToStream<J, T>(
     String name, T Function(J jsValue) unwrapValue) {
@@ -37,5 +40,5 @@ Stream<T> callbackToStream<J, T>(
 }
 
 void jsSendMessage(dynamic m) {
-  js.context.callMethod('postMessage', [jsonEncode(m)]);
+  js.context.callMethod('postMessage', [m]);
 }

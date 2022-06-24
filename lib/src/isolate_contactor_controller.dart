@@ -9,6 +9,7 @@ abstract class IsolateContactorController<T> {
     dynamic params, {
     Function()? onDispose,
     T Function(dynamic)? converter,
+    T Function(dynamic)? workerConverter,
   }) = IsolateContactorControllerImpl<T>;
 
   /// Get current controller. This method only needs for internal use only
