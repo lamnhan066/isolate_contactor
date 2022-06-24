@@ -11,21 +11,28 @@ import 'package:js/js_util.dart' as js_util;
 @pjs.JS('self')
 external dynamic get globalScopeSelf;
 
-// dart compile js isolate.dart -o isolate.js
+/// You should rename the <function_name> to its name for later use.
+///
+/// dart compile js <function_name>.dart -o <function_name>.js
+
+/// Modify your function here, you can use your top-level or static method that
+/// you have been created for you IsolateManager.
+///
+/// Just make sure that the function does not depend or import any libraries related
+/// to Flutter.
+dynamic functionName(dynamic message) => message;
 
 main() {
   callbackToStream('onmessage', (html.MessageEvent e) {
     return js_util.getProperty(e, 'data');
   }).listen((message) async {
-    // TODO: Function for computation here
+    // Compute the inputed data
     final result = await functionName(message);
 
+    // Send the result to main isolate
     jsSendMessage(result);
   });
 }
-
-/// Modify your function here
-dynamic functionName(dynamic message) => message;
 
 Stream<T> callbackToStream<J, T>(
     String name, T Function(J jsValue) unwrapValue) {

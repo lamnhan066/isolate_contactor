@@ -1,14 +1,14 @@
 # Isolate Contactor
 
-An easy way to create a new isolate, keep it active and comunicate with it. It supports sending and receiving values between main and child isolate multiple times via `stream`, so you can build your `widget` with `StreamBuilder` and always listen to the new value from your `isolate`.
+* This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data until you terminate it. It'll  save a lot of starting time.
 
-This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data until you terminate it. It'll  save a lot of starting time.
+* This package will be moved to `isolate_manager`: [pub](https://pub.dev/packages/isolate_manager) | [git](https://github.com/vursin/isolate_manager) in the future.
 
 ## Features
 
 * Easy to create a new isolate, keep it active and comunicate with it. You can use `isolate_manager`: [pub](https://pub.dev/packages/isolate_manager) | [git](https://github.com/vursin/isolate_manager) to create multiple isolate for a function at the same time which using this plugin as its core.
-* Supports Web with `Future` and `Worker` (`Worker` is the real Isolate on Web).
-* Automatically switch to `Future` if current Web browser doesn't support `Worker`.
+* Supports Web with `Future` and `Worker` (`Worker` is the real Isolate on Web). Automatically switch to `Future` if current Web browser doesn't support `Worker`.
+* Supports sending and receiving values between main and child isolate multiple times via stream, so you can build your widget with StreamBuilder and always listen to the new value from your isolate.
 
 ## Basic Usage (with build-in function)
 
@@ -133,25 +133,32 @@ IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIso
 
 ## Additional
 
-`IsolateContactor.create` and `createOwnIsolate` include `converter` and `workerConverter` parameters which helping you to convert the result received from the `Isolate` (converter) and `Worker` (workerConverter) and send it to the result. Example:
+* If the `function_name.dart` show errors for `js` package, you can add `js` to `dev_dependencies`:
+  
+  ``` dart
+  dev_dependencies:
+    js: ^0.6.4
+  ```
 
-``` dart
-IsolateContactor<Map<int, double>> isolateContactor =
-    await IsolateContactor.create(
-  convertToMap,
-  workerName: 'map_result',
-  workerConverter: (result) {
-    final Map<int, double> convert = {};
+* `IsolateContactor.create` and `createOwnIsolate` include `converter` and `workerConverter` parameters which helping you to convert the result received from the `Isolate` (converter) and `Worker` (workerConverter) and send it to the result. Example:
 
-    // Convert Map<String, String> (received from Worker) to Map<int, double>
-    (jsonDecode(result) as Map).forEach((key, value) => {
-          convert.addAll({int.parse(key): double.parse(value)})
-        });
+  ``` dart
+  IsolateContactor<Map<int, double>> isolateContactor =
+      await IsolateContactor.create(
+    convertToMap,
+    workerName: 'map_result',
+    workerConverter: (result) {
+      final Map<int, double> convert = {};
 
-    return convert;
-  },
-);
-```
+      // Convert Map<String, String> (received from Worker) to Map<int, double>
+      (jsonDecode(result) as Map).forEach((key, value) => {
+            convert.addAll({int.parse(key): double.parse(value)})
+          });
+
+      return convert;
+    },
+  );
+  ```
 
 ## Contributions
 

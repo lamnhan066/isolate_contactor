@@ -105,6 +105,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
     _isolateContactorController = IsolateContactorControllerImpl(
       StreamController.broadcast(),
       converter: _converter,
+      workerConverter: _workerConverter,
     );
     _isolateContactorController!.onMessage.listen((message) {
       _printDebug('[Main Stream] rawMessage = $message');

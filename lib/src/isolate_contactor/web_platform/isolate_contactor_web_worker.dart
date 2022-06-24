@@ -28,6 +28,7 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
   // final _isolateWorker = Worker("isolate.dart.js");
 
   /// Control the function of isolate
+  // ignore: unused_field
   late void Function(dynamic) _isolateFunction;
 
   /// Control the parameters of isolate
