@@ -1,3 +1,8 @@
+## 2.0.0
+
+* **NO BREAKING CHANGE**
+* Add `Worker` for Web platform (real Isolate on Web). Read README for more details.
+
 ## 1.7.0
 
 * **BREAKING CHANGE:** Change parameter name from `isolateParams` to `initialParams` for `createOwnIsolate`.

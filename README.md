@@ -1,14 +1,14 @@
 # Isolate Contactor
 
-An easy way to create a new isolate, keep it running and comunicate with it. It supports sending and receiving values between main and child isolate multiple times via `stream`, so you can build your `widget` with `StreamBuilder` and always listen to the new value from your `isolate`.
+An easy way to create a new isolate, keep it active and comunicate with it. It supports sending and receiving values between main and child isolate multiple times via `stream`, so you can build your `widget` with `StreamBuilder` and always listen to the new value from your `isolate`.
 
 This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data until you terminate it. It'll  save a lot of starting time.
 
 ## Features
 
-* Easy to create a new isolate, keep it active and comunicate with it.
-* Supports Web with `Future` and `Worker` (`Worker` needs some more steps to make it works). See below for more details.
-* Auto switch to `Future` if current Web browser doesn't support `Worker`.
+* Easy to create a new isolate, keep it active and comunicate with it. You can use `isolate_manager`: [pub](https://pub.dev/packages/isolate_manager) | [git](https://github.com/vursin/isolate_manager) to create multiple isolate for a function at the same time which using this plugin as its core.
+* Supports Web with `Future` and `Worker` (`Worker` is the real Isolate on Web).
+* Automatically switch to `Future` if current Web browser doesn't support `Worker`.
 
 ## Basic Usage (with build-in function)
 
@@ -111,9 +111,47 @@ IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIso
 
 ### Then you can use `isolateContactor` like above example
 
-## Configure for Worker
+## Configuration for Worker (Real Isolate on Web)
 
-* **Step 1:** Download [this file]()
+* **Step 1:** Download [this file](https://raw.githubusercontent.com/vursin/isolate_contactor/worker.js/lib/function_name.dart) and rename it to the `<function_name>.dart` that you want to create isolate.
+* **Step 2:** Modify the function `dynamic functionName(dynamic message)` in the script to serves your purposes. Then rename it to the same as the above `<function_name>` (Just helping you easier to remember for later use). You can also use the `top-level or static function` above.
+
+  ***You should copy that function to separated file or copy to `<function_name>.dart` file to prevent the `dart compile js` error because some other functions depend on flutter library.***
+
+* **Step 3:** Run `dart compile js <function_name>.dart -o <function_name>.js -O4` to compile dart to js (-O0 to -O4 is the obfuscated level).
+* **Step 4:** Copy `<function_name>.js` to web folder (the same folder with `index.html`).
+* **Step 5:** Now you can add parameter `workerName` to your code like below:
+
+  ``` dart
+  IsolateContactor<double> isolateContactor = await IsolateContactor.create(
+      add,
+      workerName: 'add', // add.js
+    );
+  ```
+
+  Now the plugin will handle all other action to make the real isolate works on Web.
+
+## Additional
+
+`IsolateContactor.create` and `createOwnIsolate` include `converter` and `workerConverter` parameters which helping you to convert the result received from the `Isolate` (converter) and `Worker` (workerConverter) and send it to the result. Example:
+
+``` dart
+IsolateContactor<Map<int, double>> isolateContactor =
+    await IsolateContactor.create(
+  convertToMap,
+  workerName: 'map_result',
+  workerConverter: (result) {
+    final Map<int, double> convert = {};
+
+    // Convert Map<String, String> (received from Worker) to Map<int, double>
+    (jsonDecode(result) as Map).forEach((key, value) => {
+          convert.addAll({int.parse(key): double.parse(value)})
+        });
+
+    return convert;
+  },
+);
+```
 
 ## Contributions
 
@@ -121,6 +159,6 @@ If you encounter any problems or feel the library is missing a feature, please f
 
 ## To-do list
 
-- [x] Await for the result from isolate when using `isolateContactor.sendMessage`.
-- [x] Allow creating multiple child isolates at the same time to solve multiple inputs sent from main isolate. Move this feature to `isolate_manager`: [pub](https://pub.dev/packages/isolate_manager) | [git](https://github.com/vursin/isolate_manager)
-- [ ] Add real isolate for web platform with service-worker.js.
+* [x] Await for the result from isolate when using `isolateContactor.sendMessage`.
+* [x] Allow creating multiple child isolates at the same time to solve multiple inputs sent from main isolate. Move this feature to `isolate_manager`: [pub](https://pub.dev/packages/isolate_manager) | [git](https://github.com/vursin/isolate_manager)
+* [ ] Add real isolate for web platform with service-worker.js.
