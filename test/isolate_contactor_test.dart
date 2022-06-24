@@ -186,8 +186,8 @@ void main() {
     IsolateContactor<int> isolateContactor =
         await IsolateContactor.create(fibonacci, workerName: 'fibonacci');
 
-    IsolateContactor<int> isolateContactor1 =
-        await IsolateContactor.create(fibonacci, workerName: 'add');
+    IsolateContactor<double> isolateContactor1 =
+        await IsolateContactor.create(add, workerName: 'add');
 
     // Listen to the result
     isolateContactor.onMessage.listen((event) {
@@ -197,12 +197,33 @@ void main() {
 
     // Send 10 to fibonacci isolate function
     final result = await isolateContactor.sendMessage(10);
-    print('Result from fibonaccijs: $result');
+    print('Result from fibonacci.js: $result');
     expect(result, 55);
 
-    final result1 = await isolateContactor1.sendMessage([10, 15]);
-    print('Result from add.dart.js: $result');
+    final result1 = await isolateContactor1.sendMessage([10.0, 15.0]);
+    print('Result from add.js: $result');
     expect(result1, 25);
+
+    // Dispose
+    isolateContactor.dispose();
+  });
+
+  test('Test for Worker with Map result (Web only with flag --platform=chrome)',
+      () async {
+    // Create IsolateContactor
+    IsolateContactor isolateContactor =
+        await IsolateContactor.create(convertToMap, workerName: 'map_result');
+
+    // Listen to the result
+    isolateContactor.onMessage.listen((event) {
+      print('isolate 1: $event');
+      expect(event, convertToMap(10));
+    });
+
+    // Send 10 to fibonacci isolate function
+    final result = await isolateContactor.sendMessage(10);
+    print('Result from fibonaccijs: $result');
+    expect(result, convertToMap(10));
 
     // Dispose
     isolateContactor.dispose();
@@ -245,7 +266,7 @@ Future<int> fibonacciFuture(dynamic n) async {
 double subtract(dynamic n) => n[1] - n[0];
 
 // multi parameters as an dynamic
-double add(dynamic a, dynamic b) => a + b;
+double add(dynamic message) => message[0] + message[1];
 
 // multi parameters as an dynamic
 Future<double> addFuture(dynamic a, dynamic b) async {
@@ -263,7 +284,7 @@ void isolateFunction(dynamic params) {
     // Do your stuff here
 
     // Send value back to your main process in stream [onMessage]
-    channel.sendResult(add(message[0], message[1]));
+    channel.sendResult(add(message));
   });
 }
 
@@ -276,3 +297,6 @@ void isolateFunctionFuture(dynamic params) {
     channel.sendResult(await addFuture(message[0], message[1]));
   });
 }
+
+/// This must be a static or top-level function
+dynamic convertToMap(dynamic n) => {'a': n, 'b': n};

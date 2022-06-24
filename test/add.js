@@ -4117,17 +4117,6 @@
     main() {
       A.callbackToStream("onmessage", new A.main_closure(), type$.MessageEvent, type$.dynamic).listen$1(new A.main_closure0());
     },
-    fibonacci(n) {
-      var n1, n2, n3, i,
-        t1 = J.getInterceptor$(n);
-      if (t1.$eq(n, 0))
-        return 0;
-      if (t1.$le(n, 2))
-        return 1;
-      for (A._asNum(n), n1 = 0, n2 = 1, n3 = 1, i = 2; i <= n; ++i, n1 = n2, n2 = n3)
-        n3 = n1 + n2;
-      return B.JSInt_methods.round$0(n3);
-    },
     callbackToStream($name, unwrapValue, $J, $T) {
       var t1 = $T._eval$1("_SyncBroadcastStreamController<0>"),
         controller = new A._SyncBroadcastStreamController(null, null, t1),
@@ -4263,6 +4252,24 @@
         return receiver;
       return J.getNativeInterceptor(receiver);
     },
+    getInterceptor$ansx(receiver) {
+      if (typeof receiver == "number")
+        return J.JSNumber.prototype;
+      if (typeof receiver == "string")
+        return J.JSString.prototype;
+      if (receiver == null)
+        return receiver;
+      if (receiver.constructor == Array)
+        return J.JSArray.prototype;
+      if (typeof receiver != "object") {
+        if (typeof receiver == "function")
+          return J.JavaScriptFunction.prototype;
+        return receiver;
+      }
+      if (receiver instanceof A.Object)
+        return receiver;
+      return J.getNativeInterceptor(receiver);
+    },
     getInterceptor$asx(receiver) {
       if (typeof receiver == "string")
         return J.JSString.prototype;
@@ -4317,6 +4324,11 @@
     get$length$asx(receiver) {
       return J.getInterceptor$asx(receiver).get$length(receiver);
     },
+    $add$ansx(receiver, a0) {
+      if (typeof receiver == "number" && typeof a0 == "number")
+        return receiver + a0;
+      return J.getInterceptor$ansx(receiver).$add(receiver, a0);
+    },
     $eq$(receiver, a0) {
       if (receiver == null)
         return a0 == null;
@@ -4324,12 +4336,12 @@
         return a0 != null && receiver === a0;
       return J.getInterceptor$(receiver).$eq(receiver, a0);
     },
-    $index$ax(receiver, a0) {
+    $index$asx(receiver, a0) {
       if (typeof a0 === "number")
-        if (receiver.constructor == Array || A.isJsIndexable(receiver, receiver[init.dispatchPropertyName]))
+        if (receiver.constructor == Array || typeof receiver == "string" || A.isJsIndexable(receiver, receiver[init.dispatchPropertyName]))
           if (a0 >>> 0 === a0 && a0 < receiver.length)
             return receiver[a0];
-      return J.getInterceptor$ax(receiver).$index(receiver, a0);
+      return J.getInterceptor$asx(receiver).$index(receiver, a0);
     },
     elementAt$1$ax(receiver, a0) {
       return J.getInterceptor$ax(receiver).elementAt$1(receiver, a0);
@@ -4517,6 +4529,13 @@
         throw A.wrapException(A.diagnoseIndexError(receiver, index));
       receiver[index] = value;
     },
+    $add(receiver, other) {
+      var t1 = A._arrayInstanceType(receiver);
+      t1._eval$1("List<1>")._as(other);
+      t1 = A.List_List$of(receiver, t1._precomputed1);
+      this.addAll$1(t1, other);
+      return t1;
+    },
     $isIterable: 1,
     $isList: 1
   };
@@ -4546,14 +4565,6 @@
     }
   };
   J.JSNumber.prototype = {
-    round$0(receiver) {
-      if (receiver > 0) {
-        if (receiver !== 1 / 0)
-          return Math.round(receiver);
-      } else if (receiver > -1 / 0)
-        return 0 - Math.round(0 - receiver);
-      throw A.wrapException(A.UnsupportedError$("" + receiver + ".round()"));
-    },
     toString$0(receiver) {
       if (receiver === 0 && 1 / receiver < 0)
         return "-0.0";
@@ -4571,6 +4582,10 @@
       scaled = absolute < 1 ? absolute / factor : factor / absolute;
       return ((scaled * 9007199254740992 | 0) + (scaled * 3542243181176521 | 0)) * 599197 + floorLog2 * 1259 & 536870911;
     },
+    $add(receiver, other) {
+      A._asNum(other);
+      return receiver + other;
+    },
     _shrOtherPositive$1(receiver, other) {
       var t1;
       if (receiver > 0)
@@ -4583,9 +4598,6 @@
     },
     _shrBothPositive$1(receiver, other) {
       return other > 31 ? 0 : receiver >>> other;
-    },
-    $le(receiver, other) {
-      return receiver <= other;
     },
     $isdouble: 1,
     $isnum: 1
@@ -4606,6 +4618,7 @@
       return receiver.charCodeAt(index);
     },
     $add(receiver, other) {
+      A._asString(other);
       return receiver + other;
     },
     substring$2(receiver, start, end) {
@@ -4627,6 +4640,11 @@
     },
     get$length(receiver) {
       return receiver.length;
+    },
+    $index(receiver, index) {
+      if (index >= receiver.length)
+        throw A.wrapException(A.diagnoseIndexError(receiver, index));
+      return receiver[index];
     },
     $isString: 1
   };
@@ -4709,6 +4727,14 @@
   A.ConstantStringMap.prototype = {
     get$length(_) {
       return this._length;
+    },
+    containsKey$1(_, key) {
+      return false;
+    },
+    $index(_, key) {
+      if (!this.containsKey$1(0, key))
+        return null;
+      return this.__js_helper$_jsObject[A._asString(key)];
     },
     forEach$1(_, f) {
       var keys, t2, t3, i, t4,
@@ -5989,6 +6015,9 @@
     bindCallbackGuarded$1(f) {
       return new A._RootZone_bindCallbackGuarded_closure(this, type$.void_Function._as(f));
     },
+    $index(_, key) {
+      return null;
+    },
     run$1$1(f, $R) {
       $R._eval$1("0()")._as(f);
       if ($.Zone__current === B.C__RootZone)
@@ -6034,6 +6063,13 @@
       var t1 = A.instanceType(receiver);
       return new A.MappedListIterable(receiver, t1._bind$1($T)._eval$1("1(ListMixin.E)")._as(f), t1._eval$1("@<ListMixin.E>")._bind$1($T)._eval$1("MappedListIterable<1,2>"));
     },
+    $add(receiver, other) {
+      var t1 = A.instanceType(receiver);
+      t1._eval$1("List<ListMixin.E>")._as(other);
+      t1 = A.List_List$of(receiver, t1._eval$1("ListMixin.E"));
+      B.JSArray_methods.addAll$1(t1, other);
+      return t1;
+    },
     toString$0(receiver) {
       return A.IterableBase_iterableToFullString(receiver, "[", "]");
     }
@@ -6077,6 +6113,9 @@
   };
   A._UnmodifiableMapMixin.prototype = {};
   A.MapView.prototype = {
+    $index(_, key) {
+      return this._collection$_map.$index(0, key);
+    },
     forEach$1(_, action) {
       this._collection$_map.forEach$1(0, this.$ti._eval$1("~(1,2)")._as(action));
     },
@@ -6614,6 +6653,9 @@
   A.DataTransferItemList.prototype = {
     get$length(receiver) {
       return receiver.length;
+    },
+    $index(receiver, index) {
+      return receiver[index];
     }
   };
   A.DomException.prototype = {
@@ -7304,7 +7346,7 @@
         nextPosition = _this._position + 1,
         t1 = _this._html$_length;
       if (nextPosition < t1) {
-        _this.set$_html$_current(J.$index$ax(_this._array, nextPosition));
+        _this.set$_html$_current(J.$index$asx(_this._array, nextPosition));
         _this._position = nextPosition;
         return true;
       }
@@ -7595,7 +7637,7 @@
     call$1(message) {
       var $async$goto = 0,
         $async$completer = A._makeAsyncAwaitCompleter(type$.void),
-        result;
+        t1, result;
       var $async$call$1 = A._wrapJsFunctionForAsync(function($async$errorCode, $async$result) {
         if ($async$errorCode === 1)
           return A._asyncRethrow($async$result, $async$completer);
@@ -7603,7 +7645,8 @@
           switch ($async$goto) {
             case 0:
               // Function start
-              result = A.fibonacci(message);
+              t1 = J.getInterceptor$asx(message);
+              result = A._asDouble(J.$add$ansx(t1.$index(message, 0), t1.$index(message, 1)));
               $.$get$_context().callMethod$2("postMessage", [B.C_JsonCodec.encode$2$toEncodable(result, null)]);
               // implicit return
               return A._asyncReturn(null, $async$completer);
@@ -8197,4 +8240,4 @@
   });
 })();
 
-//# sourceMappingURL=fibonacci.js.map
+//# sourceMappingURL=add.js.map

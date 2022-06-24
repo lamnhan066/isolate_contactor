@@ -5,18 +5,6 @@ import '../../isolate_contactor_controller.dart';
 import '../../utils/utils.dart';
 import '../isolate_contactor_web.dart';
 
-// main() async {
-//   if (html.Worker.supported) {
-//     var myWorker = html.Worker("ww.dart.js");
-//     myWorker.onMessage.listen((event) {
-//       print("main:receive: ${event.data}");
-//     });
-//     myWorker.postMessage("Hello!!");
-//   } else {
-//     print('Your browser doesn\'t support web workers.');
-//   }
-// }
-
 class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
   /// For debugging
   bool _debugMode = false;
@@ -100,7 +88,6 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
 
   /// Initialize
   Future<void> _initial() async {
-    print(_isolateFunction.runtimeType);
     _isolateContactorController =
         IsolateContactorController(Worker("$_workerName.js"));
     _isolateContactorController!.onMessage.listen((message) {
