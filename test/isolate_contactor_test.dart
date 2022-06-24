@@ -1,9 +1,13 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:isolate_contactor/isolate_contactor.dart';
 import 'package:test/test.dart';
+
+//  dart test
+//  dart test --platform=chrome
 
 void main() {
   test('Test multi listener of stream', () async {
@@ -178,6 +182,74 @@ void main() {
     // Dispose
     isolateContactor.dispose();
   });
+
+  test('Test for Worker (Web only with flag --platform=chrome)', () async {
+    // Create IsolateContactor
+    IsolateContactor<int> isolateContactor = await IsolateContactor.create(
+      fibonacci,
+      workerName: 'fibonacci',
+      // converter: (result) => int.parse(result.toString()),
+    );
+
+    IsolateContactor<double> isolateContactor1 = await IsolateContactor.create(
+      add,
+      workerName: 'add',
+    );
+
+    // Listen to the result
+    isolateContactor.onMessage.listen((event) {
+      print('isolate 1: $event');
+      expect(event, 55);
+    });
+
+    // Send 10 to fibonacci isolate function
+    final result = await isolateContactor.sendMessage(10);
+    print('Result from fibonacci.js: $result');
+    expect(result, 55);
+
+    final result1 = await isolateContactor1.sendMessage([10.0, 15.0]);
+    print('Result from add.js: $result1');
+    expect(result1, 25);
+
+    // Dispose
+    isolateContactor.dispose();
+  });
+
+  test('Test for Worker with Map result (Web only with flag --platform=chrome)',
+      () async {
+    // Create IsolateContactor
+    IsolateContactor<Map<int, double>> isolateContactor =
+        await IsolateContactor.create(
+      convertToMap,
+      workerName: 'map_result',
+      workerConverter: (result) {
+        print(result);
+
+        final Map<int, double> convert = {};
+
+        (jsonDecode(result) as Map).forEach((key, value) => {
+              convert.addAll({int.parse(key): double.parse(value)})
+            });
+
+        print('convert: $convert');
+        return convert;
+      },
+    );
+
+    // Listen to the result
+    isolateContactor.onMessage.listen((event) {
+      print('isolate 1: $event');
+      expect(event, convertToMap(10.0));
+    });
+
+    // Send 10 to fibonacci isolate function
+    final result = await isolateContactor.sendMessage(10.0);
+    print('Result from fibonaccijs: $result');
+    expect(result, convertToMap(10.0));
+
+    // Dispose
+    isolateContactor.dispose();
+  });
 }
 
 int fibonacci(dynamic n) {
@@ -216,7 +288,7 @@ Future<int> fibonacciFuture(dynamic n) async {
 double subtract(dynamic n) => n[1] - n[0];
 
 // multi parameters as an dynamic
-double add(dynamic a, dynamic b) => a + b;
+double add(dynamic message) => message[0] + message[1];
 
 // multi parameters as an dynamic
 Future<double> addFuture(dynamic a, dynamic b) async {
@@ -234,7 +306,7 @@ void isolateFunction(dynamic params) {
     // Do your stuff here
 
     // Send value back to your main process in stream [onMessage]
-    channel.sendResult(add(message[0], message[1]));
+    channel.sendResult(add(message));
   });
 }
 
@@ -247,3 +319,6 @@ void isolateFunctionFuture(dynamic params) {
     channel.sendResult(await addFuture(message[0], message[1]));
   });
 }
+
+/// This must be a static or top-level function
+Map<int, double> convertToMap(dynamic n) => {1: n * 1.112, 2: n * 1.112};
