@@ -4,6 +4,12 @@ An easy way to create a new isolate, keep it running and comunicate with it. It 
 
 This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data until you terminate it. It'll  save a lot of starting time.
 
+## Features
+
+* Easy to create a new isolate, keep it active and comunicate with it.
+* Supports Web with `Future` and `Worker` (`Worker` needs some more steps to make it works). See below for more details.
+* Auto switch to `Future` if current Web browser doesn't support `Worker`.
+
 ## Basic Usage (with build-in function)
 
 There are multiple ways to use this package, the only thing to notice that the `function` have to be a `static` or `top-level` function to make it works.
@@ -105,9 +111,9 @@ IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIso
 
 ### Then you can use `isolateContactor` like above example
 
-## Limitation
+## Configure for Worker
 
-Support web platform with limited features. The package use `Future` to provide the same features to Isolate.
+* **Step 1:** Download [this file]()
 
 ## Contributions
 

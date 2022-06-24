@@ -18,14 +18,14 @@ main() {
     return js_util.getProperty(e, 'data');
   }).listen((message) async {
     // TODO: Function for computation here
-    final result = await function(message);
+    final result = await functionName(message);
 
     jsSendMessage(result);
   });
 }
 
 /// Modify your function here
-dynamic function(dynamic message) => message;
+dynamic functionName(dynamic message) => message;
 
 Stream<T> callbackToStream<J, T>(
     String name, T Function(J jsValue) unwrapValue) {
