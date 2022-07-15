@@ -6,7 +6,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:isolate_contactor/isolate_contactor.dart';
 
-void main() {
+void main(List<String> args) {
+  if (args.isNotEmpty) {
+    print(args);
+
+    IsolateContactor.register(fibonacci);
+
+    return;
+  }
   runApp(const MyApp());
 }
 
@@ -106,7 +113,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> initial() async {
     isolateContactor1 = await IsolateContactor.create<int>(
       fibonacciFuture,
-      workerName: 'fibonacci',
+      workerName: 'main.dart.js?worker=true',
       debugMode: true,
     );
     isolateContactor2 = await IsolateContactor.createOwnIsolate(

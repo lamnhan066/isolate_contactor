@@ -107,7 +107,7 @@ class IsolateContactorInternalWorker<T> implements IsolateContactorInternal<T> {
   /// Initialize
   Future<void> _initial() async {
     _isolateContactorController = IsolateContactorControllerImpl(
-      Worker("$_workerName.js"),
+      Worker(_workerName),
       converter: _converter,
       workerConverter: _workerConverter,
     );

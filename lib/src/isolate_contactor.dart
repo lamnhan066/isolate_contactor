@@ -2,9 +2,30 @@ import 'dart:async';
 
 import 'isolate_contactor/isolate_contactor_stub.dart'
     if (dart.library.html) 'isolate_contactor/isolate_contactor_web.dart';
+
+import 'register_worker/stub.dart'
+    if (dart.library.html) 'register_worker/web.dart';
+
 import 'utils/utils.dart';
 
 abstract class IsolateContactor<T> {
+  /// Register isolate Worker function
+  ///
+  /// You can register many Workers but you need to to add your register
+  /// on top all of others
+  /// ``` dart
+  /// void main() {
+  ///   if (IsolateManager.register(worker)) return;
+  ///   if (IsolateManager.register(worker2)) return;
+  ///
+  ///
+  ///   [Other code below]
+  /// }
+  /// ````
+  static bool register(Function(dynamic params) worker) {
+    return registerImpl(worker);
+  }
+
   /// The easy way to create isolate function
   ///
   /// `function` must be static or top-level function.
