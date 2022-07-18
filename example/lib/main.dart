@@ -11,8 +11,6 @@ void main(List<String> args) {
     print(args);
 
     IsolateContactor.register(fibonacci);
-
-    return;
   }
   runApp(const MyApp());
 }
@@ -118,7 +116,7 @@ class _MyAppState extends State<MyApp> {
     );
     isolateContactor2 = await IsolateContactor.createOwnIsolate(
       isolateFunction,
-      workerName: 'fibonacciRescusive',
+      workerName: 'fibonacciRescusive.js',
       debugMode: true,
     );
     isolateContactor3 = await IsolateContactor.create(
