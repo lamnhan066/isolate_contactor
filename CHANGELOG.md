@@ -1,3 +1,8 @@
+## 2.0.0+1
+
+* Improve function & parameter headers
+* Update dependencies
+
 ## 2.0.0
 
 * **NO BREAKING CHANGE**

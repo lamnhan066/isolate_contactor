@@ -18,10 +18,20 @@ abstract class IsolateContactor<T> {
   ///
   /// `debugMode` allow printing debug data in console. Default is set to `false`.
   static Future<IsolateContactor<T>> create<T>(
+    /// `function` must be static or top-level function.
     FutureOr<T> Function(dynamic) function, {
+
+    /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
+    /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
     String workerName = '',
+
+    /// `converter` (for Native) convert result before sending to to the result.
     T Function(dynamic)? converter,
+
+    /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
     T Function(dynamic)? workerConverter,
+
+    /// `debugMode` allow printing debug data in console. Default is set to `false`.
     bool debugMode = false,
   }) async {
     return await IsolateContactorInternal.create<T>(
@@ -38,7 +48,7 @@ abstract class IsolateContactor<T> {
   /// `isolateFunction` You can take a look at the example to see what you need to do
   /// to make it works.
   ///
-  /// `functionName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
+  /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
   /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
   ///
   /// `converter` (for Native) convert result before sending to to the result.
@@ -46,13 +56,28 @@ abstract class IsolateContactor<T> {
   /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
   ///
   /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
+  ///
   /// `debugMode` allow printing debug data in console. Default is set to false.
   static Future<IsolateContactor<T>> createOwnIsolate<T>(
+    /// `isolateFunction` You can take a look at the example to see what you need to do
+    /// to make it works.
     FutureOr<void> Function(dynamic) isolateFunction, {
+
+    /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
+    /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
     String workerName = '',
+
+    /// `converter` (for Native) convert result before sending to to the result.
     T Function(dynamic)? converter,
+
+    /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
     T Function(dynamic)? workerConverter,
+
+    /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
+    /// `debugMode` allow printing debug data in console. Default is set to false.
     dynamic initialParams,
+
+    /// `debugMode` allow printing debug data in console. Default is set to false.
     bool debugMode = false,
   }) async {
     return IsolateContactorInternal.createOwnIsolate<T>(
@@ -69,7 +94,7 @@ abstract class IsolateContactor<T> {
   /// Throw `IsolateContactorException` when error occurs.
   Future<T> sendMessage(dynamic message) => throw UnimplementedError();
 
-  /// Listen to the result of the isolate
+  /// Listen to the result from the isolate.
   Stream<T> get onMessage => throw UnimplementedError();
 
   /// Listen to the current state of isolate.

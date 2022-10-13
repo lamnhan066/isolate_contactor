@@ -7,9 +7,13 @@ abstract class IsolateContactorController<T> {
   /// Create controller for current `IsolateContactor`
   ///
   /// `params` is the default parameters of the isolate function.
+  ///
   /// `onDispose` is called when the controller is disposed.
   factory IsolateContactorController(
+    /// `params` is the default parameters of the isolate function.
     dynamic params, {
+
+    /// `onDispose` is called when the controller is disposed.
     Function()? onDispose,
   }) = IsolateContactorControllerImpl<T>;
 
@@ -22,7 +26,7 @@ abstract class IsolateContactorController<T> {
   /// Get initial params for `createOwnIsolate`
   dynamic get initialParams => throw UnimplementedError();
 
-  /// Listen to result of the isolate
+  /// Listen to result from the isolate
   Stream<T> get onMessage => throw UnimplementedError();
 
   /// Listen to the message is sent to isolate
