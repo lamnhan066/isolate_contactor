@@ -137,7 +137,7 @@ IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIso
   
   ``` dart
   dev_dependencies:
-    js: ^0.6.4
+    js:
   ```
 
 * `IsolateContactor.create` and `createOwnIsolate` include `converter` and `workerConverter` parameters which helping you to convert the result received from the `Isolate` (converter) and `Worker` (workerConverter) and send it to the result. Example:
