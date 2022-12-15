@@ -11,29 +11,28 @@ import 'package:js/js_util.dart' as js_util;
 @pjs.JS('self')
 external dynamic get globalScopeSelf;
 
-/// You should rename the <function_name> to its name for later use.
-///
-/// dart compile js <function_name>.dart -o <function_name>.js
+/// dart compile js worker.dart -o worker.js -O4
 
-/// Modify your function here, you can use your top-level or static method that
-/// you have been created for you IsolateManager.
-///
-/// Just make sure that the function does not depend or import any libraries related
-/// to Flutter.
-dynamic functionName(dynamic message) => message;
-
+/// In most cases you don't need to modify this function
 main() {
   callbackToStream('onmessage', (html.MessageEvent e) {
     return js_util.getProperty(e, 'data');
   }).listen((message) async {
-    // Compute the inputed data
-    final result = await functionName(message);
-
-    // Send the result to main isolate
-    jsSendMessage(result);
+    final Completer completer = Completer();
+    completer.future.then((value) => jsSendMessage(value));
+    completer.complete(worker(message));
   });
 }
 
+/// TODO: Modify your function here
+FutureOr<dynamic> worker(dynamic message) {
+  // Best way to use this method is encoding the result to JSON
+  // before sending to the main app, then you can decode it back to
+  // the return type you want with `workerConverter`.
+  return jsonEncode(message);
+}
+
+/// Internal function
 Stream<T> callbackToStream<J, T>(
     String name, T Function(J jsValue) unwrapValue) {
   var controller = StreamController<T>.broadcast(sync: true);
@@ -43,6 +42,7 @@ Stream<T> callbackToStream<J, T>(
   return controller.stream;
 }
 
+/// Internal function
 void jsSendMessage(dynamic m) {
-  js.context.callMethod('postMessage', [jsonEncode(m)]);
+  js.context.callMethod('postMessage', [m]);
 }

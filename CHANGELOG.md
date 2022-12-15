@@ -1,3 +1,8 @@
+# 2.0.1
+
+* Update `worker.dart` script for the `Worker`.
+* Update README.
+
 ## 2.0.0+1
 
 * Improve function & parameter headers
