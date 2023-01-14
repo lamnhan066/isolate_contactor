@@ -1,4 +1,10 @@
-# 2.0.1
+## 2.0.2
+
+* On Flutter >3.3.0 - `@pragma('vm:entry-point')` anotation must be added to all methods that you want to use for isolation. Read README for more information.
+* Add `@pragma('vm:entry-point')` to internal method.
+* Use `stream_channel: ^2.1.0` to avoid conflicts with `flutter_test`.
+
+## 2.0.1
 
 * Update `worker.dart` script for the `Worker`.
 * Update README.

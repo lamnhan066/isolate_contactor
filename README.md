@@ -17,8 +17,11 @@ There are multiple ways to use this package, the only thing to notice that the `
 ### Create a top-level or static function
 
 ``` dart
+@pragma('vm:entry-point')
 double add(dynamic value) => value[0] + value[1];
 ```
+
+**You have to add `@pragma('vm:entry-point')` anotation to all methods that you want to use for isolation since Flutter 3.3.0. Without this annotation, the dart compiler could strip out unused functions, inline them, shrink names, etc, and the native code would fail to call it.**
 
 ### Create IsolateContactor instance for that function
 
@@ -74,6 +77,7 @@ You just need to create a function of this form:
 
 ``` dart
 // Create your own function here
+@pragma('vm:entry-point')
 void isolateFunction(dynamic params) {
   // Initial the controller for child isolate
   final controller = IsolateContactorController<double>(

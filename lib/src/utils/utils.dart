@@ -23,6 +23,7 @@ class IsolateContactorException implements Exception {
 }
 
 /// Create a static function to compunicate with main `Isolate`
+@pragma('vm:entry-point')
 void internalIsolateFunction(dynamic params) {
   final controller = IsolateContactorController(params, onDispose: () {});
   final function = controller.initialParams;
