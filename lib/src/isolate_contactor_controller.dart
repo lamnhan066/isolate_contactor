@@ -12,7 +12,6 @@ abstract class IsolateContactorController<T> {
   factory IsolateContactorController(
     /// `params` is the default parameters of the isolate function.
     dynamic params, {
-
     /// `onDispose` is called when the controller is disposed.
     Function()? onDispose,
   }) = IsolateContactorControllerImpl<T>;

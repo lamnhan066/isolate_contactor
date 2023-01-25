@@ -20,7 +20,6 @@ abstract class IsolateContactor<T> {
   static Future<IsolateContactor<T>> create<T>(
     /// `function` must be static or top-level function.
     FutureOr<T> Function(dynamic) function, {
-
     /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
     /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
     String workerName = '',
@@ -62,7 +61,6 @@ abstract class IsolateContactor<T> {
     /// `isolateFunction` You can take a look at the example to see what you need to do
     /// to make it works.
     FutureOr<void> Function(dynamic) isolateFunction, {
-
     /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
     /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
     String workerName = '',

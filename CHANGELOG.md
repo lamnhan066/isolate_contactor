@@ -1,3 +1,7 @@
+## 2.0.2+1
+
+* Improve pub scores.
+
 ## 2.0.2
 
 * On Flutter >3.3.0 - `@pragma('vm:entry-point')` anotation must be added to all methods that you want to use for isolation. Read README for more information.
