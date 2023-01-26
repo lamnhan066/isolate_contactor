@@ -1,3 +1,9 @@
+## 2.1.0-PRE.1
+
+* Support `try-catch` block for all platforms including Worker on Web.
+* Update `worker.dart` to support `try-catch` block.
+* Increase min SDK to 2.15.0.
+
 ## 2.0.2+1
 
 * Improve pub scores.

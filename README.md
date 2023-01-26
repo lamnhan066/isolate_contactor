@@ -1,14 +1,15 @@
 # Isolate Contactor
 
-* This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data until you terminate it. It'll  save a lot of starting time.
+* This package is marked as Unlisted, it's still be updated as a core package of `isolate_manager`: [pub](https://pub.dev/packages/isolate_manager) | [git](https://github.com/vursin/isolate_manager).
 
-* If you want to manage multiple Isolates for a function at the same time, you can use `isolate_manager`: [pub](https://pub.dev/packages/isolate_manager) | [git](https://github.com/vursin/isolate_manager) which is based on this package with advanced features.
+* This package is different from the `compute` method, IsolateContactor allows the isolate to run, send, receive data until you terminate it. It'll  save a lot of starting time.
 
 ## Features
 
 * Easy to create a new Isolate, keep it active, and communicate with it.
 * Supports Web with `Future` and `Worker` (`Worker` is the real Isolate on the Web). Automatically switch to `Future` if the current Web browser doesn't support `Worker`.
 * Supports sending and receiving values between the main and child Isolate multiple times via stream, so you can build your widget with StreamBuilder and always listen to the new value from your Isolate.
+* Support `try-catch` block.
 
 ## Basic Usage (with build-in function)
 
@@ -68,6 +69,20 @@ isolateContactor.sendMessage([10.0, 20.0]);
 
 ``` dart
 final result = await isolateContactor.sendMessage([10.0, 20.0]);
+```
+
+You can use `try-catch` to catch the exception:
+
+``` dart
+try {
+  final result = await isolateManager.compute([10, 20]);
+} on Exception catch (e1) {
+  // You can catch the specific exception like StateError, Exception,..
+  print(e1);
+} catch (e2) {
+  // You should convert the exception to String if you're using Worker and use this way to catch it
+  print(e2);
+}
 ```
 
 ## Create your own isolate function
@@ -131,6 +146,7 @@ IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIso
   import 'dart:html' as html;
   import 'dart:js' as js;
 
+  import 'package:isolate_contactor/src/utils/exception.dart';
   import 'package:js/js.dart' as pjs;
   import 'package:js/js_util.dart' as js_util;
 
@@ -141,36 +157,53 @@ IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIso
 
   /// In most cases you don't need to modify this function
   main() {
-    callbackToStream('onmessage', (html.MessageEvent e) {
-      return js_util.getProperty(e, 'data');
-    }).listen((message) async {
-      final Completer completer = Completer();
-      completer.future.then((value) => jsSendMessage(value));
-      completer.complete(worker(message));
-    });
+  callbackToStream('onmessage', (html.MessageEvent e) {
+    return js_util.getProperty(e, 'data');
+  }).listen((message) async {
+    final Completer completer = Completer();
+    completer.future.then(
+    (value) => jsSendMessage(value),
+    onError: (err, stack) =>
+      jsSendMessage(IsolateException(err, stack).toJson()),
+    );
+    try {
+    completer.complete(worker(message));
+    } catch (err, stack) {
+    jsSendMessage(IsolateException(err, stack).toJson());
+    }
+  });
   }
 
-  /// TODO: Modify your function here
+  /// TODO: Modify your function here:
+  ///
+  ///  Do this if you need to throw an exception
+  ///
+  ///  You should only throw the `message` instead of a whole Object because it may
+  ///  not show as expected when sending back to the main app.
+  ///
+  /// ``` dart
+  ///  return throw 'This is an error that you need to catch in your main app';
+  /// ```
   FutureOr<dynamic> worker(dynamic message) {
-    // Best way to use this method is encoding the result to JSON
-    // before sending to the main app, then you can decode it back to
-    // the return type you want with `workerConverter`.
-    return jsonEncode(message);
+  // Best way to use this method is encoding the result to JSON
+  // before sending to the main app, then you can decode it back to
+  // the return type you want with `workerConverter`.
+  return jsonEncode(message);
   }
 
   /// Internal function
   Stream<T> callbackToStream<J, T>(
-      String name, T Function(J jsValue) unwrapValue) {
-    var controller = StreamController<T>.broadcast(sync: true);
-    js_util.setProperty(js.context['self'], name, js.allowInterop((J event) {
-      controller.add(unwrapValue(event));
-    }));
-    return controller.stream;
+    String name, T Function(J jsValue) unwrapValue) {
+  var controller = StreamController<T>.broadcast(sync: true);
+  js_util.setProperty(js.context['self'], name, js.allowInterop((J event) {
+    controller.add(unwrapValue(event));
+  }));
+  return controller.stream;
   }
 
   /// Internal function
   void jsSendMessage(dynamic m) {
-    js.context.callMethod('postMessage', [m]);
+  js.context.callMethod('postMessage', [m]);
   }
   ```
 
