@@ -5,6 +5,11 @@ import 'isolate_contactor/isolate_contactor_stub.dart'
 import 'utils/utils.dart';
 
 abstract class IsolateContactor<T> {
+  /// Use this value to change the prefix debug log
+  ///
+  /// Ex: 'Isolate Contactor' => [Isolate Contactor]: there is log
+  static String debugLogPrefix = 'Isolate Contactor';
+
   /// The easy way to create isolate function
   ///
   /// `function` must be static or top-level function.
