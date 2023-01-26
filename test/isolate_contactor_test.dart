@@ -263,7 +263,7 @@ void main() {
   test('Test with exception method', () async {
     final isolateContactor = await IsolateContactor.create(
       errorFunction,
-      workerName: 'errorFunction',
+      workerName: 'error_function',
       debugMode: true,
     );
 

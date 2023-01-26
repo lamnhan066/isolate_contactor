@@ -26,7 +26,4 @@ class IsolateException implements Exception {
   static isValidObject(dynamic json) =>
       json.toString().startsWith(r'{"$IsolateException":{') &&
       json.toString().endsWith('"}}');
-
-  @override
-  int get hashCode => error.hashCode ^ stack.hashCode;
 }
