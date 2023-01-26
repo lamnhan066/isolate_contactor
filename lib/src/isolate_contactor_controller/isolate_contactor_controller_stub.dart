@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:stream_channel/isolate_channel.dart';
 
 import '../isolate_contactor_controller.dart';
+import '../utils/exception.dart';
 import '../utils/utils.dart';
 
 class IsolateContactorControllerImpl<T>
@@ -36,6 +37,11 @@ class IsolateContactorControllerImpl<T>
       (event as Map<IsolatePort, dynamic>).forEach((key, value) {
         switch (key) {
           case IsolatePort.main:
+            if (value is IsolateException) {
+              _mainStreamController.addError(value.error, value.stack);
+              break;
+            }
+
             _mainStreamController
                 .add(converter == null ? value : converter!(value));
             break;

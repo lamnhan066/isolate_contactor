@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:isolate_contactor/src/utils/exception.dart';
 import 'package:isolate_contactor/src/utils/utils.dart';
 
 import '../isolate_contactor_controller_web.dart';
@@ -35,6 +36,14 @@ class IsolateContactorControllerImplWorker<T>
       if (event.data == IsolateState.dispose) {
         onDispose!();
         close();
+        return;
+      }
+
+      if (IsolateException.isValidObject(event.data)) {
+        final exception = IsolateException.fromJson(event.data);
+        _mainStreamController.addError(
+            exception.error.toString(), StackTrace.empty);
+        return;
       }
 
       // Decode json from string which sent from isolate

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../utils/exception.dart';
 import '../../utils/utils.dart';
 import '../isolate_contactor_controller_web.dart';
 
@@ -33,6 +34,11 @@ class IsolateContactorControllerImplFuture<T>
       (event as Map<IsolatePort, dynamic>).forEach((key, value) {
         switch (key) {
           case IsolatePort.main:
+            if (value is IsolateException) {
+              _mainStreamController.addError(value.error, value.stack);
+              break;
+            }
+
             _mainStreamController.add(converter(value));
             break;
           case IsolatePort.isolate:

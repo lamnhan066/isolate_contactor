@@ -108,9 +108,14 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
       workerConverter: _workerConverter,
     );
     _isolateContactorController!.onMessage.listen((message) {
-      _printDebug('[Main Stream] rawMessage = $message');
+      _printDebug('[Main Stream] Message received from Future: $message');
       _computeStateStreamController.sink.add(ComputeState.computed);
       _mainStreamController.sink.add(message);
+      _isComputing = false;
+    }).onError((err, stack) {
+      _printDebug('[Main Stream] Error message received from Future: $err');
+      _computeStateStreamController.sink.add(ComputeState.computed);
+      _mainStreamController.sink.addError(err, stack);
       _isComputing = false;
     });
 
@@ -178,24 +183,37 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   Future<T> sendMessage(dynamic message) {
     if (_isolateContactorController == null) {
       _printDebug('! This isolate has been terminated');
-      return throw IsolateContactorException('This isolate was terminated');
+      return throw IsolateException(
+        'This isolate was terminated',
+        StackTrace.empty,
+      );
     }
 
     if (_isComputing) {
       _printDebug(
           '! This isolate is still being computed, so the current request has been revoked!');
 
-      return throw IsolateContactorException(
-          'This isolate is still being computed, so the current request has been revoked');
+      return throw IsolateException(
+        'This isolate is still being computed, so the current request has been revoked',
+        StackTrace.empty,
+      );
     }
 
     _isComputing = true;
     _computeStateStreamController.sink.add(ComputeState.computing);
 
     final Completer<T> completer = Completer();
-    _isolateContactorController!.onMessage.listen((result) {
-      if (!completer.isCompleted) completer.complete(result);
-    });
+    StreamSubscription? sub;
+    sub = _isolateContactorController!.onMessage.listen((result) async {
+      if (!completer.isCompleted) {
+        completer.complete(result);
+        await sub?.cancel();
+      }
+    })
+      ..onError((err, stack) async {
+        completer.completeError(err, stack);
+        await sub?.cancel();
+      });
 
     _printDebug('Message send to isolate: $message');
 
@@ -207,6 +225,8 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   /// Print if [debugMode] is true
   void _printDebug(Object? object, [bool force = false]) {
     // ignore: avoid_print
-    if (_debugMode && !force) print('[Isolate Contactor]: $object');
+    if (_debugMode && !force) {
+      print('[${IsolateContactor.debugLogPrefix}]: $object');
+    }
   }
 }

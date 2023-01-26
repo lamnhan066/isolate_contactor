@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../isolate_contactor_controller.dart';
+import 'exception.dart';
 
 /// States of current isolate
 enum ComputeState { computing, computed }
@@ -11,17 +12,6 @@ enum IsolatePort { main, isolate }
 /// Isolate state
 enum IsolateState { dispose }
 
-class IsolateContactorException implements Exception {
-  final String message;
-
-  IsolateContactorException(this.message);
-
-  @override
-  String toString() {
-    return 'IsolateContactorException: $message';
-  }
-}
-
 /// Create a static function to compunicate with main `Isolate`
 @pragma('vm:entry-point')
 void internalIsolateFunction(dynamic params) {
@@ -29,7 +19,16 @@ void internalIsolateFunction(dynamic params) {
   final function = controller.initialParams;
   controller.onIsolateMessage.listen((message) {
     Completer completer = Completer();
-    completer.future.then((value) => controller.sendResult(value));
-    completer.complete(function(message));
+    completer.future.then(
+      (value) => controller.sendResult(value),
+      onError: (err, stack) =>
+          controller.sendResult(IsolateException(err, stack)),
+    );
+
+    try {
+      completer.complete(function(message));
+    } catch (err, stack) {
+      controller.sendResult(IsolateException(err, stack));
+    }
   });
 }

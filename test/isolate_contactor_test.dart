@@ -7,7 +7,7 @@ import 'package:isolate_contactor/isolate_contactor.dart';
 import 'package:test/test.dart';
 
 //  dart test
-//  dart test --platform=chrome
+//  dart test --platform=chrome,vm
 
 void main() {
   test('Test multi listener of stream', () async {
@@ -30,6 +30,15 @@ void main() {
     await Future.delayed(const Duration(seconds: 3));
     stream1.cancel();
     stream2.cancel();
+  });
+
+  test('Exception converter', () {
+    final exception = IsolateException('Some thing', 'Some stacks');
+
+    final json = exception.toJson();
+    expect(IsolateException.isValidObject(json), equals(true));
+
+    expect(IsolateException.fromJson(json), isA<IsolateException>());
   });
 
   test('Basic use', () async {
@@ -250,6 +259,30 @@ void main() {
     // Dispose
     isolateContactor.dispose();
   });
+
+  test('Test with exception method', () async {
+    final isolateContactor = await IsolateContactor.create(
+      errorFunction,
+      workerName: 'errorFunction',
+      debugMode: true,
+    );
+
+    int currentCount = 0;
+    try {
+      for (currentCount = 0; currentCount < 50; currentCount++) {
+        expect(await isolateContactor.sendMessage(currentCount), currentCount);
+      }
+    } on StateError catch (e) {
+      // This catch is for other platform
+      expect(e.message, equals('This is an error function, error value is 10'));
+    } catch (e) {
+      // This catch is for Worker because we cannot pass the Exception object to
+      // our main app from the Worker
+      expect(e, equals('This is an error function, error value is 10'));
+    } finally {
+      isolateContactor.dispose();
+    }
+  });
 }
 
 int fibonacci(dynamic n) {
@@ -285,12 +318,15 @@ Future<int> fibonacciFuture(dynamic n) async {
 }
 
 // single parameter
+@pragma('vm:entry-point')
 double subtract(dynamic n) => n[1] - n[0];
 
 // multi parameters as an dynamic
+@pragma('vm:entry-point')
 double add(dynamic message) => message[0] + message[1];
 
 // multi parameters as an dynamic
+@pragma('vm:entry-point')
 Future<double> addFuture(dynamic a, dynamic b) async {
   await null;
 
@@ -298,6 +334,7 @@ Future<double> addFuture(dynamic a, dynamic b) async {
 }
 
 // Create your own function here
+@pragma('vm:entry-point')
 void isolateFunction(dynamic params) {
   final channel = IsolateContactorController<double>(params, onDispose: () {
     print('Dispose isolateFunction');
@@ -311,6 +348,7 @@ void isolateFunction(dynamic params) {
 }
 
 // Create your own function here
+@pragma('vm:entry-point')
 void isolateFunctionFuture(dynamic params) {
   final channel = IsolateContactorController<double>(params, onDispose: () {
     print('Dispose isolateFunctionFuture');
@@ -321,4 +359,14 @@ void isolateFunctionFuture(dynamic params) {
 }
 
 /// This must be a static or top-level function
+@pragma('vm:entry-point')
 Map<int, double> convertToMap(dynamic n) => {1: n * 1.112, 2: n * 1.112};
+
+@pragma('vm:entry-point')
+int errorFunction(dynamic value) {
+  if (value == 10) {
+    return throw StateError('This is an error function, error value is $value');
+  }
+
+  return value;
+}
