@@ -1,4 +1,4 @@
-## 2.1.0-PRE.1
+## 2.1.0
 
 * Support `try-catch` block for all platforms including Worker on Web.
 * Update `worker.dart` to support `try-catch` block.
