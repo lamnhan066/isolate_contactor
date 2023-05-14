@@ -1,10 +1,10 @@
 name: isolate_contactor
 description: An easy way to create a new Isolate, keep it active and communicate with it (supports `Worker` on the Web platform).
-version: 2.1.0
-homepage: https://github.com/vursin/isolate_contactor
+version: 3.0.0
+homepage: https://github.com/vnniz/isolate_contactor
 
 environment:
-  sdk: ">=2.15.0 <3.0.0"
+  sdk: ">=2.18.0 <4.0.0"
 
 dependencies:
   stream_channel: ^2.1.0

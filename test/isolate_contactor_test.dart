@@ -236,9 +236,8 @@ void main() {
 
         final Map<int, double> convert = {};
 
-        (jsonDecode(result) as Map).forEach((key, value) => {
-              convert.addAll({int.parse(key): double.parse(value)})
-            });
+        (jsonDecode(result) as Map).forEach((key, value) =>
+            convert.addAll({int.parse(key): double.parse(value)}));
 
         print('convert: $convert');
         return convert;

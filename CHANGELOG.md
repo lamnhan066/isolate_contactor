@@ -1,3 +1,8 @@
+## 3.0.0
+
+* Bumped Dart sdk to `>=2.18.0 <4.0.0`.
+* Update `error_function.js` name in test.
+
 ## 2.1.0
 
 * Support `try-catch` block for all platforms including Worker on Web.
