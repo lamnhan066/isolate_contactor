@@ -1,3 +1,9 @@
+## 4.0.0-rc.1
+
+* Add parameter type as `P` and change return type to `R`.
+* Add return type as `void` to `onDispose` method.
+* Change `isolateParams` from dynamic to `Object?`.
+
 ## 3.0.0
 
 * Bumped Dart sdk to `>=2.18.0 <4.0.0`.
