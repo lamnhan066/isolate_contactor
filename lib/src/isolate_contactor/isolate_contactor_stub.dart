@@ -34,7 +34,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
   late void Function(dynamic) _isolateFunction;
 
   /// Control the parameters of isolate
-  late dynamic _isolateParam;
+  late Object? _isolateParam;
 
   /// Only for web platform
   // ignore: unused_field
@@ -86,7 +86,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
   /// Create an instance with your own function
   static Future<IsolateContactorInternal<R, P>> createOwnIsolate<R, P>({
     required void Function(dynamic) isolateFunction,
-    required dynamic initialParams,
+    required Object? initialParams,
     required String workerName,
     required R Function(dynamic) converter,
     required R Function(dynamic) workerConverter,
@@ -96,7 +96,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
         IsolateContactorInternal._(
       isolateFunction: isolateFunction,
       workerName: workerName,
-      isolateParam: initialParams ?? [],
+      isolateParam: initialParams,
       converter: converter,
       workerConverter: workerConverter,
       debugMode: debugMode,

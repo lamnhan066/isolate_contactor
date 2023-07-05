@@ -41,7 +41,7 @@ class IsolateContactorInternalFuture<R, P>
   IsolateContactorInternalFuture._({
     required FutureOr<void> Function(dynamic) isolateFunction,
     required String workerName,
-    required dynamic isolateParam,
+    required Object? isolateParam,
     required R Function(dynamic) converter,
     required R Function(dynamic) workerConverter,
     bool debugMode = false,

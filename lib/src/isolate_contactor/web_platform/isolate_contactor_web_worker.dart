@@ -46,7 +46,7 @@ class IsolateContactorInternalWorker<R, P>
   /// Create an instance
   IsolateContactorInternalWorker._({
     required FutureOr<void> Function(dynamic) isolateFunction,
-    required dynamic isolateParam,
+    required Object? isolateParam,
     required String workerName,
     required R Function(dynamic) converter,
     required R Function(dynamic) workerConverter,
@@ -87,7 +87,7 @@ class IsolateContactorInternalWorker<R, P>
   static Future<IsolateContactorInternalWorker<R, P>> createOwnIsolate<R, P>({
     required void Function(dynamic) isolateFunction,
     required String workerName,
-    required dynamic initialParams,
+    required Object? initialParams,
     required R Function(dynamic) converter,
     required R Function(dynamic) workerConverter,
     bool debugMode = false,
@@ -96,7 +96,7 @@ class IsolateContactorInternalWorker<R, P>
         IsolateContactorInternalWorker._(
       isolateFunction: isolateFunction,
       workerName: workerName,
-      isolateParam: initialParams ?? [],
+      isolateParam: initialParams,
       converter: converter,
       workerConverter: workerConverter,
       debugMode: debugMode,

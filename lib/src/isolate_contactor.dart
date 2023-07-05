@@ -79,7 +79,7 @@ abstract class IsolateContactor<R, P> {
 
     /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
     /// `debugMode` allow printing debug data in console. Default is set to false.
-    P? initialParams,
+    Object? initialParams,
 
     /// `debugMode` allow printing debug data in console. Default is set to false.
     bool debugMode = false,

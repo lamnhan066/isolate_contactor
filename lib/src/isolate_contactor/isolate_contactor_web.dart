@@ -46,7 +46,7 @@ abstract class IsolateContactorInternal<R, P>
   static Future<IsolateContactorInternal<R, P>> createOwnIsolate<R, P>({
     required void Function(dynamic) isolateFunction,
     required String workerName,
-    required dynamic initialParams,
+    required Object? initialParams,
     required R Function(dynamic) converter,
     required R Function(dynamic) workerConverter,
     bool debugMode = false,
