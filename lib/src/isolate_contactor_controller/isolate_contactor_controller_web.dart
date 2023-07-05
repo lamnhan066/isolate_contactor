@@ -8,7 +8,7 @@ abstract class IsolateContactorControllerImpl<R, P>
     implements IsolateContactorController<R, P> {
   factory IsolateContactorControllerImpl(
     dynamic params, {
-    Function()? onDispose,
+    void Function()? onDispose,
     R Function(dynamic)? converter, // Converter for native
     R Function(dynamic)? workerConverter, // Converter for Worker (Web Only)
   }) {

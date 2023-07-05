@@ -13,7 +13,7 @@ class IsolateContactorControllerImplFuture<R, P>
   final StreamController<P> _isolateStreamController =
       StreamController.broadcast();
 
-  final Function()? onDispose;
+  final void Function()? onDispose;
   final R Function(dynamic) converter;
   dynamic _initialParams;
 
