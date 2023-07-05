@@ -33,7 +33,10 @@ void main() {
   });
 
   test('Exception converter', () {
-    final exception = IsolateException('Some thing', 'Some stacks');
+    final exception = IsolateException(
+      'Some thing',
+      StackTrace.fromString('Some stack trace'),
+    );
 
     final json = exception.toJson();
     expect(IsolateException.isValidObject(json), equals(true));
