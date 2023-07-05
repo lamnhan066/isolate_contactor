@@ -116,7 +116,11 @@ void isolateFunction(dynamic params) {
     
     // Send value back to your main process in stream [onMessage]
     controller.sendResult(result);
+
+    // Or send an exception to your main process
+    controller.sendResultError(IsolateException(error, stack));
   });
+
 }
 ```
 
