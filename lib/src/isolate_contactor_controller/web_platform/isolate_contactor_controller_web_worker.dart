@@ -74,7 +74,7 @@ class IsolateContactorControllerImplWorker<R, P>
   }
 
   @override
-  void sendIsolateState(IsolateState state) {
+  void sendIsolateState(Object state) {
     try {
       _delegate.postMessage(state);
     } catch (_) {

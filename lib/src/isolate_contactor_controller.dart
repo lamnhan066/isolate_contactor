@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:isolate_contactor/src/utils/utils.dart';
-
 import 'isolate_contactor_controller/isolate_contactor_controller_stub.dart'
     if (dart.library.html) 'isolate_contactor_controller/isolate_contactor_controller_web.dart';
 
@@ -37,7 +35,7 @@ abstract class IsolateContactorController<R, P> {
   void sendIsolate(P message) => throw UnimplementedError();
 
   /// Send a `Dispose` message to the isolate
-  void sendIsolateState(IsolateState state) => throw UnimplementedError();
+  void sendIsolateState(Object state) => throw UnimplementedError();
 
   /// Send the `result` of computation to `onIsolateMessage` stream
   void sendResult(R result) => throw UnimplementedError();

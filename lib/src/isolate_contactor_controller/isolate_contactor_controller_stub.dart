@@ -82,7 +82,7 @@ class IsolateContactorControllerImpl<R, P>
   }
 
   @override
-  void sendIsolateState(IsolateState state) {
+  void sendIsolateState(Object state) {
     try {
       _delegate.sink.add({IsolatePort.isolate: state});
     } catch (_) {
