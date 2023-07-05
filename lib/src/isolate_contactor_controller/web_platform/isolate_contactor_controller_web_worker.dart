@@ -86,6 +86,10 @@ class IsolateContactorControllerImplWorker<R, P>
   void sendResult(R message) => throw UnimplementedError();
 
   @override
+  void sendResultError(IsolateException exception) =>
+      throw UnimplementedError();
+
+  @override
   Future<void> close() async {
     _delegate.terminate();
     await Future.wait([

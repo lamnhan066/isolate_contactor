@@ -95,6 +95,15 @@ class IsolateContactorControllerImplFuture<R, P>
   }
 
   @override
+  void sendResultError(IsolateException exception) {
+    try {
+      _delegate.sink.add({IsolatePort.main: exception});
+    } catch (_) {
+      // The delegate may be closed
+    }
+  }
+
+  @override
   Future<void> close() async {
     await Future.wait([
       _delegate.close(),
