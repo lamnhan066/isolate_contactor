@@ -13,7 +13,7 @@ void main() {
 /// This must be a static or top-level function
 ///
 /// This function is very expensive to calculate, so I can test for un-blocking UI feature
-Future<int> fibonacciRescusiveFuture(dynamic n) async {
+Future<int> fibonacciRescusiveFuture(int n) async {
   if (n == 0) return 0;
   if (n <= 2) return 1;
 
@@ -25,7 +25,7 @@ Future<int> fibonacciRescusiveFuture(dynamic n) async {
 }
 
 /// This must be a static or top-level function
-Future<int> fibonacciFuture(dynamic n) async {
+Future<int> fibonacciFuture(int n) async {
   if (n == 0) return 0;
   if (n <= 2) return 1;
 
@@ -44,7 +44,7 @@ Future<int> fibonacciFuture(dynamic n) async {
 }
 
 /// This must be a static or top-level function
-int fibonacci(dynamic n) {
+int fibonacci(int n) {
   if (n == 0) return 0;
   if (n == 1 || n == 2) return 1;
 
@@ -60,7 +60,7 @@ int fibonacci(dynamic n) {
 }
 
 void isolateFunction(dynamic params) {
-  final channel = IsolateContactorController<int>(params);
+  final channel = IsolateContactorController<int, int>(params);
   channel.onIsolateMessage.listen((message) async {
     // Do more stuff here
 
@@ -79,9 +79,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late IsolateContactor<dynamic> isolateContactor1;
-  late IsolateContactor<int> isolateContactor2;
-  late IsolateContactor<int> isolateContactor3;
+  late IsolateContactor isolateContactor1;
+  late IsolateContactor isolateContactor2;
+  late IsolateContactor isolateContactor3;
   int value1 = 2;
   int value2 = 3;
   int value3 = 4;
@@ -104,7 +104,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> initial() async {
-    isolateContactor1 = await IsolateContactor.create<int>(
+    isolateContactor1 = await IsolateContactor.create<int, int>(
       fibonacciFuture,
       workerName: 'fibonacci',
       debugMode: true,
@@ -114,7 +114,7 @@ class _MyAppState extends State<MyApp> {
       workerName: 'fibonacciRescusive',
       debugMode: true,
     );
-    isolateContactor3 = await IsolateContactor.create(
+    isolateContactor3 = await IsolateContactor.create<int, int>(
       fibonacciRescusiveFuture,
       debugMode: true,
     );

@@ -6,7 +6,8 @@ import '../../../isolate_contactor.dart';
 import '../../utils/utils.dart';
 import '../isolate_contactor_web.dart';
 
-class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
+class IsolateContactorInternalFuture<R, P>
+    implements IsolateContactorInternal<R, P> {
   /// For debugging
   bool _debugMode = false;
 
@@ -18,11 +19,11 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
       StreamController.broadcast();
 
   /// Check for current cumputing state in enum with listener
-  final StreamController<T> _mainStreamController =
+  final StreamController<R> _mainStreamController =
       StreamController.broadcast();
 
   /// Listener for result
-  IsolateContactorController<T>? _isolateContactorController;
+  IsolateContactorController<R, P>? _isolateContactorController;
 
   /// Control the function of isolate
   late void Function(dynamic) _isolateFunction;
@@ -33,16 +34,16 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   // ignore: unused_field
   late String _workerName;
 
-  late T Function(dynamic) _converter;
-  late T Function(dynamic) _workerConverter;
+  late R Function(dynamic) _converter;
+  late R Function(dynamic) _workerConverter;
 
   /// Create an instance
   IsolateContactorInternalFuture._({
     required FutureOr<void> Function(dynamic) isolateFunction,
     required String workerName,
     required dynamic isolateParam,
-    required T Function(dynamic) converter,
-    required T Function(dynamic) workerConverter,
+    required R Function(dynamic) converter,
+    required R Function(dynamic) workerConverter,
     bool debugMode = false,
   }) {
     _debugMode = debugMode;
@@ -54,14 +55,14 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   }
 
   /// Create an instance
-  static Future<IsolateContactorInternalFuture<T>> create<T>({
-    required FutureOr<T> Function(dynamic) function,
+  static Future<IsolateContactorInternalFuture<R, P>> create<R, P>({
+    required FutureOr<R> Function(P params) function,
     required String functionName,
-    required T Function(dynamic) converter,
-    required T Function(dynamic) workerConverter,
+    required R Function(dynamic) converter,
+    required R Function(dynamic) workerConverter,
     bool debugMode = true,
   }) async {
-    IsolateContactorInternalFuture<T> isolateContactor =
+    IsolateContactorInternalFuture<R, P> isolateContactor =
         IsolateContactorInternalFuture._(
       isolateFunction: internalIsolateFunction,
       workerName: functionName,
@@ -77,15 +78,15 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   }
 
   /// Create modified isolate function
-  static Future<IsolateContactorInternalFuture<T>> createOwnIsolate<T>({
+  static Future<IsolateContactorInternalFuture<R, P>> createOwnIsolate<R, P>({
     required void Function(dynamic) isolateFunction,
     required String isolateFunctionName,
     required dynamic initialParams,
-    required T Function(dynamic) converter,
-    required T Function(dynamic) workerConverter,
+    required R Function(dynamic) converter,
+    required R Function(dynamic) workerConverter,
     bool debugMode = false,
   }) async {
-    IsolateContactorInternalFuture<T> isolateContactor =
+    IsolateContactorInternalFuture<R, P> isolateContactor =
         IsolateContactorInternalFuture._(
       isolateFunction: isolateFunction,
       workerName: isolateFunctionName,
@@ -128,7 +129,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
 
   /// Get current message as stream
   @override
-  Stream<T> get onMessage => _mainStreamController.stream;
+  Stream<R> get onMessage => _mainStreamController.stream;
 
   /// Get current state
   @override
@@ -164,7 +165,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   @override
   Future<void> dispose() async {
     _isComputing = false;
-    _isolateContactorController?.sendIsolate(IsolateState.dispose);
+    _isolateContactorController?.sendIsolateState(IsolateState.dispose);
     _computeStateStreamController.sink.add(ComputeState.computed);
 
     _computeStateStreamController.close;
@@ -180,7 +181,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
   ///
   /// Throw IsolateContactorException if error occurs.
   @override
-  Future<T> sendMessage(dynamic message) {
+  Future<R> sendMessage(P message) {
     if (_isolateContactorController == null) {
       _printDebug('! This isolate has been terminated');
       return throw IsolateException(
@@ -202,7 +203,7 @@ class IsolateContactorInternalFuture<T> implements IsolateContactorInternal<T> {
     _isComputing = true;
     _computeStateStreamController.sink.add(ComputeState.computing);
 
-    final Completer<T> completer = Completer();
+    final Completer<R> completer = Completer();
     StreamSubscription? sub;
     sub = _isolateContactorController!.onMessage.listen((result) async {
       if (!completer.isCompleted) {
