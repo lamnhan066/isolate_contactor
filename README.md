@@ -19,15 +19,17 @@ There are multiple ways to use this package, the only thing to notice that the `
 
 ``` dart
 @pragma('vm:entry-point')
-double add(dynamic value) => value[0] + value[1];
+double add(List<String> value) => value[0] + value[1];
 ```
 
 **You have to add `@pragma('vm:entry-point')` anotation to all methods that you want to use for isolation since Flutter 3.3.0. Without this annotation, the dart compiler could strip out unused functions, inline them, shrink names, etc, and the native code would fail to call it.**
 
 ### Create IsolateContactor instance for that function
 
+You can specify the IsolateContactor<R, P> with R is the return type and P is parameter type like this:
+
 ``` dart
-IsolateContactor<double> isolateContactor = await IsolateContactor.create(add);
+IsolateContactor<double, List<String>> isolateContactor = await IsolateContactor.create(add);
 ```
 
 ### Listen to the result of the isolate
@@ -95,7 +97,7 @@ You just need to create a function of this form:
 @pragma('vm:entry-point')
 void isolateFunction(dynamic params) {
   // Initial the controller for child isolate
-  final controller = IsolateContactorController<double>(
+  final controller = IsolateContactorController<double, List<double>>(
     params, 
     onDispose: () {
       print('Dispose isolateFunction');
@@ -114,14 +116,18 @@ void isolateFunction(dynamic params) {
     
     // Send value back to your main process in stream [onMessage]
     controller.sendResult(result);
+
+    // Or send an exception to your main process
+    controller.sendResultError(IsolateException(error, stack));
   });
+
 }
 ```
 
 ### Then create IsolateContactor for that function
 
 ``` dart
-IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIsolate(
+IsolateContactor<double, List<double>> isolateContactor =  await IsolateContactor.createOwnIsolate(
       isolateFunction,
       initialParams: 'This is initialParams',
       debugMode: true,
@@ -238,7 +244,7 @@ IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIso
 * The result that you get from the Isolate (or Worker) is sometimes different from the result that you want to get from the return type in the main app, you can use `converter` and `workerConverter` parameters to convert the result received from the `Isolate` (converter) and `Worker` (workerConverter). Example:
 
   ``` dart
-  IsolateContactor<Map<int, double>> isolateContactor =
+  IsolateContactor<Map<int, double>, double> isolateContactor =
       await IsolateContactor.create(
     convertToMap,
     // Ex: 'map_result' if the name is 'map_result.js'
@@ -252,6 +258,7 @@ IsolateContactor<double> isolateContactor =  await IsolateContactor.createOwnIso
       decodedMap.forEach((key, value) => convert.addAll({int.parse(key): double.parse(value)}));
 
       return convert;
+    }
   );
   ```
 

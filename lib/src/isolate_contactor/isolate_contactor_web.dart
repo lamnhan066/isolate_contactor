@@ -7,13 +7,14 @@ import '../isolate_contactor.dart';
 import 'web_platform/isolate_contactor_web.dart';
 import 'web_platform/isolate_contactor_web_worker.dart';
 
-abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
+abstract class IsolateContactorInternal<R, P>
+    implements IsolateContactor<R, P> {
   /// Create an instance
-  static Future<IsolateContactorInternal<T>> create<T>({
-    required FutureOr<T> Function(dynamic) function,
+  static Future<IsolateContactorInternal<R, P>> create<R, P>({
+    required FutureOr<R> Function(P params) function,
     required String workerName,
-    required T Function(dynamic) converter,
-    required T Function(dynamic) workerConverter,
+    required R Function(dynamic) converter,
+    required R Function(dynamic) workerConverter,
     bool debugMode = true,
   }) async {
     /// If browser is not supported Worker then use Future
@@ -42,12 +43,12 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }
 
   /// Create modified isolate function
-  static Future<IsolateContactorInternal<T>> createOwnIsolate<T>({
+  static Future<IsolateContactorInternal<R, P>> createOwnIsolate<R, P>({
     required void Function(dynamic) isolateFunction,
     required String workerName,
-    required dynamic initialParams,
-    required T Function(dynamic) converter,
-    required T Function(dynamic) workerConverter,
+    required Object? initialParams,
+    required R Function(dynamic) converter,
+    required R Function(dynamic) workerConverter,
     bool debugMode = false,
   }) async {
     /// If browser is not supported Worker then use Future
@@ -94,7 +95,7 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
   Stream<ComputeState> get onComputeState => throw UnimplementedError();
 
   @override
-  Stream<T> get onMessage => throw UnimplementedError();
+  Stream<R> get onMessage => throw UnimplementedError();
 
   @override
   Future<void> restart() {
@@ -102,7 +103,7 @@ abstract class IsolateContactorInternal<T> implements IsolateContactor<T> {
   }
 
   @override
-  Future<T> sendMessage(message) {
+  Future<R> sendMessage(P message) {
     throw UnimplementedError();
   }
 

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 class IsolateException implements Exception {
-  final dynamic error;
-  final dynamic stack;
+  final Object error;
+  final StackTrace stack;
 
-  IsolateException(this.error, this.stack);
+  IsolateException(this.error, [this.stack = StackTrace.empty]);
 
   String toJson() => jsonEncode({
         r'$IsolateException': {
@@ -20,7 +20,10 @@ class IsolateException implements Exception {
     final decoded = jsonDecode(json.toString());
     final values = decoded[r'$IsolateException'];
 
-    return IsolateException(values['error'], values['stack']);
+    return IsolateException(
+      values['error'],
+      StackTrace.fromString(values['stack']),
+    );
   }
 
   static isValidObject(dynamic json) =>

@@ -6,23 +6,23 @@ import 'package:isolate_contactor/src/utils/utils.dart';
 
 import '../isolate_contactor_controller_web.dart';
 
-class IsolateContactorControllerImplWorker<T>
-    implements IsolateContactorControllerImpl<T> {
+class IsolateContactorControllerImplWorker<R, P>
+    implements IsolateContactorControllerImpl<R, P> {
   late Worker _delegate;
 
-  final StreamController<T> _mainStreamController =
+  final StreamController<R> _mainStreamController =
       StreamController.broadcast();
-  final StreamController _isolateStreamController =
+  final StreamController<P> _isolateStreamController =
       StreamController.broadcast();
 
-  final Function()? onDispose;
-  final T Function(dynamic value) workerConverter;
+  final void Function()? onDispose;
+  final R Function(dynamic value) workerConverter;
   dynamic _initialParams;
 
   IsolateContactorControllerImplWorker(
     dynamic params, {
     this.onDispose,
-    required T Function(dynamic) converter, // Converter for native
+    required R Function(dynamic) converter, // Converter for native
     required this.workerConverter, // Converter for Worker (Web Only)
   }) {
     if (params is List) {
@@ -59,13 +59,13 @@ class IsolateContactorControllerImplWorker<T>
   dynamic get initialParams => _initialParams;
 
   @override
-  Stream<T> get onMessage => _mainStreamController.stream;
+  Stream<R> get onMessage => _mainStreamController.stream;
 
   @override
-  Stream get onIsolateMessage => _isolateStreamController.stream;
+  Stream<P> get onIsolateMessage => _isolateStreamController.stream;
 
   @override
-  void sendIsolate(dynamic message) {
+  void sendIsolate(P message) {
     try {
       _delegate.postMessage(message);
     } catch (_) {
@@ -74,7 +74,20 @@ class IsolateContactorControllerImplWorker<T>
   }
 
   @override
-  void sendResult(T message) => throw UnimplementedError();
+  void sendIsolateState(Object state) {
+    try {
+      _delegate.postMessage(state);
+    } catch (_) {
+      // The delegate may be closed
+    }
+  }
+
+  @override
+  void sendResult(R message) => throw UnimplementedError();
+
+  @override
+  void sendResultError(IsolateException exception) =>
+      throw UnimplementedError();
 
   @override
   Future<void> close() async {

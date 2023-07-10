@@ -4,24 +4,24 @@ import '../../utils/exception.dart';
 import '../../utils/utils.dart';
 import '../isolate_contactor_controller_web.dart';
 
-class IsolateContactorControllerImplFuture<T>
-    implements IsolateContactorControllerImpl<T> {
+class IsolateContactorControllerImplFuture<R, P>
+    implements IsolateContactorControllerImpl<R, P> {
   late StreamController _delegate;
 
-  final StreamController<T> _mainStreamController =
+  final StreamController<R> _mainStreamController =
       StreamController.broadcast();
-  final StreamController _isolateStreamController =
+  final StreamController<P> _isolateStreamController =
       StreamController.broadcast();
 
-  final Function()? onDispose;
-  final T Function(dynamic) converter;
+  final void Function()? onDispose;
+  final R Function(dynamic) converter;
   dynamic _initialParams;
 
   IsolateContactorControllerImplFuture(
     dynamic params, {
     this.onDispose,
     required this.converter,
-    required T Function(dynamic) workerConverter,
+    required R Function(dynamic) workerConverter,
   }) {
     if (params is List) {
       _delegate = params.last.controller;
@@ -62,13 +62,13 @@ class IsolateContactorControllerImplFuture<T>
   dynamic get initialParams => _initialParams;
 
   @override
-  Stream<T> get onMessage => _mainStreamController.stream;
+  Stream<R> get onMessage => _mainStreamController.stream;
 
   @override
-  Stream get onIsolateMessage => _isolateStreamController.stream;
+  Stream<P> get onIsolateMessage => _isolateStreamController.stream;
 
   @override
-  void sendIsolate(dynamic message) {
+  void sendIsolate(P message) {
     try {
       _delegate.sink.add({IsolatePort.isolate: message});
     } catch (_) {
@@ -77,9 +77,27 @@ class IsolateContactorControllerImplFuture<T>
   }
 
   @override
-  void sendResult(T message) {
+  void sendIsolateState(Object state) {
+    try {
+      _delegate.sink.add({IsolatePort.isolate: state});
+    } catch (_) {
+      // The delegate may be closed
+    }
+  }
+
+  @override
+  void sendResult(R message) {
     try {
       _delegate.sink.add({IsolatePort.main: message});
+    } catch (_) {
+      // The delegate may be closed
+    }
+  }
+
+  @override
+  void sendResultError(IsolateException exception) {
+    try {
+      _delegate.sink.add({IsolatePort.main: exception});
     } catch (_) {
       // The delegate may be closed
     }

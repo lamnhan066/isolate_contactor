@@ -22,13 +22,13 @@ void internalIsolateFunction(dynamic params) {
     completer.future.then(
       (value) => controller.sendResult(value),
       onError: (err, stack) =>
-          controller.sendResult(IsolateException(err, stack)),
+          controller.sendResultError(IsolateException(err, stack)),
     );
 
     try {
       completer.complete(function(message));
     } catch (err, stack) {
-      controller.sendResult(IsolateException(err, stack));
+      controller.sendResultError(IsolateException(err, stack));
     }
   });
 }

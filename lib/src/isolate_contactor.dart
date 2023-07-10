@@ -4,7 +4,8 @@ import 'isolate_contactor/isolate_contactor_stub.dart'
     if (dart.library.html) 'isolate_contactor/isolate_contactor_web.dart';
 import 'utils/utils.dart';
 
-abstract class IsolateContactor<T> {
+/// This [IsolateContactor] needs [P] as an input param type and [R] as an return type
+abstract class IsolateContactor<R, P> {
   /// Use this value to change the prefix debug log
   ///
   /// Ex: 'Isolate Contactor' => [Isolate Contactor]: there is log
@@ -22,23 +23,23 @@ abstract class IsolateContactor<T> {
   /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
   ///
   /// `debugMode` allow printing debug data in console. Default is set to `false`.
-  static Future<IsolateContactor<T>> create<T>(
+  static Future<IsolateContactor<R, P>> create<R, P>(
     /// `function` must be static or top-level function.
-    FutureOr<T> Function(dynamic) function, {
+    FutureOr<R> Function(P params) function, {
     /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
     /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
     String workerName = '',
 
     /// `converter` (for Native) convert result before sending to to the result.
-    T Function(dynamic)? converter,
+    R Function(dynamic)? converter,
 
     /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
-    T Function(dynamic)? workerConverter,
+    R Function(dynamic)? workerConverter,
 
     /// `debugMode` allow printing debug data in console. Default is set to `false`.
     bool debugMode = false,
   }) async {
-    return await IsolateContactorInternal.create<T>(
+    return await IsolateContactorInternal.create<R, P>(
       function: function,
       workerName: workerName,
       converter: converter ?? (result) => result,
@@ -62,7 +63,7 @@ abstract class IsolateContactor<T> {
   /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
   ///
   /// `debugMode` allow printing debug data in console. Default is set to false.
-  static Future<IsolateContactor<T>> createOwnIsolate<T>(
+  static Future<IsolateContactor<R, P>> createOwnIsolate<R, P>(
     /// `isolateFunction` You can take a look at the example to see what you need to do
     /// to make it works.
     FutureOr<void> Function(dynamic) isolateFunction, {
@@ -71,19 +72,19 @@ abstract class IsolateContactor<T> {
     String workerName = '',
 
     /// `converter` (for Native) convert result before sending to to the result.
-    T Function(dynamic)? converter,
+    R Function(dynamic)? converter,
 
     /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
-    T Function(dynamic)? workerConverter,
+    R Function(dynamic)? workerConverter,
 
     /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
     /// `debugMode` allow printing debug data in console. Default is set to false.
-    dynamic initialParams,
+    Object? initialParams,
 
     /// `debugMode` allow printing debug data in console. Default is set to false.
     bool debugMode = false,
   }) async {
-    return IsolateContactorInternal.createOwnIsolate<T>(
+    return IsolateContactorInternal.createOwnIsolate<R, P>(
         isolateFunction: isolateFunction,
         workerName: workerName,
         converter: converter ?? (result) => result,
@@ -95,10 +96,10 @@ abstract class IsolateContactor<T> {
   /// Send message to the `function` for computing
   ///
   /// Throw `IsolateContactorException` when error occurs.
-  Future<T> sendMessage(dynamic message) => throw UnimplementedError();
+  Future<R> sendMessage(P message) => throw UnimplementedError();
 
   /// Listen to the result from the isolate.
-  Stream<T> get onMessage => throw UnimplementedError();
+  Stream<R> get onMessage => throw UnimplementedError();
 
   /// Listen to the current state of isolate.
   /// Includes `ComputeState.computed` and `ComputeState.computing`

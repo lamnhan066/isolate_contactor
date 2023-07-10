@@ -33,7 +33,10 @@ void main() {
   });
 
   test('Exception converter', () {
-    final exception = IsolateException('Some thing', 'Some stacks');
+    final exception = IsolateException(
+      'Some thing',
+      StackTrace.fromString('Some stack trace'),
+    );
 
     final json = exception.toJson();
     expect(IsolateException.isValidObject(json), equals(true));
@@ -46,8 +49,8 @@ void main() {
     bool valueExit = false;
 
     // Create IsolateContactor
-    IsolateContactor<int> isolateContactor =
-        await IsolateContactor.create(fibonacci);
+    IsolateContactor isolateContactor =
+        await IsolateContactor.create<int, int>(fibonacci);
 
     // Listen to the result
     isolateContactor.onMessage.listen((event) {
@@ -73,11 +76,11 @@ void main() {
     bool value1Exit = false;
     bool value2Exit = false;
 
-    IsolateContactor<int> isolateContactor1 =
+    IsolateContactor<int, int> isolateContactor1 =
         await IsolateContactor.create(fibonacci);
-    IsolateContactor<double> isolateContactor2 =
+    IsolateContactor<double, List<double>> isolateContactor2 =
         await IsolateContactor.create(subtract);
-    IsolateContactor<int> isolateContactor3 =
+    IsolateContactor<int, int> isolateContactor3 =
         await IsolateContactor.create(fibonacciFuture);
 
     // Listen to f10
@@ -127,8 +130,8 @@ void main() {
     bool valueExit1 = false;
     bool valueExit2 = false;
 
-    late IsolateContactor<double> isolateContactor;
-    late IsolateContactor<double> isolateContactorFuture;
+    late IsolateContactor isolateContactor;
+    late IsolateContactor isolateContactorFuture;
 
     isolateContactor = await IsolateContactor.createOwnIsolate(
       isolateFunction,
@@ -174,8 +177,8 @@ void main() {
 
   test('Test receive result from sendMessage', () async {
     // Create IsolateContactor
-    IsolateContactor<int> isolateContactor =
-        await IsolateContactor.create(fibonacci);
+    IsolateContactor isolateContactor =
+        await IsolateContactor.create<int, int>(fibonacci);
 
     // Listen to the result
     isolateContactor.onMessage.listen((event) {
@@ -194,13 +197,14 @@ void main() {
 
   test('Test for Worker (Web only with flag --platform=chrome)', () async {
     // Create IsolateContactor
-    IsolateContactor<int> isolateContactor = await IsolateContactor.create(
+    IsolateContactor<int, int> isolateContactor = await IsolateContactor.create(
       fibonacci,
       workerName: 'fibonacci',
       // converter: (result) => int.parse(result.toString()),
     );
 
-    IsolateContactor<double> isolateContactor1 = await IsolateContactor.create(
+    IsolateContactor<double, List<double>> isolateContactor1 =
+        await IsolateContactor.create(
       add,
       workerName: 'add',
     );
@@ -227,7 +231,7 @@ void main() {
   test('Test for Worker with Map result (Web only with flag --platform=chrome)',
       () async {
     // Create IsolateContactor
-    IsolateContactor<Map<int, double>> isolateContactor =
+    IsolateContactor<Map<int, double>, double> isolateContactor =
         await IsolateContactor.create(
       convertToMap,
       workerName: 'map_result',
@@ -284,7 +288,7 @@ void main() {
   });
 }
 
-int fibonacci(dynamic n) {
+int fibonacci(int n) {
   if (n <= 2) return 1;
 
   int n1 = 0, n2 = 1, n3 = 1;
@@ -298,7 +302,7 @@ int fibonacci(dynamic n) {
   return n3.round();
 }
 
-Future<int> fibonacciFuture(dynamic n) async {
+Future<int> fibonacciFuture(int n) async {
   if (n == 0) return 0;
   if (n <= 2) return 1;
 
@@ -318,15 +322,15 @@ Future<int> fibonacciFuture(dynamic n) async {
 
 // single parameter
 @pragma('vm:entry-point')
-double subtract(dynamic n) => n[1] - n[0];
+double subtract(List<double> n) => n[1] - n[0];
 
 // multi parameters as an dynamic
 @pragma('vm:entry-point')
-double add(dynamic message) => message[0] + message[1];
+double add(List<double> message) => message[0] + message[1];
 
 // multi parameters as an dynamic
 @pragma('vm:entry-point')
-Future<double> addFuture(dynamic a, dynamic b) async {
+Future<double> addFuture(double a, double b) async {
   await null;
 
   return a + b;
@@ -335,7 +339,8 @@ Future<double> addFuture(dynamic a, dynamic b) async {
 // Create your own function here
 @pragma('vm:entry-point')
 void isolateFunction(dynamic params) {
-  final channel = IsolateContactorController<double>(params, onDispose: () {
+  final channel =
+      IsolateContactorController<double, List<double>>(params, onDispose: () {
     print('Dispose isolateFunction');
   });
   channel.onIsolateMessage.listen((message) {
@@ -349,7 +354,8 @@ void isolateFunction(dynamic params) {
 // Create your own function here
 @pragma('vm:entry-point')
 void isolateFunctionFuture(dynamic params) {
-  final channel = IsolateContactorController<double>(params, onDispose: () {
+  final channel =
+      IsolateContactorController<double, List<double>>(params, onDispose: () {
     print('Dispose isolateFunctionFuture');
   });
   channel.onIsolateMessage.listen((message) async {
@@ -359,7 +365,7 @@ void isolateFunctionFuture(dynamic params) {
 
 /// This must be a static or top-level function
 @pragma('vm:entry-point')
-Map<int, double> convertToMap(dynamic n) => {1: n * 1.112, 2: n * 1.112};
+Map<int, double> convertToMap(double n) => {1: n * 1.112, 2: n * 1.112};
 
 @pragma('vm:entry-point')
 int errorFunction(dynamic value) {
