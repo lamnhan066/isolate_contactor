@@ -43,7 +43,7 @@ main() {
 /// ``` dart
 ///  return throw 'This is an error that you need to catch in your main app';
 /// ```
-FutureOr<dynamic> worker(dynamic message) {
+FutureOr<Object> worker(Object message) {
   // Best way to use this method is encoding the result to JSON
   // before sending to the main app, then you can decode it back to
   // the return type you want with `workerConverter`.
