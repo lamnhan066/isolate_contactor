@@ -28,8 +28,8 @@ void main() {
     streamController.add('adb');
 
     await Future.delayed(const Duration(seconds: 3));
-    stream1.cancel();
-    stream2.cancel();
+    await stream1.cancel();
+    await stream2.cancel();
   });
 
   test('Exception converter', () {
@@ -69,7 +69,7 @@ void main() {
     }
 
     // Dispose
-    isolateContactor.dispose();
+    await isolateContactor.dispose();
   });
 
   test('Create isolate with build-in function', () async {
@@ -122,9 +122,9 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 10));
     }
 
-    isolateContactor1.dispose();
-    isolateContactor2.dispose();
-    isolateContactor3.dispose();
+    await isolateContactor1.dispose();
+    await isolateContactor2.dispose();
+    await isolateContactor3.dispose();
   });
   test('Create isolate with your own function', () async {
     bool valueExit1 = false;
@@ -171,8 +171,8 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 10));
     }
 
-    isolateContactor.dispose();
-    isolateContactorFuture.dispose();
+    await isolateContactor.dispose();
+    await isolateContactorFuture.dispose();
   });
 
   test('Test receive result from sendMessage', () async {
@@ -192,7 +192,7 @@ void main() {
     expect(result, 55);
 
     // Dispose
-    isolateContactor.dispose();
+    await isolateContactor.dispose();
   });
 
   test('Test for Worker (Web only with flag --platform=chrome)', () async {
@@ -225,7 +225,7 @@ void main() {
     expect(result1, 25);
 
     // Dispose
-    isolateContactor.dispose();
+    await isolateContactor.dispose();
   });
 
   test('Test for Worker with Map result (Web only with flag --platform=chrome)',
@@ -234,6 +234,7 @@ void main() {
     IsolateContactor<Map<int, double>, double> isolateContactor =
         await IsolateContactor.create(
       convertToMap,
+      converter: (value) => value,
       workerName: 'map_result',
       workerConverter: (result) {
         print(result);
@@ -260,7 +261,7 @@ void main() {
     expect(result, convertToMap(10.0));
 
     // Dispose
-    isolateContactor.dispose();
+    await isolateContactor.dispose();
   });
 
   test('Test with exception method', () async {
@@ -283,7 +284,7 @@ void main() {
       // our main app from the Worker
       expect(e, equals('This is an error function, error value is 10'));
     } finally {
-      isolateContactor.dispose();
+      await isolateContactor.dispose();
     }
   });
 }
