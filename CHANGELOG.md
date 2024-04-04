@@ -1,3 +1,8 @@
+## 4.0.1
+
+* Better way to check valid IsolateException.
+* Improve tests.
+
 ## 4.0.0
 
 * Add `sendResultError` to `IsolateContactorController` to make it easier to send the Exception from the Isolate to main app.
