@@ -3,15 +3,11 @@
 import 'dart:async';
 import 'dart:html' as html;
 import 'dart:js' as js;
+import 'dart:js_util' as js_util;
 
 import 'package:isolate_contactor/src/utils/exception.dart';
-import 'package:js/js.dart' as pjs;
-import 'package:js/js_util.dart' as js_util;
 
-@pjs.JS('self')
-external dynamic get globalScopeSelf;
-
-// dart compile js errorFunction.dart -o errorFunction.js -O4
+// dart compile js error_function.dart -o error_function.js -O4
 
 main() {
   callbackToStream('onmessage', (html.MessageEvent e) {

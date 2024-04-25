@@ -3,12 +3,7 @@
 import 'dart:async';
 import 'dart:html' as html;
 import 'dart:js' as js;
-
-import 'package:js/js.dart' as pjs;
-import 'package:js/js_util.dart' as js_util;
-
-@pjs.JS('self')
-external dynamic get globalScopeSelf;
+import 'dart:js_util' as js_util;
 
 // dart compile js add.dart -o add.js -O4
 
