@@ -4,11 +4,20 @@ import 'isolate_contactor/isolate_contactor_web.dart'
     if (dart.library.io) 'isolate_contactor/isolate_contactor_stub.dart';
 import 'utils/utils.dart';
 
-/// This [IsolateContactor] needs [P] as an input param type and [R] as an return type
+/// The type of the `function` of the `.create` method.
+typedef IsolateFunction<R, P> = FutureOr<R> Function(P params);
+
+/// The type of the `function` of the `.createCustom` method.
+typedef CustomIsolateFunction = FutureOr<void> Function(dynamic);
+
+/// The type of the `converter` and `workerConverter`.
+typedef IsolateConverter<R> = R Function(dynamic);
+
+/// This [IsolateContactor] needs [P] as an input param type and [R] as a return type.
 abstract class IsolateContactor<R, P> {
-  /// Use this value to change the prefix debug log
+  /// Use this value to change the prefix debug log.
   ///
-  /// Ex: 'Isolate Contactor' => [Isolate Contactor]: there is log
+  /// Ex: 'Isolate Contactor' => [Isolate Contactor]: there is log.
   static String debugLogPrefix = 'Isolate Contactor';
 
   /// The easy way to create isolate function
@@ -25,16 +34,16 @@ abstract class IsolateContactor<R, P> {
   /// `debugMode` allow printing debug data in console. Default is set to `false`.
   static Future<IsolateContactor<R, P>> create<R, P>(
     /// `function` must be static or top-level function.
-    FutureOr<R> Function(P params) function, {
+    IsolateFunction<R, P> function, {
     /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
     /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
     String workerName = '',
 
     /// `converter` (for Native) convert result before sending to to the result.
-    R Function(dynamic)? converter,
+    IsolateConverter<R>? converter,
 
     /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
-    R Function(dynamic)? workerConverter,
+    IsolateConverter<R>? workerConverter,
 
     /// `debugMode` allow printing debug data in console. Default is set to `false`.
     bool debugMode = false,
@@ -48,9 +57,9 @@ abstract class IsolateContactor<R, P> {
     );
   }
 
-  /// Create an instance with your own isolate function
+  /// Create an instance with your custom isolate function.
   ///
-  /// `isolateFunction` You can take a look at the example to see what you need to do
+  /// `function` is You can take a look at the example to see what you need to do
   /// to make it works.
   ///
   /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
@@ -60,22 +69,22 @@ abstract class IsolateContactor<R, P> {
   ///
   /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
   ///
-  /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
+  /// `isolateParams` is the list of parameters that you want to add to your [function]
   ///
   /// `debugMode` allow printing debug data in console. Default is set to false.
-  static Future<IsolateContactor<R, P>> createOwnIsolate<R, P>(
-    /// `isolateFunction` You can take a look at the example to see what you need to do
+  static Future<IsolateContactor<R, P>> createCustom<R, P>(
+    /// `function` You can take a look at the example to see what you need to do
     /// to make it works.
-    FutureOr<void> Function(dynamic) isolateFunction, {
+    CustomIsolateFunction function, {
     /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
     /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
     String workerName = '',
 
     /// `converter` (for Native) convert result before sending to to the result.
-    R Function(dynamic)? converter,
+    IsolateConverter<R>? converter,
 
     /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
-    R Function(dynamic)? workerConverter,
+    IsolateConverter<R>? workerConverter,
 
     /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
     /// `debugMode` allow printing debug data in console. Default is set to false.
@@ -85,13 +94,59 @@ abstract class IsolateContactor<R, P> {
     bool debugMode = false,
   }) async {
     return IsolateContactorInternal.createOwnIsolate<R, P>(
-        isolateFunction: isolateFunction,
+        isolateFunction: function,
         workerName: workerName,
         converter: converter ?? (result) => result,
         workerConverter: workerConverter ?? (result) => result,
         initialParams: initialParams,
         debugMode: debugMode);
   }
+
+  /// Create an instance with your own isolate function
+  ///
+  /// `function` You can take a look at the example to see what you need to do
+  /// to make it works.
+  ///
+  /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
+  /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
+  ///
+  /// `converter` (for Native) convert result before sending to to the result.
+  ///
+  /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
+  ///
+  /// `isolateParams` is the list of parameters that you want to add to your [function]
+  ///
+  /// `debugMode` allow printing debug data in console. Default is set to false.
+  @Deprecated('Use `createCustom` instead')
+  static Future<IsolateContactor<R, P>> createOwnIsolate<R, P>(
+    /// `isolateFunction` You can take a look at the example to see what you need to do
+    /// to make it works.
+    CustomIsolateFunction function, {
+    /// `workerName` name of the function, also name of thing like `functionName.dart.js` on Web platform.
+    /// If this value is not specified, the plugin will use `Future` instead of `Worker`.
+    String workerName = '',
+
+    /// `converter` (for Native) convert result before sending to to the result.
+    IsolateConverter<R>? converter,
+
+    /// `workerConverter` (for Worker on Web) convert result before sending to to the result.
+    IsolateConverter<R>? workerConverter,
+
+    /// `isolateParams` is the list of parameters that you want to add to your [isolateFunction]
+    /// `debugMode` allow printing debug data in console. Default is set to false.
+    Object? initialParams,
+
+    /// `debugMode` allow printing debug data in console. Default is set to false.
+    bool debugMode = false,
+  }) =>
+      createCustom(
+        function,
+        workerName: workerName,
+        converter: converter,
+        workerConverter: workerConverter,
+        initialParams: initialParams,
+        debugMode: debugMode,
+      );
 
   /// Send message to the `function` for computing
   ///

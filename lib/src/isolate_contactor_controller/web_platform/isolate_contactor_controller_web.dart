@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../isolate_contactor.dart';
 import '../../utils/exception.dart';
 import '../../utils/utils.dart';
 import '../isolate_contactor_controller_web.dart';
@@ -14,14 +15,14 @@ class IsolateContactorControllerImplFuture<R, P>
       StreamController.broadcast();
 
   final void Function()? onDispose;
-  final R Function(dynamic) converter;
+  final IsolateConverter<R> converter;
   dynamic _initialParams;
 
   IsolateContactorControllerImplFuture(
     dynamic params, {
     this.onDispose,
     required this.converter,
-    required R Function(dynamic) workerConverter,
+    required IsolateConverter<R> workerConverter,
   }) {
     if (params is List) {
       _delegate = params.last.controller;

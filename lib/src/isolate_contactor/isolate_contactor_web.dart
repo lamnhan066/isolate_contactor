@@ -11,10 +11,10 @@ abstract class IsolateContactorInternal<R, P>
     implements IsolateContactor<R, P> {
   /// Create an instance
   static Future<IsolateContactorInternal<R, P>> create<R, P>({
-    required FutureOr<R> Function(P params) function,
+    required IsolateFunction<R, P> function,
     required String workerName,
-    required R Function(dynamic) converter,
-    required R Function(dynamic) workerConverter,
+    required IsolateConverter<R> converter,
+    required IsolateConverter<R> workerConverter,
     bool debugMode = true,
   }) async {
     /// If browser is not supported Worker then use Future
@@ -44,11 +44,11 @@ abstract class IsolateContactorInternal<R, P>
 
   /// Create modified isolate function
   static Future<IsolateContactorInternal<R, P>> createOwnIsolate<R, P>({
-    required void Function(dynamic) isolateFunction,
+    required CustomIsolateFunction isolateFunction,
     required String workerName,
     required Object? initialParams,
-    required R Function(dynamic) converter,
-    required R Function(dynamic) workerConverter,
+    required IsolateConverter<R> converter,
+    required IsolateConverter<R> workerConverter,
     bool debugMode = false,
   }) async {
     /// If browser is not supported Worker then use Future

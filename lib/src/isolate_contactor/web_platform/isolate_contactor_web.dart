@@ -34,16 +34,16 @@ class IsolateContactorInternalFuture<R, P>
   // ignore: unused_field
   late String _workerName;
 
-  late R Function(dynamic) _converter;
-  late R Function(dynamic) _workerConverter;
+  late IsolateConverter<R> _converter;
+  late IsolateConverter<R> _workerConverter;
 
   /// Create an instance
   IsolateContactorInternalFuture._({
-    required FutureOr<void> Function(dynamic) isolateFunction,
+    required CustomIsolateFunction isolateFunction,
     required String workerName,
     required Object? isolateParam,
-    required R Function(dynamic) converter,
-    required R Function(dynamic) workerConverter,
+    required IsolateConverter<R> converter,
+    required IsolateConverter<R> workerConverter,
     bool debugMode = false,
   }) {
     _debugMode = debugMode;
@@ -56,10 +56,10 @@ class IsolateContactorInternalFuture<R, P>
 
   /// Create an instance
   static Future<IsolateContactorInternalFuture<R, P>> create<R, P>({
-    required FutureOr<R> Function(P params) function,
+    required IsolateFunction<R, P> function,
     required String functionName,
-    required R Function(dynamic) converter,
-    required R Function(dynamic) workerConverter,
+    required IsolateConverter<R> converter,
+    required IsolateConverter<R> workerConverter,
     bool debugMode = true,
   }) async {
     IsolateContactorInternalFuture<R, P> isolateContactor =
@@ -82,8 +82,8 @@ class IsolateContactorInternalFuture<R, P>
     required void Function(dynamic) isolateFunction,
     required String isolateFunctionName,
     required dynamic initialParams,
-    required R Function(dynamic) converter,
-    required R Function(dynamic) workerConverter,
+    required IsolateConverter<R> converter,
+    required IsolateConverter<R> workerConverter,
     bool debugMode = false,
   }) async {
     IsolateContactorInternalFuture<R, P> isolateContactor =

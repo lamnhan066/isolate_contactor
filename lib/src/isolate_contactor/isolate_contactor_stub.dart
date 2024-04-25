@@ -40,16 +40,16 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
   // ignore: unused_field
   late String _workerName;
 
-  R Function(dynamic)? _converter;
-  R Function(dynamic)? _workerConverter;
+  IsolateConverter<R>? _converter;
+  IsolateConverter<R>? _workerConverter;
 
   /// Internal instance
   IsolateContactorInternal._({
-    required FutureOr<void> Function(dynamic) isolateFunction,
+    required CustomIsolateFunction isolateFunction,
     required dynamic isolateParam,
     required String workerName,
-    required R Function(dynamic) converter,
-    required R Function(dynamic) workerConverter,
+    required IsolateConverter<R> converter,
+    required IsolateConverter<R> workerConverter,
     bool debugMode = false,
   }) {
     _debugMode = debugMode;
@@ -62,10 +62,10 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
 
   /// Create an instance with build-in function
   static Future<IsolateContactorInternal<R, P>> create<R, P>({
-    required FutureOr<R> Function(P params) function,
+    required IsolateFunction<R, P> function,
     required String workerName,
-    required R Function(dynamic) converter,
-    required R Function(dynamic) workerConverter,
+    required IsolateConverter<R> converter,
+    required IsolateConverter<R> workerConverter,
     bool debugMode = true,
   }) async {
     IsolateContactorInternal<R, P> isolateContactor =
@@ -85,11 +85,11 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
 
   /// Create an instance with your own function
   static Future<IsolateContactorInternal<R, P>> createOwnIsolate<R, P>({
-    required void Function(dynamic) isolateFunction,
+    required CustomIsolateFunction isolateFunction,
     required Object? initialParams,
     required String workerName,
-    required R Function(dynamic) converter,
-    required R Function(dynamic) workerConverter,
+    required IsolateConverter<R> converter,
+    required IsolateConverter<R> workerConverter,
     bool debugMode = false,
   }) async {
     IsolateContactorInternal<R, P> isolateContactor =

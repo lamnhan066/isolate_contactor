@@ -4,6 +4,7 @@ import 'dart:html';
 import 'package:isolate_contactor/src/utils/exception.dart';
 import 'package:isolate_contactor/src/utils/utils.dart';
 
+import '../../isolate_contactor.dart';
 import '../isolate_contactor_controller_web.dart';
 
 class IsolateContactorControllerImplWorker<R, P>
@@ -16,13 +17,13 @@ class IsolateContactorControllerImplWorker<R, P>
       StreamController.broadcast();
 
   final void Function()? onDispose;
-  final R Function(dynamic value) workerConverter;
+  final IsolateConverter<R> workerConverter;
   dynamic _initialParams;
 
   IsolateContactorControllerImplWorker(
     dynamic params, {
     this.onDispose,
-    required R Function(dynamic) converter, // Converter for native
+    required IsolateConverter<R> converter, // Converter for native
     required this.workerConverter, // Converter for Worker (Web Only)
   }) {
     if (params is List) {
