@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
       workerName: 'fibonacci',
       debugMode: true,
     );
-    isolateContactor2 = await IsolateContactor.createOwnIsolate(
+    isolateContactor2 = await IsolateContactor.createCustom(
       isolateFunction,
       workerName: 'fibonacciRescusive',
       debugMode: true,
