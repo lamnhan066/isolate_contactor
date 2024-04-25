@@ -1,3 +1,11 @@
+## 4.1.0
+
+* Use `if (dart.library.io)` instead of `if (dart.library.html)` for more compatible.
+* Deprecate the `createOwnIsolate` in favor of the `createCustom`.
+* Add typedefs: `IsolateFunction`, `CustomIsolateFunction`, `IsolateConverter`.
+* Remove `worker` folder.
+* The `README` is cleared and isn't maintained anymore. Read in the [isolate_manager](https://pub.dev/packages/isolate_manager) instead.
+
 ## 4.0.1
 
 * Better way to check valid IsolateException.
