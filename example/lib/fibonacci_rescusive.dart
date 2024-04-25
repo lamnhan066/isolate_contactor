@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:html' as html;
 import 'dart:js' as js;
 
-import 'package:isolate_contactor/src/utils/exception.dart';
+import 'package:isolate_contactor/isolate_contactor.dart';
 import 'package:isolate_contactor_example/functions.dart';
 import 'package:js/js.dart' as pjs;
 import 'package:js/js_util.dart' as js_util;
