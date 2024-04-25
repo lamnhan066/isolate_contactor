@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'isolate_contactor/isolate_contactor_stub.dart'
-    if (dart.library.html) 'isolate_contactor/isolate_contactor_web.dart';
+import 'isolate_contactor/isolate_contactor_web.dart'
+    if (dart.library.io) 'isolate_contactor/isolate_contactor_stub.dart';
 import 'utils/utils.dart';
 
 /// This [IsolateContactor] needs [P] as an input param type and [R] as an return type
