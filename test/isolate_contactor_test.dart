@@ -133,11 +133,11 @@ void main() {
     late IsolateContactor isolateContactor;
     late IsolateContactor isolateContactorFuture;
 
-    isolateContactor = await IsolateContactor.createOwnIsolate(
+    isolateContactor = await IsolateContactor.createCustom(
       isolateFunction,
       debugMode: true,
     );
-    isolateContactorFuture = await IsolateContactor.createOwnIsolate(
+    isolateContactorFuture = await IsolateContactor.createCustom(
       isolateFunctionFuture,
       debugMode: true,
     );
