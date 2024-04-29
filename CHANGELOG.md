@@ -1,3 +1,79 @@
+## 4.2.0-rc.2
+
+* **[Experiment]** Able to send an `initialized` signal from the Isolate to the main app:
+  * **Step 1:** Advanced method:
+
+    * Before:
+
+    ```dart
+    final channel = IsolateContactorController<double, List<double>>(params);
+    channel.onIsolateMessage.listen((message) {
+      channel.sendResult(add(message));
+    });
+    ```
+
+    * After:
+
+    ```dart
+    final channel = IsolateContactorController<double, List<double>>(params);
+    channel.onIsolateMessage.listen((message) {
+      channel.sendResult(add(message));
+    });
+
+    channel.initialized(); // <--
+    ```
+
+  * Worker on the Web:
+
+    * Before:
+
+    ```dart
+    main() {
+      callbackToStream('onmessage', (html.MessageEvent e) {
+        return js_util.getProperty(e, 'data');
+      }).listen((message) async {
+        jsSendMessage(add(message));
+      });
+    }    
+    ```
+
+    * After:
+
+    ```dart
+    main() async {
+      // Do something sync or async here
+      
+      callbackToStream('onmessage', (html.MessageEvent e) {
+        return js_util.getProperty(e, 'data');
+      }).listen((message) async {
+        jsSendMessage(add(message));
+      });
+
+      jsSendMessage(IsolateState.initialized.serialization); // <--
+    }
+    ```
+
+  * **Step 2:** Update the `create` and `createOwnIsolate` method:
+
+    * Before:
+
+    ```dart
+    final isolate = await IsolateContactor.create(
+      function, 
+      workerName: 'function',
+    );
+    ```
+
+    * After:
+
+    ```dart
+    final isolate = await IsolateContactor.create(
+      function, 
+      workerName: 'function',
+      autoMarkAsInitialized: false, // <--
+    );
+    ```
+
 ## 4.2.0-rc.1
 
 * **[Experiment]** Able to send an `initialized` signal from the Isolate to the main app:
