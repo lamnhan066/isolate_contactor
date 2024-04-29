@@ -207,6 +207,7 @@ void main() {
         await IsolateContactor.create(
       add,
       workerName: 'add',
+      autoMarkAsInitialized: false,
     );
 
     // Listen to the result
