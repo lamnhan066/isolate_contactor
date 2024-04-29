@@ -5,6 +5,8 @@ import 'dart:html' as html;
 import 'dart:js' as js;
 import 'dart:js_util' as js_util;
 
+import 'package:isolate_contactor/isolate_contactor.dart';
+
 // dart compile js add.dart -o add.js -O4
 
 main() {
@@ -16,6 +18,7 @@ main() {
 
     jsSendMessage(result);
   });
+  jsSendMessage(IsolateState.initialized.serialization);
 }
 
 /// Modify your function here
