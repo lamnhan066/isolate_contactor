@@ -42,6 +42,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
 
   IsolateConverter<R>? _converter;
   IsolateConverter<R>? _workerConverter;
+  late bool _autoMarkAsInitialized;
 
   /// Internal instance
   IsolateContactorInternal._({
@@ -50,6 +51,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
     required String workerName,
     required IsolateConverter<R> converter,
     required IsolateConverter<R> workerConverter,
+    required bool autoMarkAsInitialized,
     bool debugMode = false,
   }) {
     _debugMode = debugMode;
@@ -58,6 +60,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
     _converter = converter;
     _workerConverter = workerConverter;
     _isolateParam = isolateParam;
+    _autoMarkAsInitialized = autoMarkAsInitialized;
   }
 
   /// Create an instance with build-in function
@@ -66,6 +69,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
     required String workerName,
     required IsolateConverter<R> converter,
     required IsolateConverter<R> workerConverter,
+    required bool autoMarkAsInitialized,
     bool debugMode = true,
   }) async {
     IsolateContactorInternal<R, P> isolateContactor =
@@ -75,6 +79,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
       isolateParam: function,
       converter: converter,
       workerConverter: workerConverter,
+      autoMarkAsInitialized: autoMarkAsInitialized,
       debugMode: debugMode,
     );
 
@@ -90,6 +95,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
     required String workerName,
     required IsolateConverter<R> converter,
     required IsolateConverter<R> workerConverter,
+    required bool autoMarkAsInitialized,
     bool debugMode = false,
   }) async {
     IsolateContactorInternal<R, P> isolateContactor =
@@ -99,6 +105,7 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
       isolateParam: initialParams,
       converter: converter,
       workerConverter: workerConverter,
+      autoMarkAsInitialized: autoMarkAsInitialized,
       debugMode: debugMode,
     );
 
@@ -114,6 +121,8 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
       _receivePort,
       converter: _converter,
       workerConverter: _workerConverter,
+      onDispose: null,
+      autoMarkAsInitialized: _autoMarkAsInitialized,
     );
     _isolateContactorController.onMessage.listen((message) {
       _printDebug('Message received from Isolate: $message');

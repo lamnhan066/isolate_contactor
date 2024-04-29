@@ -27,10 +27,11 @@ class IsolateContactorControllerImpl<R, P>
 
   IsolateContactorControllerImpl(
     dynamic params, {
-    this.autoMarkAsInitialized = true,
-    this.onDispose,
-    this.converter, // Converter for native
-    IsolateConverter<R>? workerConverter, // Converter for Worker (Web Only)
+    required this.autoMarkAsInitialized,
+    required this.onDispose,
+    required this.converter, // Converter for native
+    required IsolateConverter<R>?
+        workerConverter, // Converter for Worker (Web Only)
   }) {
     if (params is List) {
       _delegate = IsolateChannel.connectSend(params.last);

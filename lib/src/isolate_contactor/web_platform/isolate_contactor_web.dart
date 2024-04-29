@@ -36,6 +36,7 @@ class IsolateContactorInternalFuture<R, P>
 
   late IsolateConverter<R> _converter;
   late IsolateConverter<R> _workerConverter;
+  late bool _autoMarkAsInitialized;
 
   /// Create an instance
   IsolateContactorInternalFuture._({
@@ -44,6 +45,7 @@ class IsolateContactorInternalFuture<R, P>
     required Object? isolateParam,
     required IsolateConverter<R> converter,
     required IsolateConverter<R> workerConverter,
+    required bool autoMarkAsInitialized,
     bool debugMode = false,
   }) {
     _debugMode = debugMode;
@@ -52,6 +54,7 @@ class IsolateContactorInternalFuture<R, P>
     _converter = converter;
     _workerConverter = workerConverter;
     _isolateParam = isolateParam;
+    _autoMarkAsInitialized = autoMarkAsInitialized;
   }
 
   /// Create an instance
@@ -60,6 +63,7 @@ class IsolateContactorInternalFuture<R, P>
     required String functionName,
     required IsolateConverter<R> converter,
     required IsolateConverter<R> workerConverter,
+    required bool autoMarkAsInitialized,
     bool debugMode = true,
   }) async {
     IsolateContactorInternalFuture<R, P> isolateContactor =
@@ -69,6 +73,7 @@ class IsolateContactorInternalFuture<R, P>
       isolateParam: function,
       converter: converter,
       workerConverter: workerConverter,
+      autoMarkAsInitialized: autoMarkAsInitialized,
       debugMode: debugMode,
     );
 
@@ -84,6 +89,7 @@ class IsolateContactorInternalFuture<R, P>
     required dynamic initialParams,
     required IsolateConverter<R> converter,
     required IsolateConverter<R> workerConverter,
+    required bool autoMarkAsInitialized,
     bool debugMode = false,
   }) async {
     IsolateContactorInternalFuture<R, P> isolateContactor =
@@ -93,6 +99,7 @@ class IsolateContactorInternalFuture<R, P>
       isolateParam: initialParams ?? [],
       converter: converter,
       workerConverter: workerConverter,
+      autoMarkAsInitialized: autoMarkAsInitialized,
       debugMode: debugMode,
     );
 
@@ -107,6 +114,8 @@ class IsolateContactorInternalFuture<R, P>
       StreamController.broadcast(),
       converter: _converter,
       workerConverter: _workerConverter,
+      onDispose: null,
+      autoMarkAsInitialized: _autoMarkAsInitialized,
     );
     _isolateContactorController!.onMessage.listen((message) {
       _printDebug('[Main Stream] Message received from Future: $message');

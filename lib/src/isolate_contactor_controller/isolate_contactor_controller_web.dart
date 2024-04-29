@@ -9,10 +9,11 @@ abstract class IsolateContactorControllerImpl<R, P>
     implements IsolateContactorController<R, P> {
   factory IsolateContactorControllerImpl(
     dynamic params, {
-    bool autoMarkAsInitialized = true,
-    void Function()? onDispose,
-    IsolateConverter<R>? converter, // Converter for native
-    IsolateConverter<R>? workerConverter, // Converter for Worker (Web Only)
+    required bool autoMarkAsInitialized,
+    required void Function()? onDispose,
+    required IsolateConverter<R>? converter, // Converter for native
+    required IsolateConverter<R>?
+        workerConverter, // Converter for Worker (Web Only)
   }) {
     if (params is Worker ||
         (params is List && params.last.controller is Worker)) {
@@ -21,6 +22,7 @@ abstract class IsolateContactorControllerImpl<R, P>
         onDispose: onDispose,
         converter: converter ?? (value) => value as R,
         workerConverter: workerConverter ?? (value) => value as R,
+        autoMarkAsInitialized: autoMarkAsInitialized,
       );
     }
 
@@ -29,6 +31,7 @@ abstract class IsolateContactorControllerImpl<R, P>
       onDispose: onDispose,
       converter: converter ?? (value) => value as R,
       workerConverter: workerConverter ?? (value) => value as R,
+      autoMarkAsInitialized: autoMarkAsInitialized,
     );
   }
 }

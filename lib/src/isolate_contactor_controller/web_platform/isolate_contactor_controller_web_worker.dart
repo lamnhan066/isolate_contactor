@@ -26,8 +26,8 @@ class IsolateContactorControllerImplWorker<R, P>
 
   IsolateContactorControllerImplWorker(
     dynamic params, {
-    this.autoMarkAsInitialized = true,
-    this.onDispose,
+    required this.autoMarkAsInitialized,
+    required this.onDispose,
     required IsolateConverter<R> converter, // Converter for native
     required this.workerConverter, // Converter for Worker (Web Only)
   }) {

@@ -24,8 +24,8 @@ class IsolateContactorControllerImplFuture<R, P>
 
   IsolateContactorControllerImplFuture(
     dynamic params, {
-    this.autoMarkAsInitialized = true,
-    this.onDispose,
+    required this.autoMarkAsInitialized,
+    required this.onDispose,
     required this.converter,
     required IsolateConverter<R> workerConverter,
   }) {
