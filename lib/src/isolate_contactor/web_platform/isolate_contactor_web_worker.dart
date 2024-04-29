@@ -126,6 +126,8 @@ class IsolateContactorInternalWorker<R, P>
       _isComputing = false;
     });
 
+    await _isolateContactorController!.ensureInitialized.future;
+
     _isComputing = false;
     _computeStateStreamController.sink.add(ComputeState.computed);
     _printDebug('Initialized');

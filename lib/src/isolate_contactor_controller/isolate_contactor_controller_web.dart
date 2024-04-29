@@ -9,6 +9,7 @@ abstract class IsolateContactorControllerImpl<R, P>
     implements IsolateContactorController<R, P> {
   factory IsolateContactorControllerImpl(
     dynamic params, {
+    bool autoMarkAsInitialized = true,
     void Function()? onDispose,
     IsolateConverter<R>? converter, // Converter for native
     IsolateConverter<R>? workerConverter, // Converter for Worker (Web Only)

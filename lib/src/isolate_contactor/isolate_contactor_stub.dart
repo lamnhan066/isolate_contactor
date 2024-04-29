@@ -130,6 +130,8 @@ class IsolateContactorInternal<R, P> implements IsolateContactor<R, P> {
     _isolate = await Isolate.spawn(
         _isolateFunction, [_isolateParam, _receivePort.sendPort]);
 
+    await _isolateContactorController.ensureInitialized.future;
+
     _isComputing = false;
     _computeStateStreamController.sink.add(ComputeState.computed);
 

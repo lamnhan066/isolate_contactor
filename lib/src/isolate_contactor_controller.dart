@@ -14,9 +14,20 @@ abstract class IsolateContactorController<R, P> {
   factory IsolateContactorController(
     /// `params` is the default parameters of the isolate function.
     dynamic params, {
+    /// Auto mark as initialized.
+    ///
+    /// When this value is `false`, you have to call the [initialized] at the below
+    /// of the isolate function. Without it, the isolate will be stucked forever.
+    /// It's also applied with the Web `Worker`, you MUST add `jsSendMessage(IsolateState.initialized.serialization);`
+    /// to the end of the `main` method.
+    bool autoMarkAsInitialized,
+
     /// `onDispose` is called when the controller is disposed.
     Function()? onDispose,
   }) = IsolateContactorControllerImpl<R, P>;
+
+  /// Mark as initialized.
+  void initialized() => throw UnimplementedError();
 
   /// Get current controller. This method only needs for internal use only
   ///
@@ -33,10 +44,13 @@ abstract class IsolateContactorController<R, P> {
   /// Listen to the message is sent to isolate
   Stream<P> get onIsolateMessage => throw UnimplementedError();
 
+  /// Ensure the `Isolate`/`Worker` has been initialized
+  Completer<void> get ensureInitialized => throw UnimplementedError();
+
   /// Send `message` to the isolate for computation
   void sendIsolate(P message) => throw UnimplementedError();
 
-  /// Send a `Dispose` message to the isolate
+  /// Send an `IsolateState` message to the isolate
   void sendIsolateState(Object state) => throw UnimplementedError();
 
   /// Send the `result` of computation to `onIsolateMessage` stream

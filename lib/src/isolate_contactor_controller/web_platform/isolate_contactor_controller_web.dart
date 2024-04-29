@@ -14,12 +14,17 @@ class IsolateContactorControllerImplFuture<R, P>
   final StreamController<P> _isolateStreamController =
       StreamController.broadcast();
 
+  final bool autoMarkAsInitialized;
   final void Function()? onDispose;
   final IsolateConverter<R> converter;
   dynamic _initialParams;
 
+  @override
+  Completer<void> ensureInitialized = Completer();
+
   IsolateContactorControllerImplFuture(
     dynamic params, {
+    this.autoMarkAsInitialized = true,
     this.onDispose,
     required this.converter,
     required IsolateConverter<R> workerConverter,
@@ -40,6 +45,13 @@ class IsolateContactorControllerImplFuture<R, P>
               break;
             }
 
+            if (value == IsolateState.initialized) {
+              if (!ensureInitialized.isCompleted) {
+                ensureInitialized.complete();
+              }
+              break;
+            }
+
             _mainStreamController.add(converter(value));
             break;
           case IsolatePort.isolate:
@@ -53,6 +65,11 @@ class IsolateContactorControllerImplFuture<R, P>
         }
       });
     });
+
+    // Compatible with version `<=4.1.0`.
+    if (autoMarkAsInitialized && !ensureInitialized.isCompleted) {
+      ensureInitialized.complete();
+    }
   }
 
   @override
@@ -67,6 +84,10 @@ class IsolateContactorControllerImplFuture<R, P>
 
   @override
   Stream<P> get onIsolateMessage => _isolateStreamController.stream;
+
+  @override
+  void initialized() =>
+      _delegate.sink.add({IsolatePort.main: IsolateState.initialized});
 
   @override
   void sendIsolate(P message) {

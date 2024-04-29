@@ -17,12 +17,17 @@ class IsolateContactorControllerImpl<R, P>
   final StreamController<P> _isolateStreamController =
       StreamController.broadcast();
 
+  final bool autoMarkAsInitialized;
   final void Function()? onDispose;
   final IsolateConverter<R>? converter;
   dynamic _initialParams;
 
+  @override
+  Completer<void> ensureInitialized = Completer();
+
   IsolateContactorControllerImpl(
     dynamic params, {
+    this.autoMarkAsInitialized = true,
     this.onDispose,
     this.converter, // Converter for native
     IsolateConverter<R>? workerConverter, // Converter for Worker (Web Only)
@@ -43,6 +48,13 @@ class IsolateContactorControllerImpl<R, P>
               break;
             }
 
+            if (value == IsolateState.initialized) {
+              if (!ensureInitialized.isCompleted) {
+                ensureInitialized.complete();
+              }
+              break;
+            }
+
             _mainStreamController
                 .add(converter == null ? value : converter!(value));
             break;
@@ -57,6 +69,11 @@ class IsolateContactorControllerImpl<R, P>
         }
       });
     });
+
+    // Compatible with version `<=4.1.0`.
+    if (autoMarkAsInitialized && !ensureInitialized.isCompleted) {
+      ensureInitialized.complete();
+    }
   }
 
   /// Only need for web platform
@@ -72,6 +89,10 @@ class IsolateContactorControllerImpl<R, P>
 
   @override
   Stream<P> get onIsolateMessage => _isolateStreamController.stream;
+
+  @override
+  void initialized() =>
+      _delegate.sink.add({IsolatePort.main: IsolateState.initialized});
 
   @override
   void sendIsolate(P message) {

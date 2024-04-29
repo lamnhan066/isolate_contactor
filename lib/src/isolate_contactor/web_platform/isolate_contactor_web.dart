@@ -122,6 +122,8 @@ class IsolateContactorInternalFuture<R, P>
 
     _isolateFunction([_isolateParam, _isolateContactorController]);
 
+    await _isolateContactorController!.ensureInitialized.future;
+
     _isComputing = false;
     _computeStateStreamController.sink.add(ComputeState.computed);
     _printDebug('Initialized');

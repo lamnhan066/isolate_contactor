@@ -10,7 +10,14 @@ enum ComputeState { computing, computed }
 enum IsolatePort { main, isolate }
 
 /// Isolate state
-enum IsolateState { dispose }
+enum IsolateState {
+  // A dispose state
+  dispose,
+  // An initialized state
+  initialized;
+
+  String get serialization => '_\$${toString()}';
+}
 
 /// Create a static function to compunicate with main `Isolate`
 @pragma('vm:entry-point')
@@ -31,4 +38,5 @@ void internalIsolateFunction(dynamic params) {
       controller.sendResultError(IsolateException(err, stack));
     }
   });
+  controller.initialized();
 }
