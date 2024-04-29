@@ -1,3 +1,84 @@
+## 4.2.0-rc.1
+
+* **[Experiment]** Able to send an `initialized` signal from the Isolate to the main app:
+
+  * Advanced method:
+
+    * Before:
+
+    ```dart
+    final channel =
+    IsolateContactorController<double, List<double>>(params, onDispose: () {
+      print('Dispose isolateFunction');
+    });
+    channel.onIsolateMessage.listen((message) {
+      // Do your stuff here
+
+      // Send value back to your main process in stream [onMessage]
+      channel.sendResult(add(message));
+    });
+    ```
+
+    * After:
+
+    ```dart
+    final channel = IsolateContactorController<double, List<double>>(
+      params, 
+      // New parameter
+      onInitial: () async {
+        /* Accept both sync and async action here */
+      },
+      onDispose: () {
+        print('Dispose isolateFunction');
+      });
+
+    await channel.intial(); // or `channel.initial()`
+
+    channel.onIsolateMessage.listen((message) {
+      // Do your stuff here
+
+      // Send value back to your main process in stream [onMessage]
+      channel.sendResult(add(message));
+    });
+    ```
+
+  * Worker on the Web:
+
+    * Before:
+
+    ```dart
+    main() {
+      callbackToStream('onmessage', (html.MessageEvent e) {
+        return js_util.getProperty(e, 'data');
+      }).listen((message) async {
+        // TODO: Function for computation here
+        final result = add(message);
+
+        jsSendMessage(result);
+      });
+    }    
+    ```
+
+    * After:
+
+    ```dart
+    main() async {
+      // Do something sync or async here
+      
+      callbackToStream('onmessage', (html.MessageEvent e) {
+        return js_util.getProperty(e, 'data');
+      }).listen((message) async {
+        // TODO: Function for computation here
+        final result = add(message);
+
+        jsSendMessage(result);
+      });
+
+      // Call this
+      jsSendMessage(IsolateState.initialized.serialization);
+    }
+    ```
+
 ## 4.1.0
 
 * Use `if (dart.library.io)` instead of `if (dart.library.html)` for more compatible.
