@@ -18,7 +18,7 @@ main() {
 
     jsSendMessage(result);
   });
-  jsSendMessage(IsolateState.initialized.serialization);
+  jsSendMessage(IsolateState.initialized.toJson());
 }
 
 /// Modify your function here
