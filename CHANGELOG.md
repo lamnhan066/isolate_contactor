@@ -1,3 +1,36 @@
+## 4.2.0-rc.3
+
+* **BREADKING CHANGE** Change from `jsSendMessage(IsolateState.initialized.serialization)` to `jsSendMessage(IsolateState.initialized.toJson())`. All the `rc`'s `Worker`s need to be recompiled.
+  * Before:
+
+    ```dart
+    main() {
+      callbackToStream('onmessage', (html.MessageEvent e) {
+        return js_util.getProperty(e, 'data');
+      }).listen((message) async {
+        jsSendMessage(add(message));
+      });
+
+      jsSendMessage(IsolateState.initialized.serialization); // <--
+    }    
+    ```
+
+  * After:
+
+    ```dart
+    main() async {
+      // Do something sync or async here
+      
+      callbackToStream('onmessage', (html.MessageEvent e) {
+        return js_util.getProperty(e, 'data');
+      }).listen((message) async {
+        jsSendMessage(add(message));
+      });
+
+      jsSendMessage(IsolateState.initialized.toJson()); // <--
+    }
+    ```
+
 ## 4.2.0-rc.2
 
 * **[Experiment]** Able to send an `initialized` signal from the Isolate to the main app:

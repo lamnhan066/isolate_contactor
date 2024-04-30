@@ -1,6 +1,6 @@
 name: isolate_contactor
 description: An easy way to create a new Isolate, keep it active and communicate with it (supports `Worker` on the Web platform).
-version: 4.2.0-rc.2
+version: 4.2.0-rc.3
 homepage: https://github.com/lamnhan066/isolate_contactor
 
 environment:
