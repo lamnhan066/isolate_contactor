@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import '../isolate_contactor_controller.dart';
 import 'exception.dart';
@@ -11,12 +12,26 @@ enum IsolatePort { main, isolate }
 
 /// Isolate state
 enum IsolateState {
-  // A dispose state
+  /// A dispose state
   dispose,
-  // An initialized state
+
+  /// An initialized state
   initialized;
 
-  String get serialization => '_\$${toString()}';
+  /// {
+  ///   type: '$IsolateState',
+  ///   value: '<name>',
+  /// }
+  String toJson() => jsonEncode({'type': r'$IsolateState', 'value': name});
+
+  /// Check if the [object] is a valid enum.
+  bool isValidJson(Object? object) {
+    try {
+      final decoded = jsonDecode(object.toString()) as Map;
+      return decoded['type'] == r'$IsolateState' && decoded['value'] == name;
+    } catch (_) {}
+    return false;
+  }
 }
 
 /// Create a static function to compunicate with main `Isolate`

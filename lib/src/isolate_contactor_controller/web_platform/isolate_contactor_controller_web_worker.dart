@@ -39,13 +39,13 @@ class IsolateContactorControllerImplWorker<R, P>
     }
 
     _delegate.onMessage.listen((event) {
-      if (event.data == IsolateState.dispose) {
+      if (event.data == IsolateState.dispose.isValidJson(event.data)) {
         onDispose!();
         close();
         return;
       }
 
-      if (event.data == IsolateState.initialized.serialization) {
+      if (IsolateState.initialized.isValidJson(event.data)) {
         if (!ensureInitialized.isCompleted) {
           ensureInitialized.complete();
         }
