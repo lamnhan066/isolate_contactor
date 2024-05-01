@@ -99,7 +99,7 @@ class IsolateContactorControllerImplFuture<R, P>
   }
 
   @override
-  void sendIsolateState(Object state) {
+  void sendIsolateState(IsolateState state) {
     try {
       _delegate.sink.add({IsolatePort.isolate: state});
     } catch (_) {

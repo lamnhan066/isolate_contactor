@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:html';
+import 'dart:js_interop';
 
 import 'package:isolate_contactor/src/utils/exception.dart';
 import 'package:isolate_contactor/src/utils/utils.dart';
+import 'package:web/web.dart';
 
 import '../../isolate_contactor.dart';
 import '../isolate_contactor_controller_web.dart';
@@ -32,14 +33,14 @@ class IsolateContactorControllerImplWorker<R, P>
     required this.workerConverter, // Converter for Worker (Web Only)
   }) {
     if (params is List) {
-      _delegate = params.last.controller;
+      _delegate = params.last.controller as Worker;
       _initialParams = params.first;
     } else {
-      _delegate = params;
+      _delegate = params as Worker;
     }
 
-    _delegate.onMessage.listen((event) {
-      if (event.data == IsolateState.dispose.isValidJson(event.data)) {
+    _delegate.onmessage = (MessageEvent event) {
+      if (IsolateState.dispose.isValidJson(event.data)) {
         onDispose!();
         close();
         return;
@@ -61,7 +62,7 @@ class IsolateContactorControllerImplWorker<R, P>
 
       // Decode json from string which sent from isolate
       _mainStreamController.add(workerConverter(event.data));
-    });
+    }.toJS;
 
     // Compatible with version `<=4.1.0`.
     if (autoMarkAsInitialized && !ensureInitialized.isCompleted) {
@@ -88,16 +89,16 @@ class IsolateContactorControllerImplWorker<R, P>
   @override
   void sendIsolate(P message) {
     try {
-      _delegate.postMessage(message);
+      _delegate.postMessage(message as dynamic);
     } catch (_) {
       // The delegate may be closed
     }
   }
 
   @override
-  void sendIsolateState(Object state) {
+  void sendIsolateState(IsolateState state) {
     try {
-      _delegate.postMessage(state);
+      _delegate.postMessage(state.toJson().toJS);
     } catch (_) {
       // The delegate may be closed
     }

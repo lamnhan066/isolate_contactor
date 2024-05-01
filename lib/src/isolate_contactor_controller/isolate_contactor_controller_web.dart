@@ -1,4 +1,4 @@
-import 'dart:html';
+import 'dart:async';
 
 import '../isolate_contactor.dart';
 import '../isolate_contactor_controller.dart';
@@ -15,9 +15,9 @@ abstract class IsolateContactorControllerImpl<R, P>
     required IsolateConverter<R>?
         workerConverter, // Converter for Worker (Web Only)
   }) {
-    if (params is Worker ||
-        (params is List && params.last.controller is Worker)) {
-      return IsolateContactorControllerImplWorker(
+    if (params is StreamController ||
+        params is List && params.last.controller is StreamController) {
+      return IsolateContactorControllerImplFuture(
         params,
         onDispose: onDispose,
         converter: converter ?? (value) => value as R,
@@ -26,7 +26,7 @@ abstract class IsolateContactorControllerImpl<R, P>
       );
     }
 
-    return IsolateContactorControllerImplFuture(
+    return IsolateContactorControllerImplWorker(
       params,
       onDispose: onDispose,
       converter: converter ?? (value) => value as R,

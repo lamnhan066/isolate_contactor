@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:html';
 
 import 'package:isolate_contactor/src/utils/utils.dart';
 
@@ -19,30 +18,29 @@ abstract class IsolateContactorInternal<R, P>
     bool debugMode = true,
   }) async {
     /// If browser is not supported Worker then use Future
-    if (workerName == '' || !Worker.supported) {
-      if (workerName != '' && debugMode) {
+    if (workerName != '') {
+      try {
+        return IsolateContactorInternalWorker.create(
+          function: function,
+          workerName: workerName,
+          converter: converter,
+          workerConverter: workerConverter,
+          autoMarkAsInitialized: autoMarkAsInitialized,
+          debugMode: debugMode,
+        );
+      } catch (_) {
         print(
             '[Isolate Manager]: This browser doesn\'t support Worker, Future will be applied!');
       }
-
-      return IsolateContactorInternalFuture.create(
-        function: function,
-        functionName: workerName,
-        converter: converter,
-        workerConverter: workerConverter,
-        autoMarkAsInitialized: autoMarkAsInitialized,
-        debugMode: debugMode,
-      );
-    } else {
-      return IsolateContactorInternalWorker.create(
-        function: function,
-        workerName: workerName,
-        converter: converter,
-        workerConverter: workerConverter,
-        autoMarkAsInitialized: autoMarkAsInitialized,
-        debugMode: debugMode,
-      );
     }
+    return IsolateContactorInternalFuture.create(
+      function: function,
+      functionName: workerName,
+      converter: converter,
+      workerConverter: workerConverter,
+      autoMarkAsInitialized: autoMarkAsInitialized,
+      debugMode: debugMode,
+    );
   }
 
   /// Create modified isolate function
@@ -56,32 +54,31 @@ abstract class IsolateContactorInternal<R, P>
     bool debugMode = false,
   }) async {
     /// If browser is not supported Worker then use Future
-    if (workerName == '' || !Worker.supported) {
-      if (workerName != '' && debugMode) {
+    if (workerName != '') {
+      try {
+        return IsolateContactorInternalWorker.createOwnIsolate(
+          isolateFunction: isolateFunction,
+          workerName: workerName,
+          initialParams: initialParams,
+          converter: converter,
+          workerConverter: workerConverter,
+          autoMarkAsInitialized: autoMarkAsInitialized,
+          debugMode: debugMode,
+        );
+      } catch (_) {
         print(
             '[Isolate Manager]: This browser doesn\'t support Worker, Future will be applied!');
       }
-
-      return IsolateContactorInternalFuture.createOwnIsolate(
-        isolateFunction: isolateFunction,
-        isolateFunctionName: workerName,
-        initialParams: initialParams,
-        converter: converter,
-        workerConverter: workerConverter,
-        autoMarkAsInitialized: autoMarkAsInitialized,
-        debugMode: debugMode,
-      );
-    } else {
-      return IsolateContactorInternalWorker.createOwnIsolate(
-        isolateFunction: isolateFunction,
-        workerName: workerName,
-        initialParams: initialParams,
-        converter: converter,
-        workerConverter: workerConverter,
-        autoMarkAsInitialized: autoMarkAsInitialized,
-        debugMode: debugMode,
-      );
     }
+    return IsolateContactorInternalFuture.createOwnIsolate(
+      isolateFunction: isolateFunction,
+      isolateFunctionName: workerName,
+      initialParams: initialParams,
+      converter: converter,
+      workerConverter: workerConverter,
+      autoMarkAsInitialized: autoMarkAsInitialized,
+      debugMode: debugMode,
+    );
   }
 
   @override

@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   stream_channel: ^2.1.1
+  web: ^0.5.1
 
 dev_dependencies:
   test: ^1.25.2

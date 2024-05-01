@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:html';
 
 import 'package:isolate_contactor/src/isolate_contactor.dart';
 import 'package:isolate_contactor/src/isolate_contactor_controller/isolate_contactor_controller_web.dart';
+import 'package:web/web.dart';
 
 import '../../isolate_contactor_controller.dart';
 import '../../utils/exception.dart';
