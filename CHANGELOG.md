@@ -1,3 +1,7 @@
+## 4.2.0-rc.4
+
+* Migrate to `package:web` from `dart:html` to be able to build to `wasm`.
+
 ## 4.2.0-rc.3
 
 * **BREADKING CHANGE** Change from `jsSendMessage(IsolateState.initialized.serialization)` to `jsSendMessage(IsolateState.initialized.toJson())`. All the `rc`'s `Worker`s need to be recompiled.
